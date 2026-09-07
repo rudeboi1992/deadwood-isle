@@ -9,7 +9,7 @@
 | Map | Islands |
 | Players | 50 |
 | Day/night | Stock (nights run 4x faster than days) |
-| Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939) — downloads automatically when you join |
+| Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939) and [BMW M4](https://steamcommunity.com/sharedfiles/filedetails/?id=2002321195) (31 MB) — both download automatically when you join |
 
 ## How this server differs from vanilla
 
@@ -21,6 +21,7 @@ Everything below is server-side. You don't need to install anything except the o
 ### Vehicles
 - **2x vehicles.** Every vehicle category spawns double the stock minimum, so more cars, trucks, boats and bikes on the map.
 - Abandoned vehicles respawn in 30 minutes instead of 60. Destroyed vehicles respawn in 1 hour instead of 2.
+- **BMW M4** added via the Workshop mod. Sedan spawns rotate between the stock sedan and the BMW, capped at 8 total so they don't crowd out other vehicles.
 
 ### Harvesting
 - **2x resources from trees, rocks and iron nodes.** Each node gives twice as many hits before it's depleted. Regeneration timers are stock.
@@ -52,6 +53,6 @@ No schedule. The world wipes only when base clutter hurts performance or new pla
 Admin: **Toll Troll** on the server. Issues with this page or the server: open an issue on this repo.
 
 ## Changelog
-- **2026-09-07** — 2x harvest, axe/hatchet rebalance, admin commands mod, "NEW" tag.
+- **2026-09-07** — 2x harvest, axe/hatchet rebalance, admin commands mod, BMW M4 mod, "NEW" tag.
 - **2026-09-06** — 2x loot, 2x vehicles, wood 2x HP, indestructible plated, server renamed to Deadwood Isle, 50 slots.
 - **2026-09-05** — Server launched.
