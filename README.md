@@ -42,7 +42,7 @@ Everything below is server-side. You don't need to install anything except the o
 4. Admin decisions are final. Admins don't play favorites and don't spawn gear for anyone in normal play.
 
 ## Wipes
-No schedule. The world wipes only when base clutter hurts performance or new players can't find room, typically every one to three months, or when a game update forces it. Wipes are announced in the join message at least a few days ahead.
+No schedule. The world wipes only when base clutter hurts performance or new players can't find room, or when a game update forces it. Wipes are announced in the join message at least a few days ahead.
 
 ## Known quirks
 - **Big vehicles and part swaps.** The game's anti-cheat measures reach to the vehicle's center. On the 5-ton and bus, crouch against the middle of the vehicle's side before swapping wheels or parts, or the server rejects the move.
