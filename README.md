@@ -9,7 +9,7 @@
 | Map | Islands |
 | Players | 50 |
 | Day/night | Stock (nights run 4x faster than days) |
-| Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939) and [Deadwood Isle - Big Vehicle Storage](https://steamcommunity.com/sharedfiles/filedetails/?id=3797351201) — both download automatically when you join |
+| Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939) — downloads automatically when you join |
 
 ## How this server differs from vanilla
 
@@ -21,7 +21,6 @@ Everything below is server-side. You don't need to install anything except the o
 ### Vehicles
 - **2x vehicles.** Every vehicle category spawns double the stock minimum, so more cars, trucks, boats and bikes on the map.
 - Abandoned vehicles respawn in 30 minutes instead of 60. Destroyed vehicles respawn in 1 hour instead of 2.
-- The **5-ton truck and party bus carry 20 cargo slots** instead of 5.
 
 ### Harvesting
 - **2x resources from trees, rocks and iron nodes.** Each node gives twice as many hits before it's depleted. Regeneration timers are stock.
@@ -53,6 +52,6 @@ No schedule. The world wipes only when base clutter hurts performance or new pla
 Admin: **Toll Troll** on the server. Issues with this page or the server: open an issue on this repo.
 
 ## Changelog
-- **2026-09-07** — 2x harvest, axe/hatchet rebalance, admin commands mod, 20-slot cargo on the 5-ton and bus, "NEW" tag.
+- **2026-09-07** — 2x harvest, axe/hatchet rebalance, admin commands mod, "NEW" tag.
 - **2026-09-06** — 2x loot, 2x vehicles, wood 2x HP, indestructible plated, server renamed to Deadwood Isle, 50 slots.
 - **2026-09-05** — Server launched.
