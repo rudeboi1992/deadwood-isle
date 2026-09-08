@@ -32,6 +32,19 @@ Everything below is server-side. You don't need to install anything except the o
 - **Plated parts are indestructible.** Nothing damages them — not C4, not sledgehammers, not vehicles, not fire. Plate your walls and your base stays yours.
 - Metal, rock and stone parts are stock.
 
+### Base part HP at a glance
+
+| Part | Vanilla | Here |
+|---|---|---|
+| Wood wall 3x4 / foundation / roof / stairs / walkway | 10,000 | **20,000** |
+| Wood door, shutter, trapdoor | 5,000 | **10,000** |
+| Wood gatehouse, watchtower, gallows | 20,000 | **40,000** |
+| Plated anything | 22,500 | **cannot be damaged** |
+| Metal wall / gate / gatehouse | 37,500 | 37,500 |
+| Rock foundation | 22,500 | 22,500 |
+
+Sledgehammer 60 per hit, pickaxe/axe 30, hatchet 22. Wood takes full damage from any tool; only explosives and sledgehammers hurt plated in vanilla, and here nothing does.
+
 ### Raiding, for reference
 - Stock plated wall: ~113 sledgehammer hits (about 4 minutes solo). Here: cannot be broken.
 - A 20,000 HP wood wall takes ~334 sledgehammer hits or ~667 pickaxe hits. Explosives still work on wood.
