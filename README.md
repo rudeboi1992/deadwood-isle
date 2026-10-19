@@ -4,16 +4,16 @@
 
 | | |
 |---|---|
-| Connect | Steam → View → Game Servers → Favorites → add `104.52.38.251:64092` |
+| Find it | In the in-game server browser, search for **Deadwood** (listed as `NEW\|US-East\|Deadwood\|2x Loot/Veh/Harvest\|Indestructible Plated`) |
 | Region | US East |
 | Map | Islands |
 | Players | 50 |
 | Day/night | Stock (nights run 4x faster than days) |
-| Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939), [BMW M4 & Charger Interceptor](https://steamcommunity.com/sharedfiles/filedetails/?id=2005194385) (101 MB) and [Deadwood Isle – Base Limits](https://steamcommunity.com/sharedfiles/filedetails/?id=3797893300) (tiny) — all three download automatically when you join |
+| Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939), [BMW M4 & Charger Interceptor](https://steamcommunity.com/sharedfiles/filedetails/?id=2005194385) (101 MB) and [Deadwood Isle – Base Limits](https://steamcommunity.com/sharedfiles/filedetails/?id=3797893300) (small) — all three download automatically when you join |
 
 ## How this server differs from vanilla
 
-Everything below is server-side. You don't need to install anything except the Workshop mods, which Steam handles for you on join.
+You don't need to install anything except the Workshop mods, which Steam handles for you on join.
 
 ### Loot
 - **2.5x loot.** 50% of item spawners are active (vanilla 20%) and the world holds up to 1,800 items at once (vanilla 750).
@@ -21,12 +21,15 @@ Everything below is server-side. You don't need to install anything except the W
 
 ### Vehicles
 - **2x vehicles.** Every vehicle category spawns double the stock minimum, so more cars, trucks, boats and bikes on the map.
+- **Parked vehicles last 14 days.** Vanilla deletes a vehicle nobody has used for 6 hours (bikes, quads, jet skis, tractors), 2 days (cars) or 3 days (trucks and buses). Here every vehicle keeps its spot for 14 days untouched before it despawns and respawns elsewhere.
 - Abandoned vehicles respawn in 30 minutes instead of 60. Destroyed vehicles respawn in 1 hour instead of 2.
 - **Charger Interceptor** added via the Workshop mod: police car spawns alternate between the stock cop cars and the Charger. Sedan spawns stay stock. The BMW M4 from the same mod does not spawn in the world; it's an admin-only event car.
 
 ### Harvesting
-- **2x resources from trees, rocks and iron nodes.** Each node gives twice as many hits before it's depleted. Regeneration timers are stock.
-- **Every swing yields.** Hatchets no longer miss (vanilla: 25% of swings give nothing). The game caps wood at one log per swing, so the axe wins on speed instead: it swings every 0.9 s against the hatchet's 1.25 s, about 40% faster.
+- **Bigger nodes.** Trees give 2x the logs (a full-size tree is 132 hits, vanilla 66). Rock and iron nodes give 4x (80 and 160 hits, vanilla 20 and 40). Coal and pyrite give 2x (80, vanilla 40). Scrap metal piles and regeneration timers are stock.
+- **Hatchets never miss.** The hatchet and the crafted hatchet harvest on every swing (vanilla: 25% of swings give nothing). The game caps yield at one item per swing, so nothing on this server gives two per swing.
+- **Hatchet is the fast tool, the axe is the steady one.** The hatchet swings every 0.9 s, as fast as its animation allows (vanilla 1.25 s). The axe keeps its vanilla 1.5 s rhythm with the pause between swings. The crafted hatchet is vanilla speed.
+- **Tools last longer.** Axes and pickaxes wear a third slower: about 500 hits on wood or ore before they break, vanilla about 330.
 
 ### Base building
 - **Wood is 2x tougher.** Every wood part has double health. Walls, foundations, roofs, stairs, walkways and ramps: 20,000 HP. Doors and shutters: 10,000. Gatehouses and watchtowers: 40,000.
@@ -34,11 +37,27 @@ Everything below is server-side. You don't need to install anything except the W
 - Metal, rock and stone parts are stock.
 - **Bigger bases.** Plot sign allows 600 parts (vanilla 250), a 50 m build radius (vanilla 30 m) and 40 m of vertical build room (vanilla 8.5 m), so tall builds and floating floors work.
 - **Better generators.** The fuel generator runs 10 work lights (vanilla 5), the solar generator runs 30 (vanilla 3) and is silent.
-- **No master light switch.** That's the game, not the server: every work light has its own switch and it resets to off on the daily restart. Leave each lamp switched on and use the generator as the master.
+- **Candles light without a lighter.** The Halloween candle, Christmas candle and jack-o'-lantern switch on and off like lanterns, no lighter or matches needed. Each also sells to vendors for 100.
+
+### Vendors and amcoins
+- **Most gear sells.** Vanilla vendors buy only a handful of items. Here they buy clothing, weapons, equipment, repair kits, consumables, magazines and tents. Prices follow rarity, so the rarer the drop the more it pays: Katana 150, Mk18 Reaver 200, AKM Gold 200, M249 150, VSS 100, sledgehammer 100, Patrick's axe 150. Base parts, traps and raw resources are deliberately unsellable.
+- **Trophies pay.** Gold skull mask 100, silver skull mask 75, space helmet 300, chrome cross necklace 200, gold 100, silver 50.
+- **No payout cap.** A sale pays in full (vanilla capped any single payout at 100 coins).
+- The game's own sell rules still apply: the item must be undamaged, a full stack, and containers and magazines must be empty.
+- **General Store** at the Clyde Hill bazaar carries a rotating selection of about 40 items drawn from every vendor list on the map: guns, ammo, food, crafting and clothing, plus the Shady Dealer's stock.
+- **Arms dealer** moved from the bazaar to the car junkyard west of Orca Hospital: common rifles, SMGs, shotguns and pistols with their mags and ammo.
+- **Shady Dealer** has left the Hayward sewer for a cave in the central hills (grid D4).
+- Food, crafting and clothing vendors are still at the bazaar.
+
+### Gameplay
 - **Prone is enabled.**
+- **Halloween runs all autumn.** The Halloween event is forced on from October 1 to November 30: seasonal loot, candles and jack-o'-lanterns.
+- **Welcome banner.** New arrivals get the server summary on screen for a minute; `!welcome` shows it again.
 
 ### Chat commands for everyone
 - `!corpse` lists the coordinates of your nearest bodies so you can go get your gear back.
+- `!pos` prints your coordinates and compass heading.
+- `!welcome` shows the welcome banner again.
 
 ### Base part HP at a glance
 
@@ -61,21 +80,25 @@ Sledgehammer 60 per hit, pickaxe/axe 30, hatchet 22. Wood takes full damage from
 1. No cheating, exploiting or glitching through bases.
 2. No hate speech in chat. Trash talk is fine; slurs get you banned.
 3. Don't build inside or block spawn points, roads or loot buildings.
-4. Admin decisions are final. Admins don't play favorites and don't spawn gear for anyone in normal play.
+4. **Two vehicles per base, maximum.** Extras get removed.
+5. Admin decisions are final. Admins don't play favorites and don't spawn gear for anyone in normal play.
 
 ## Wipes
 No schedule. The world wipes only when base clutter hurts performance or new players can't find room, or when a game update forces it. Wipes are announced in the join message at least a few days ahead.
 
 ## Known quirks
 - **Big vehicles and part swaps.** The game's anti-cheat measures reach to the vehicle's center. On the 5-ton and bus, crouch against the middle of the vehicle's side before swapping wheels or parts, or the server rejects the move.
-- Self-hosted servers don't show in the in-game Internet tab. Use Steam Favorites with the address above.
-- The server restarts once a day (23 h uptime). Bodies and dropped items don't survive a restart; bases, vehicles and your inventory do.
+- The server restarts once a day at 5 AM Eastern, with in-game warnings beforehand. Bodies and dropped items don't survive a restart; bases, vehicles and your inventory do.
 
 ## Contact
-Admin: **Toll Troll** on the server. Issues with this page or the server: open an issue on this repo.
+Admin: **Toll Troll** on the server. Issues with this page or the server: [open an issue on this repo](https://github.com/rudeboi1992/deadwood-isle/issues).
 
 ## Changelog
-- **2026-09-10** — Axe swings 0.9 s (hatchet 1.25 s); Base Limits mod v7 carries the tool definitions.
+- **2026-10-19** — Halloween and Christmas candles and jack-o'-lanterns light without a lighter and sell for 100; on-screen welcome banner and `!welcome`; two-vehicles-per-base rule.
+- **2026-10-18** — Vendors buy most gear at rarity-based prices, trophies included, and the 100-coin payout cap is gone. General Store at the bazaar sells a bit of everything; arms dealer moved to the car junkyard; Shady Dealer moved out of the sewer. Hatchet swings 0.9 s and the axe is back to its vanilla 1.5 s; axes and pickaxes wear slower; rock and iron nodes 4x, coal and pyrite 2x. `!pos` for everyone.
+- **2026-10-04** — Daily restart moved to 5 AM Eastern.
+- **2026-09-19** — Parked vehicles last 14 days before despawning.
+- **2026-09-10** — Axe swings 0.9 s (hatchet 1.25 s); Base Limits mod v7 carries the tool definitions. *(Reversed on 2026-10-18.)*
 - **2026-09-09** — `!corpse` for everyone; light-switch investigation closed (no master switch in the game).
 - **2026-09-08** — Loot 2.5x with 1.5x weapon/ammo share; plot sign 600 parts / 50 m / 40 m; generators 10 and 30 lights, solar silent; prone enabled; Base Limits Workshop mod.
 - **2026-09-07** — 2x harvest, axe/hatchet rebalance, admin commands mod, BMW & Charger mod (Charger in police spawns), "NEW" tag.
