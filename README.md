@@ -52,13 +52,20 @@ You don't need to install anything except the Workshop mods, which Steam handles
 - **General Store** at the Clyde Hill bazaar carries a rotating selection of about 40 items drawn from every vendor list on the map: guns, ammo, food, crafting and clothing, plus the Shady Dealer's stock. The **Food vendor** is still at the bazaar.
 - **Arms dealer** at the car junkyard west of Orca Hospital: common rifles, SMGs, shotguns and pistols with their mags and ammo.
 - **Shady Dealer** in a cave in the central hills (grid D4), and a second one behind the shop counter at Amalgamated Airfield on the south island. Both sell the shady stock: AK-Val, AK5D, SAS12, ammo, armor, with a small chance of an M249 or M97.
-- **Supply cache** in Hayward Valley: an airdrop crate that trades like a vendor with the Shady Dealer's stock, and it runs the **mystery crate**.
+- **Supply cache** in Hayward Valley: an airdrop crate that trades like a vendor with the Shady Dealer's stock, and it runs a **mystery crate**.
+- **Mountain cache** on the Radar Dish mountain, up the stairs on the platform marked by a skull candle. Same shady stock plus every magazine and ammo box for the prize guns. The ground around it is never empty: **15 mutants and 3 armored brutes** stand guard at all times and are replaced as they fall. It runs the **legendary crate**. The food vendor it replaced is covered by the General Store.
 
-#### Mystery crate
+#### Mystery crate (Hayward Valley)
 - Stand next to the supply cache and type `!spin`. It takes **100 amcoins** straight from your ledger and hands you one random rare item.
 - 18 possible prizes, all worth 100 to 250 at the vendors: Katana, Black Widow, Patrick's Axe, Her Majesty, sledgehammer, M16 Vietnam, Mk18 Reaver, AKM Gold, RPK, VSS, M249, M97, Grimey Rick, rifle silencer, skull mask gold, gold and chrome cross necklaces, space helmet. `!spin odds` lists the chances.
 - **Guns come with two full magazines.**
-- **2 spins per person per day** (resets at midnight server time).
+
+#### Legendary crate (mountain cache)
+- `!spin` next to the mountain cache costs **50 amcoins** and only ever pays a gun, **fully kitted**: loaded magazine, scope, silencer, light, laser or grip where the gun takes them, plus **3 spare magazines**.
+- Legendary 60%: The Dictator, The Reaver, M16 Vietnam, The Comrade, M249, VSS, Grimey Rick, M97 grenade launcher. Rare 40%: AT15, AK5D, M40A5, Vector, SAS12, MP5.
+
+#### Both crates
+- **2 spins per person per cache per day** (resets at midnight server time).
 - Need a free weapon slot for a gun or melee prize and a free inventory slot for anything else. If there's no room, nothing is charged and the spin isn't counted.
 - Prizes worth 200 or more are announced in chat.
 - `!coins` shows your amcoin balance. A ledger stack holds 255; the game's inventory never shows more than that, so your real balance is the sum of your stacks.
@@ -72,7 +79,7 @@ You don't need to install anything except the Workshop mods, which Steam handles
 - `!corpse` lists the coordinates of your nearest bodies so you can go get your gear back.
 - `!pos` prints your coordinates and compass heading.
 - `!welcome` shows the welcome banner again.
-- `!spin` opens a mystery crate at the supply cache (100 amcoins, 2 a day); `!spin odds` lists the prizes.
+- `!spin` opens a mystery crate at a supply cache (100 amcoins at Hayward, 50 at the mountain, 2 a day each); `!spin odds` lists the prizes of the cache you're standing at.
 - `!coins` shows your amcoin balance across all your stacks.
 
 ### Base part HP at a glance
@@ -110,6 +117,7 @@ No schedule. The world wipes only when base clutter hurts performance or new pla
 Admin: **Toll Troll** on the server. Issues with this page or the server: [open an issue on this repo](https://github.com/rudeboi1992/deadwood-isle/issues).
 
 ## Changelog
+- **2026-10-20 (later)** — Mountain cache on the Radar Dish mountain: shady stock plus ammo, the 50-coin legendary crate (kitted guns, 3 mags), guarded by 15 mutants and 3 armored brutes around the clock. Food vendor retired from the bazaar.
 - **2026-10-20** — Mystery crate at the new Hayward Valley supply cache (`!spin`, 100 amcoins, 2 a day, guns come with two mags). Second Shady Dealer at Amalgamated Airfield. Crafting and clothing vendors removed from the bazaar (the General Store covers both). Amcoin stacks hold 255 and sales pay up to 255; space helmet now 250. `!coins`. Vendor map added to this page.
 - **2026-10-19** — Halloween and Christmas candles and jack-o'-lanterns light without a lighter and sell for 100; on-screen welcome banner and `!welcome`; two-vehicles-per-base rule.
 - **2026-10-18** — Vendors buy most gear at rarity-based prices, trophies included, and the 100-coin payout cap is gone. General Store at the bazaar sells a bit of everything; arms dealer moved to the car junkyard; Shady Dealer moved out of the sewer. Hatchet swings 0.9 s and the axe is back to its vanilla 1.5 s; axes and pickaxes wear slower; rock and iron nodes 4x, coal and pyrite 2x. `!pos` for everyone.
