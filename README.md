@@ -52,7 +52,7 @@ You don't need to install anything except the Workshop mods, which Steam handles
 - **General Store** at the Clyde Hill bazaar carries a rotating selection of about 40 items drawn from every vendor list on the map: guns, ammo, food, crafting and clothing, plus the Shady Dealer's stock. The **Food vendor** is still at the bazaar.
 - **Arms dealer** at the car junkyard west of Orca Hospital: common rifles, SMGs, shotguns and pistols with their mags and ammo.
 - **Shady Dealer** in a cave in the central hills (grid D4), and a second one behind the shop counter at Amalgamated Airfield on the south island. Both sell the shady stock: AK-Val, AK5D, SAS12, ammo, armor, with a small chance of an M249 or M97.
-- **Supply cache** in Hayward Valley: an airdrop crate that trades like a vendor with the Shady Dealer's stock, and it runs a **mystery crate**.
+- **Supply cache** at the crashed airplane building in Hayward Valley: an airdrop crate that trades like a vendor with the Shady Dealer's stock, and it runs a **mystery crate**.
 - **Mountain cache** on the Radar Dish mountain, up the stairs on the platform marked by a skull candle. Same shady stock plus every magazine and ammo box for the prize guns. The ground around it is never empty: **15 mutants and 3 armored brutes** stand guard at all times and are replaced as they fall. It runs the **legendary crate**. The food vendor it replaced is covered by the General Store.
 
 #### Mystery crate (Hayward Valley)
@@ -68,7 +68,7 @@ You don't need to install anything except the Workshop mods, which Steam handles
 - **2 spins per person per cache per day** (resets at midnight server time).
 - Need a free weapon slot for a gun or melee prize and a free inventory slot for anything else. If there's no room, nothing is charged and the spin isn't counted.
 - Prizes worth 200 or more are announced in chat.
-- `!coins` shows your amcoin balance. A ledger stack holds 255; the game's inventory never shows more than that, so your real balance is the sum of your stacks.
+- `!coins` shows your amcoin balance across all stacks in your inventory. A ledger stack holds 255; the game's inventory never shows more than that, so your real balance is the sum of your stacks.
 
 ### Gameplay
 - **Prone is enabled.**
@@ -80,7 +80,7 @@ You don't need to install anything except the Workshop mods, which Steam handles
 - `!pos` prints your coordinates and compass heading.
 - `!welcome` shows the welcome banner again.
 - `!spin` opens a mystery crate at a supply cache (100 amcoins at Hayward, 50 at the mountain, 2 a day each); `!spin odds` lists the prizes of the cache you're standing at.
-- `!coins` shows your amcoin balance across all your stacks.
+- `!coins` shows your amcoin balance across all stacks in your inventory.
 
 ### Base part HP at a glance
 
