@@ -252,19 +252,28 @@ const controls = new MapControls(camera, renderer.domElement);
 // iOS Safari: block page pinch-zoom (it ignores maximum-scale) and never let a lost touch leave the map controls thinking a
 // second finger is still down (one finger would then only rotate and zoom). When the last finger lifts, any pointer the
 // canvas saw go down but never up is released by hand.
-if (TOUCH) controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;   // phones: pinch zooms and pans; turning and tilting are on the #ctl buttons
+if (TOUCH) controls.touches.TWO = -1;   // phones: two fingers do nothing (no zoom, turn or tilt); one finger pans, the #ctl buttons do the rest
 for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
 {
   const cv = renderer.domElement;
   for (const fn of ['setPointerCapture', 'releasePointerCapture']) { const orig = cv[fn].bind(cv); cv[fn] = (id) => { try { orig(id); } catch (err) {} }; }
-  const down = new Set();
-  cv.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') down.add(e.pointerId); }, true);
+  // live = fingers really on the screen (seen anywhere); down = fingers the canvas got but has not seen lift. Only the first
+  // finger is captured by the controls, so a second finger lifted over a label or button never tells them it went away.
+  const live = new Set(), down = new Set();
+  const flush = (except) => { for (const id of [...down]) { if (id === except) continue; down.delete(id); cv.dispatchEvent(new PointerEvent('pointerup', { pointerId: id, pointerType: 'touch', bubbles: true })); } };
+  addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') live.add(e.pointerId); }, true);
+  const gone = (e) => live.delete(e.pointerId);
+  addEventListener('pointerup', gone, true); addEventListener('pointercancel', gone, true);
+  cv.addEventListener('pointerdown', (e) => {   // a touch that starts with no other finger down begins from a clean slate
+    if (e.pointerType === 'mouse') return;
+    if (![...live].some((id) => id !== e.pointerId)) flush(e.pointerId);
+    down.add(e.pointerId);
+  }, true);
   const up = (e) => down.delete(e.pointerId);
-  addEventListener('pointerup', up, true); addEventListener('pointercancel', up, true);
-  const flush = () => { for (const id of [...down]) { down.delete(id); cv.dispatchEvent(new PointerEvent('pointerup', { pointerId: id, pointerType: 'touch', bubbles: true })); } };
-  const lifted = (e) => { if (!e.touches || e.touches.length === 0) setTimeout(flush, 0); };
+  cv.addEventListener('pointerup', up, true); cv.addEventListener('pointercancel', up, true);
+  const lifted = (e) => { if (!e.touches || e.touches.length === 0) setTimeout(() => { live.clear(); flush(); }, 0); };
   addEventListener('touchend', lifted, true); addEventListener('touchcancel', lifted, true);
-  document.addEventListener('visibilitychange', flush);
+  document.addEventListener('visibilitychange', () => { live.clear(); flush(); });
 }
 controls.target.copy(W(4096, 4300, 60));
 controls.enableDamping = true; controls.dampingFactor = 0.12;
