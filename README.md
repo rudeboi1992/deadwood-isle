@@ -90,7 +90,51 @@ You don't need to install anything except the Workshop mods, which Steam handles
 - **Halloween runs all autumn.** The Halloween event is forced on from October 1 to November 30: seasonal loot, candles and jack-o'-lanterns.
 - **Welcome banner.** New arrivals get the server summary on screen for a minute; `!welcome` shows it again.
 
+### Mjolnir and Thor's trial
+Thor's hammer is on the island. Only a few exist at once, and only the worthy can hold one.
+
+- **Moves:** *Valkyrie's Flight* (throw it: lightning where it lands, then it flies back to you), *Aesir Sweep* (throw it at your feet: a ground slam) and *Thor's Wrath* (throw it straight up: a storm). Mutants and animals it kills vanish in smoke. It never hurts its holder.
+- **Dropped, it plants itself** where it falls and nobody else can lift it. Walk back to it, or, if your hammer came with a **Norse Medallion** (it's in your pack while the hammer is away), take the medallion in hand to call it home. Called home, it sets every mutant and animal around you on fire.
+- **Legendary hammers have 100 charges** (a throw 1, a slam 5, a storm 10). Left planted for 4 days, or kept in a stash for a week, a hammer flies home.
+- **Winning one:** a lucky spin at a supply cache, or **Thor's trial**. Find Mjolnir's shrine, step inside the ring of its guardians and you're handed *Thor's Challenge*: a scroll naming two offerings. Find **Thor's talisman** (the hint is in chat, and `!hint` repeats it), bring it and the offerings to the shrine, and the hammer is yours. The talisman only reveals itself to players carrying the scroll, and the first to bring everything back wins. Every time the shrine hammer breaks and flies home, a new trial begins somewhere else on the island.
+
+<details>
+<summary><b>⚠️ SPOILERS: where the talismans are hidden. Opening this gives the hunt away.</b></summary>
+
+<p><b>Last warning.</b> The trial is meant to be solved from its hint. These are the exact places the talisman waits. Reading them spoils the hunt for you. If you only want a nudge, type <code>!hint</code> in game instead. Each place below is folded on its own, so you can open just one.</p>
+
+<details><summary>Spoiler: Mjolnir's shrine</summary>
+<p>On the north coast around <b>4771, 8032</b>, ringed by six armored brutes.</p>
+</details>
+
+<details><summary>Spoiler: "I pray you find it."</summary>
+<p>One of the three churches, chosen at random each time this trial comes round: <b>Sultan</b> (2397, 2222), <b>Hayward</b> (3978, 6672) or <b>Cape Bay</b> (7060, 4980). Inside the church.</p>
+</details>
+
+<details><summary>Spoiler: "Do not give up hope on your quest…"</summary>
+<p>The <b>Stairway to Hope</b>, at the top, around <b>1080, 990</b> (height 74).</p>
+</details>
+
+<details><summary>Spoiler: "Hope climbs the stairs, but its secret sleeps in the dark beneath them."</summary>
+<p>The cave under the Stairway to Hope, around <b>1072, 1049</b> (height 27).</p>
+</details>
+
+<details><summary>Spoiler: "Clear out the shelter by the lumber yard…"</summary>
+<p>The bunker by the lumber yard in the far south-east, around <b>6363, 956</b>. It's full of mutants; the talisman appears in the middle once every one of them is dead.</p>
+</details>
+
+<details><summary>Spoiler: "…the bridge of life and take the leap of faith."</summary>
+<p>Under the <b>Broken Bridge</b>: jump, then swim back. It's on the rocks right below the bridge, around <b>1248, 7950</b> (height 17).</p>
+</details>
+
+<details><summary>Spoiler: "…where floodwaters are held at bay… a watery grave."</summary>
+<p>At the foot of <b>Orca Dam</b>, between the two pillars, under the water by the graves, around <b>5904, 4702</b>. Thor's blessing keeps you from drowning there, and taking the talisman carries you out.</p>
+</details>
+
+</details>
+
 ### Chat commands for everyone
+- `!thor` explains how Mjolnir works; `!hint` repeats the current trial's hint; `!mjolnir charges` shows a legendary hammer's charges.
 - `!corpse` lists the coordinates of your nearest bodies so you can go get your gear back.
 - `!pos` prints your coordinates and compass heading.
 - `!welcome` shows the welcome banner again.
@@ -132,6 +176,7 @@ No schedule. The world wipes only when base clutter hurts performance or new pla
 Admin: **Toll Troll** on the server. Issues with this page or the server: [open an issue on this repo](https://github.com/rudeboi1992/deadwood-isle/issues).
 
 ## Changelog
+- **2026-10-24** — Mjolnir and Thor's trial: legendary hammers (100 charges) from the supply-cache spins and from Mjolnir's shrine, the Norse Medallion, six rotating talisman hunts with Thor's Challenge scrolls, `!thor` and `!hint`.
 - **2026-10-20 (later)** — Mountain cache on the Radar Dish mountain: shady stock plus ammo, the 50-coin legendary crate (kitted guns, 3 mags), guarded by 15 mutants and 3 armored brutes around the clock. Food vendor retired from the bazaar.
 - **2026-10-20** — Mystery crate at the new Hayward Valley supply cache (`!spin`, 100 amcoins, 2 a day, guns come with two mags). Second Shady Dealer at Amalgamated Airfield. Crafting and clothing vendors removed from the bazaar (the General Store covers both). Amcoin stacks hold 255 and sales pay up to 255; space helmet now 250. `!coins`. Vendor map added to this page.
 - **2026-10-19** — Halloween and Christmas candles and jack-o'-lanterns light without a lighter and sell for 100; on-screen welcome banner and `!welcome`; two-vehicles-per-base rule.
