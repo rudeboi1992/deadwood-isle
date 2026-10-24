@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Deadwood Isle 3D</title>
 <style>
 :root {
@@ -109,6 +109,10 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
 #joy-k { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(255, 179, 71, 0.85); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); pointer-events: none; }
 @media (hover: hover) and (pointer: fine) { #joy.on { display: none; } }
 @media (pointer: coarse) { #pad button[data-k="fwd"], #pad button[data-k="back"], #pad button[data-k="left"], #pad button[data-k="right"] { display: none; } #pad { grid-template-columns: repeat(2, 56px); } }
+/* touch: the page itself never zooms (iOS ignores maximum-scale); panels and lists still scroll, taps still work */
+html, body { touch-action: none; }
+#panel, #results, #online, #log, #card, .bar { touch-action: pan-x pan-y; }
+.mk, .btn, button, input, select, label { touch-action: manipulation; }
 </style>
 </head>
 <body>
@@ -231,6 +235,22 @@ scene.fog = new THREE.Fog(0x9fb6c9, 6000, 16000);
 const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 1, 40000);
 camera.position.copy(W(4096 + 2600, 4096 - 5200, 3800));
 const controls = new MapControls(camera, renderer.domElement);
+// iOS Safari: block page pinch-zoom (it ignores maximum-scale) and never let a lost touch leave the map controls thinking a
+// second finger is still down (one finger would then only rotate and zoom). When the last finger lifts, any pointer the
+// canvas saw go down but never up is released by hand.
+for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
+{
+  const cv = renderer.domElement;
+  for (const fn of ['setPointerCapture', 'releasePointerCapture']) { const orig = cv[fn].bind(cv); cv[fn] = (id) => { try { orig(id); } catch (err) {} }; }
+  const down = new Set();
+  cv.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') down.add(e.pointerId); }, true);
+  const up = (e) => down.delete(e.pointerId);
+  addEventListener('pointerup', up, true); addEventListener('pointercancel', up, true);
+  const flush = () => { for (const id of [...down]) { down.delete(id); cv.dispatchEvent(new PointerEvent('pointerup', { pointerId: id, pointerType: 'touch', bubbles: true })); } };
+  const lifted = (e) => { if (!e.touches || e.touches.length === 0) setTimeout(flush, 0); };
+  addEventListener('touchend', lifted, true); addEventListener('touchcancel', lifted, true);
+  document.addEventListener('visibilitychange', flush);
+}
 controls.target.copy(W(4096, 4300, 60));
 controls.enableDamping = true; controls.dampingFactor = 0.12;
 controls.maxPolarAngle = Math.PI * 0.47; controls.minDistance = 15; controls.maxDistance = 18000;
