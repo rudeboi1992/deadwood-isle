@@ -94,6 +94,7 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
   <input id="q" class="btn" type="search" placeholder="Search players, places, vendors, pins, or x y" autocomplete="off">
   <button class="btn" id="b-me">Me</button>
   <button class="btn" id="b-top">Top view</button>
+  <button class="btn" id="b-3d" title="Back to the free 3D view (tilt and turn)" style="display:none">3D view</button>
   <button class="btn" id="b-walk" title="Walk around at eye level: go into buildings, caves and tunnels">Walk</button>
   <button class="btn" id="b-streets" title="Bold street and path lines like the paper map (hidden where hills, trees or buildings are in the way)">Streets</button>
   <button class="btn" id="b-follow" title="Keep the view centred on you">Follow me</button>
@@ -116,7 +117,7 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
   <label><input type="checkbox" data-k="interior" checked><span class="sw" style="background:#b58e6a"></span>Interior furnishings and clutter</label>
   <label><input type="checkbox" data-k="nature" checked><span class="sw" style="background:#6f7f4a"></span>Logs and bushes</label>
   <label><input type="checkbox" data-k="trees" checked><span class="sw" style="background:#2f5a34"></span>Trees</label>
-  <label><input type="checkbox" id="o-play"><span class="sw" style="background:#fff"></span>Play view: north-up, no tilt, big place names, no interiors</label>
+  <label><input type="checkbox" id="o-play"><span class="sw" style="background:#fff"></span>Play view: locked north-up top-down (no tilt or turn), big place names, no interiors</label>
   <h3>Look inside</h3>
   <label>Cutaway
     <select id="o-cut" class="btn" style="margin-left:auto;padding:4px 8px;min-height:30px;max-width:60%">
@@ -147,7 +148,8 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
   <label><input type="checkbox" data-m="shrine" checked><span class="sw" style="background:var(--shrine)"></span>Shrine</label>
   <label><input type="checkbox" data-m="userpin" checked><span class="sw" style="background:var(--pin)"></span>Pins</label>
   <label><input type="checkbox" data-m="vehicle"><span class="sw" style="background:var(--vehicle)"></span>Vehicles</label>
-  <label><input type="checkbox" data-m="ent" checked><span class="sw" style="background:#ff8ae6"></span>Entrances: manholes, hatches, caves, tunnels, mines</label>
+  <label><input type="checkbox" data-m="ent" checked><span class="sw" style="background:#ff8ae6"></span>Entrances: manholes, hatches, tunnels, sewers, cellars</label>
+  <label><input type="checkbox" data-m="cavemine" checked><span class="sw" style="background:#e8c070"></span>Caves and mines</label>
   <h3>Display</h3>
   <label><input type="checkbox" id="o-hd"><span class="sw" style="background:#4b7a45"></span>High detail terrain near the view (4 m, 8 MB download)</label>
   <label><input type="checkbox" id="o-labels" checked><span class="sw" style="background:#fff"></span>Labels on markers</label>
@@ -179,7 +181,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 const WATER = 14.7, WORLD = 8192;
 const CAT_COLORS = { building: 0xc9b79c, designer: 0xb8bcc4, rock: 0x7d7a74, prop: 0xa8794f, nature: 0x6f7f4a, other: 0x8a96a3, fence: 0x8d7b66, sidewalk: 0x9c9a94, interior: 0xb58e6a };
-const VER = '20261023o';
+const VER = '20261023q';
 const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log   // bumps the browser cache for every data file
 const $ = (id) => document.getElementById(id);
 const store = { get(k, d) { try { const v = localStorage.getItem('dw3d-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -662,7 +664,7 @@ async function loadTrees() {
 
 // ---------- markers (same data as the 2D live map)
 const labelsEl = $('labels'); let D = null; const markers = [];
-const markOn = Object.assign({ player: true, town: true, vendor: true, base: true, stash: true, trap: true, shrine: true, userpin: true, ent: true, vehicle: false }, store.get('markers', {}));
+const markOn = Object.assign({ player: true, town: true, vendor: true, base: true, stash: true, trap: true, shrine: true, userpin: true, ent: true, cavemine: true, vehicle: false }, store.get('markers', {}));
 let ENT = [];   // entrances.json: caves, manholes, hatches, tunnels, mines, ground openings
 const ENT_ICON = { manhole: 'Manhole', hatch: 'Bunker hatch', tunnel: 'Tunnel', sewer: 'Sewer entrance', cave: 'Cave', basement: 'Basement', mine: 'Mine', hole: 'Ground opening' };
 const ENT_COLOR = { manhole: '#ff8ae6', hatch: '#ffb347', tunnel: '#cfd8e3', sewer: '#9fe3ff', cave: '#d9b38c', basement: '#c9a0ff', mine: '#e8c070', hole: '#b0b0b0' };
@@ -758,7 +760,10 @@ async function liveTick() {
 }
 function applyMarkerVis() {
   const lab = $('o-labels').checked;
-  for (const mk of markers) { mk.el.hidden = !markOn[mk.kind]; mk.el.classList.toggle('nolabel', (!lab && mk.kind !== 'town') || !!mk.quiet); }
+  for (const mk of markers) {
+    const cm = mk.kind === 'ent' && (mk.item.ent === 'mine' || mk.item.ent === 'cave');   // caves and mines have their own switch
+    mk.el.hidden = cm ? !markOn.cavemine : !markOn[mk.kind]; mk.el.classList.toggle('nolabel', (!lab && mk.kind !== 'town') || !!mk.quiet);
+  }
 }
 const tmp = new THREE.Vector3();
 function updateLabels() {
@@ -832,7 +837,7 @@ function searchItems(v) {
     const nm = it.name || it.ownerName || (it.cls ? it.cls.replace(/_/g, ' ') : ''); if (!nm) continue;
     if (nm.toLowerCase().includes(lv) || (it.id && String(it.id).includes(lv))) { items.push(Object.assign({ kind, name: nm }, it, { name: nm })); if (items.length > 14) return items; }
   }
-  for (const e of ENT) if (e.label.toLowerCase().includes(lv)) { items.push({ kind: 'entrance', name: e.label, x: e.x, y: e.y }); if (items.length > 14) return items; }
+  for (const e of ENT) if (e.label.toLowerCase().includes(lv)) { items.push({ kind: 'entrance', ekind: e.kind, name: e.label, x: e.x, y: e.y }); if (items.length > 14) return items; }
   return items;
 }
 qEl.addEventListener('input', () => {
@@ -841,7 +846,7 @@ qEl.addEventListener('input', () => {
   for (const it of items) {
     const b = document.createElement('button'); b.innerHTML = '<span></span><small></small>';
     b.firstChild.textContent = it.name; b.lastChild.textContent = it.kind + ' · ' + nearestTown(it.x, it.y) + ' · x ' + Math.round(it.x) + ' y ' + Math.round(it.y);
-    b.onclick = () => { resEl.classList.remove('open'); qEl.value = ''; const mk = { town: 'town', vendor: 'vendor', player: 'player', base: 'base', vehicle: 'vehicle', pin: 'userpin', stash: 'stash', trap: 'trap', shrine: 'shrine', entrance: 'ent' }[it.kind]; if (mk && !markOn[mk]) { markOn[mk] = true; store.set('markers', markOn); const cb = document.querySelector('#panel input[data-m="' + mk + '"]'); if (cb) cb.checked = true; applyMarkerVis(); } goTo(it.x, it.y, null, it.name, it.kind + ' · ' + nearestTown(it.x, it.y)); };
+    b.onclick = () => { resEl.classList.remove('open'); qEl.value = ''; const mk = it.kind === 'entrance' ? ((it.ekind === 'mine' || it.ekind === 'cave') ? 'cavemine' : 'ent') : { town: 'town', vendor: 'vendor', player: 'player', base: 'base', vehicle: 'vehicle', pin: 'userpin', stash: 'stash', trap: 'trap', shrine: 'shrine' }[it.kind]; if (mk && !markOn[mk]) { markOn[mk] = true; store.set('markers', markOn); const cb = document.querySelector('#panel input[data-m="' + mk + '"]'); if (cb) cb.checked = true; applyMarkerVis(); } goTo(it.x, it.y, null, it.name, it.kind + ' · ' + nearestTown(it.x, it.y)); };
     resEl.appendChild(b);
   }
   resEl.classList.toggle('open', items.length > 0);
@@ -851,7 +856,7 @@ qEl.addEventListener('focus', () => { if (qEl.value.trim()) qEl.dispatchEvent(ne
 addEventListener('pointerdown', (e) => { if (!resEl.contains(e.target) && e.target !== qEl) resEl.classList.remove('open'); });
 $('b-online').onclick = () => { $('log').classList.remove('open'); $('panel').classList.remove('open'); $('online').classList.toggle('open'); renderOnline(); };
 $('b-log').onclick = () => { $('online').classList.remove('open'); $('panel').classList.remove('open'); const o = $('log').classList.toggle('open'); if (o) loadLog(); };
-if (PUBLIC) for (const id of ['b-online', 'b-log', 'b-me', 'b-follow', 'card-pin']) $(id).style.display = 'none';
+if (PUBLIC) { for (const id of ['b-online', 'b-log', 'b-me', 'b-follow', 'card-pin']) $(id).style.display = 'none'; qEl.placeholder = 'Search places, vendors, entrances, or x y'; }
 if (PUBLIC) for (const k of ['player', 'base', 'stash', 'trap', 'userpin', 'vehicle']) { const cb = document.querySelector('#panel input[data-m="' + k + '"]'); if (cb) cb.closest('label').style.display = 'none'; }
 
 // ---------- settings
@@ -1049,7 +1054,7 @@ let FOLLOW = store.get('follow', false);
 let STREETS = store.get('streets', false);   // bold map-style street lines, in any view
 function applyPlay() {
   document.body.classList.toggle('play', PLAY);
-  $('o-play').checked = PLAY; $('b-follow').classList.toggle('active', FOLLOW);
+  $('o-play').checked = PLAY; $('b-follow').classList.toggle('active', FOLLOW); $('b-3d').style.display = PLAY ? '' : 'none';
   $('b-streets').classList.toggle('active', STREETS || PLAY);
   if (PLAY) {
     controls.minPolarAngle = 0; controls.maxPolarAngle = 0.001; controls.enableRotate = false; controls.minDistance = 30; controls.maxDistance = 14000;
@@ -1061,6 +1066,7 @@ function applyPlay() {
   controls.update(); applyLayers();
 }
 $('o-play').onchange = () => { PLAY = $('o-play').checked; store.set('play', PLAY); if (WALK.on) stopWalk(); applyPlay(); };
+$('b-3d').onclick = () => { PLAY = false; store.set('play', false); applyPlay(); };
 $('b-streets').onclick = () => { STREETS = !STREETS; store.set('streets', STREETS); applyPlay(); };
 $('b-follow').onclick = () => { FOLLOW = !FOLLOW; store.set('follow', FOLLOW); $('b-follow').classList.toggle('active', FOLLOW); };
 function meMarker() { return markers.find((m) => m.kind === 'player' && ((D && D.me && (m.item.id === D.me || m.item.name === D.me)) || m.item.isMe)) || markers.find((m) => m.kind === 'player' && m.item.online); }

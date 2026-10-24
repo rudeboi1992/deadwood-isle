@@ -11,6 +11,21 @@
 | Day/night | Stock (nights run 4x faster than days) |
 | Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939), [BMW M4 & Charger Interceptor](https://steamcommunity.com/sharedfiles/filedetails/?id=2005194385) (101 MB) and [Deadwood Isle – Base Limits](https://steamcommunity.com/sharedfiles/filedetails/?id=3797893300) (small) — all three download automatically when you join |
 
+## 🗺️ 3D map of the island
+
+**[Open the Deadwood Isle 3D map →](https://rudeboi1992.github.io/deadwood-isle/docs/3d/)**
+
+[![Deadwood Isle in 3D](docs/3d-map.png)](https://rudeboi1992.github.io/deadwood-isle/docs/3d/)
+
+The whole island in your browser, built from the game's own level files: terrain, every building and prop, roads, rivers and lakes, sewers, mines, tunnels and bunkers.
+
+- **Look around** – drag to move, right-drag to turn, scroll to zoom. Tap anything to see what it is.
+- **Walk it** – "Walk here" drops you in at eye level: W A S D to move, Space to jump, F to use ladders, G to fly.
+- **Streets** – bold road and path lines like a paper map. **Settings** turns layers on and off and shows the underground passages through the ground.
+- **Search** – places, vendors, entrances, or type coordinates as `x y`.
+
+No player positions, vehicles or bases are shown here; that version lives on the server for admins.
+
 ## How this server differs from vanilla
 
 You don't need to install anything except the Workshop mods, which Steam handles for you on join.
@@ -130,6 +145,3 @@ Admin: **Toll Troll** on the server. Issues with this page or the server: [open 
 - **2026-09-06** — 2x loot, 2x vehicles, wood 2x HP, indestructible plated, server renamed to Deadwood Isle, 50 slots.
 - **2026-09-05** — Server launched.
 
-## 3D map
-
-A browser 3D map of the island built from the game's level files lives in [`docs/3d/`](docs/3d/) (open `index.html` from a static host; with GitHub Pages enabled for this repo it is served at `/deadwood-isle/docs/3d/`). It shows terrain, every building and prop, roads, water, sewers, mines and bunkers, with a walk mode. Player positions are not included.
