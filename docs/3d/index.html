@@ -85,6 +85,9 @@ body.play .mk.player .pt { width: 16px; height: 16px; border-width: 3px; }
 body.play .mk.player .lbl { font-size: 13px; font-weight: 600; }
 body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--accent); }
 #card .btn { margin-top: 8px; padding: 6px 10px; min-height: 32px; }
+#card-tp { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+#card-tp .btn { margin-top: 2px; padding: 4px 8px; min-height: 28px; font-size: 13px; font-family: Consolas, monospace; }
+#card-tp .btn.done { border-color: var(--online); color: var(--online); }
 @media (max-width: 600px) { .title { display: none; } #hint { display: none; } #pad.on ~ #hud { display: none; } #walk { top: 52px; font-size: 12px; } .bar { left: 8px; right: 8px; top: 8px; gap: 6px; } .btn { padding: 7px 10px; min-height: 36px; } #panel { top: 52px; right: 8px; width: calc(100vw - 16px); } }
 </style>
 </head>
@@ -159,7 +162,7 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
   <label><input type="checkbox" id="o-labels" checked><span class="sw" style="background:#fff"></span>Labels on markers</label>
   <small id="stats"></small>
 </div>
-<div id="card"><button class="x" id="card-x">&times;</button><div class="t" id="card-t"></div><div class="s" id="card-s"></div><button class="btn" id="card-walk">Walk here</button> <button class="btn" id="card-pin" title="Save a named pin here (shared with the 2D map)">Pin here</button> <button class="btn" id="card-del" style="display:none">Delete pin</button></div>
+<div id="card"><button class="x" id="card-x">&times;</button><div class="t" id="card-t"></div><div class="s" id="card-s"></div><button class="btn" id="card-walk">Walk here</button> <button class="btn" id="card-pin" title="Save a named pin here (shared with the 2D map)">Pin here</button> <button class="btn" id="card-del" style="display:none">Delete pin</button><div id="card-tp"></div></div>
 <div id="results"></div>
 <div id="toast"></div>
 <div id="online"><h3>Online now</h3><div id="online-list"></div></div>
@@ -186,7 +189,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 const WATER = 14.7, WORLD = 8192;
 const CAT_COLORS = { building: 0xc9b79c, designer: 0xb8bcc4, rock: 0x7d7a74, prop: 0xa8794f, nature: 0x6f7f4a, other: 0x8a96a3, fence: 0x8d7b66, sidewalk: 0x9c9a94, interior: 0xb58e6a };
-const VER = '20261023r';
+const VER = '20261023s';
 const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log
 const ADMIN_API = '';   // public copy: https endpoint of the map server's admin tracker (empty = no Track admin button)   // bumps the browser cache for every data file
 const $ = (id) => document.getElementById(id);
@@ -815,7 +818,19 @@ renderer.domElement.addEventListener('pointerup', (e) => {
   }
 });
 let cardItem = null;   // the marker item the card is showing (null for a tap on the ground)
-function showCard(t, s) { $('card-t').textContent = t; $('card-s').textContent = s; $('card').classList.add('open'); $('card-del').style.display = (cardItem && cardItem.pinId) ? '' : 'none'; $('card-pin').style.display = (PUBLIC || !lastHit) ? 'none' : ''; }
+function showCard(t, s) { $('card-t').textContent = t; $('card-s').textContent = s; $('card').classList.add('open'); $('card-del').style.display = (cardItem && cardItem.pinId) ? '' : 'none'; $('card-pin').style.display = (PUBLIC || !lastHit) ? 'none' : ''; tpButtons(); }
+// admin map: copy the chat commands that teleport you to this spot (!tp, !tpfx, and the four saved !tpfx presets p1-p4)
+function tpButtons() {
+  const box = $('card-tp'); box.innerHTML = ''; if (PUBLIC || !lastHit) return;
+  const x = Math.round(lastHit.x), y = Math.round(-lastHit.z), z = Math.round(lastHit.y);
+  const base = x + ' ' + y + ' ' + z;
+  for (const [label, cmd] of [['!tp', '!tp ' + base], ['!tpfx', '!tpfx ' + base], ['p1', '!tpfx ' + base + ' p1'], ['p2', '!tpfx ' + base + ' p2'], ['p3', '!tpfx ' + base + ' p3'], ['p4', '!tpfx ' + base + ' p4']]) {
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = label; b.title = 'Copy "' + cmd + '" to paste into the game chat';
+    b.onclick = () => { const done = () => { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = label; }, 1200); };
+      try { navigator.clipboard.writeText(cmd).then(done, () => { const ta = document.createElement('textarea'); ta.value = cmd; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove(); done(); }); } catch (e) { done(); } };
+    box.appendChild(b);
+  }
+}
 $('card-pin').onclick = async () => {
   if (!lastHit) return;
   const name = prompt('Name for this pin'); if (!name) return;
