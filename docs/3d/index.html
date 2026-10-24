@@ -60,6 +60,9 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 #results button { display: block; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid var(--line); color: var(--text); padding: 8px 12px; font: inherit; cursor: pointer; }
 #results button:hover { background: rgba(255, 255, 255, 0.06); }
 #results button small { display: block; color: var(--muted); font-size: 12px; }
+#toast { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); background: rgba(10, 8, 6, 0.92); color: #ffb347; border: 2px solid #ffb347; border-radius: 14px; padding: 18px 26px; font-size: 26px; font-weight: 800; letter-spacing: 0.04em; opacity: 0; pointer-events: none; transition: opacity 0.4s; z-index: 9; text-align: center; }
+#toast.show { opacity: 1; }
+.mk.admin .pt { background: #ff4040; width: 14px; height: 14px; border-width: 3px; box-shadow: 0 0 10px #ff4040; }
 #online, #log { position: fixed; right: 12px; top: 60px; width: min(340px, calc(100vw - 24px)); max-height: calc(100vh - 80px); overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: none; z-index: 5; }
 #online.open, #log.open { display: block; }
 #online h3, #log h3 { margin: 0 0 8px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -99,6 +102,7 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
   <button class="btn" id="b-streets" title="Bold street and path lines like the paper map (hidden where hills, trees or buildings are in the way)">Streets</button>
   <button class="btn" id="b-follow" title="Keep the view centred on you">Follow me</button>
   <div class="spacer"></div>
+  <button class="btn" id="b-track" title="Show where the admin is right now" style="display:none">Track admin</button>
   <button class="btn" id="b-online" title="Who is on the server right now">Online</button>
   <button class="btn" id="b-log" title="Who was online when">Log</button>
   <button class="btn" id="b-set">Settings</button>
@@ -157,6 +161,7 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
 </div>
 <div id="card"><button class="x" id="card-x">&times;</button><div class="t" id="card-t"></div><div class="s" id="card-s"></div><button class="btn" id="card-walk">Walk here</button> <button class="btn" id="card-pin" title="Save a named pin here (shared with the 2D map)">Pin here</button> <button class="btn" id="card-del" style="display:none">Delete pin</button></div>
 <div id="results"></div>
+<div id="toast"></div>
 <div id="online"><h3>Online now</h3><div id="online-list"></div></div>
 <div id="log"><h3>Sessions (newest first)</h3><div id="log-list"></div></div>
 <div id="walk"><span id="walk-t">Walk: W A S D move · drag or mouse to look · Space jumps · Shift runs · walls, floors and stairs are solid · G flies through anything · Esc exits</span><button class="btn" id="walk-x">Exit walk</button></div>
@@ -181,8 +186,9 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 const WATER = 14.7, WORLD = 8192;
 const CAT_COLORS = { building: 0xc9b79c, designer: 0xb8bcc4, rock: 0x7d7a74, prop: 0xa8794f, nature: 0x6f7f4a, other: 0x8a96a3, fence: 0x8d7b66, sidewalk: 0x9c9a94, interior: 0xb58e6a };
-const VER = '20261023q';
-const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log   // bumps the browser cache for every data file
+const VER = '20261023r';
+const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log
+const ADMIN_API = '';   // public copy: https endpoint of the map server's admin tracker (empty = no Track admin button)   // bumps the browser cache for every data file
 const $ = (id) => document.getElementById(id);
 const store = { get(k, d) { try { const v = localStorage.getItem('dw3d-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
                 set(k, v) { try { localStorage.setItem('dw3d-' + k, JSON.stringify(v)); } catch (e) {} } };
@@ -691,7 +697,7 @@ function nearestTown(x, y) {
 async function loadData() {
   try { const r = await fetch(PUBLIC ? 'data_public.json?v=' + VER : '/data.json', { cache: 'no-store' }); D = await r.json(); } catch (e) { return; }
   if (PUBLIC) { D.players = []; D.bases = []; D.vehicles = []; D.stashes = []; D.traps = []; D.pins = []; D.online = []; }
-  for (const mk of markers) mk.el.remove(); markers.length = 0;
+  for (const mk of markers) mk.el.remove(); markers.length = 0; adminMk = null;
   for (const t of D.towns || []) addMarker(Object.assign({ title: t.name, sub: 'Place' }, t), 'town', t.name, '#fff');
   for (const v of D.vendors || []) addMarker(Object.assign({ title: v.name, sub: (v.type === 'cache' ? 'Supply cache' : 'Vendor') + (v.area ? ' · ' + v.area : '') }, v), 'vendor', v.name, 'var(--vendor)');
   for (const b of D.bases || []) addMarker(Object.assign({ title: b.name || 'Base', sub: (b.parts ? b.parts + ' placed parts · ' : '') + nearestTown(b.x, b.y) }, b), 'base', '', 'var(--base)');
@@ -762,7 +768,7 @@ function applyMarkerVis() {
   const lab = $('o-labels').checked;
   for (const mk of markers) {
     const cm = mk.kind === 'ent' && (mk.item.ent === 'mine' || mk.item.ent === 'cave');   // caves and mines have their own switch
-    mk.el.hidden = cm ? !markOn.cavemine : !markOn[mk.kind]; mk.el.classList.toggle('nolabel', (!lab && mk.kind !== 'town') || !!mk.quiet);
+    mk.el.hidden = mk.kind === 'admin' ? false : cm ? !markOn.cavemine : !markOn[mk.kind]; mk.el.classList.toggle('nolabel', (!lab && mk.kind !== 'town') || !!mk.quiet);
   }
 }
 const tmp = new THREE.Vector3();
@@ -772,7 +778,7 @@ function updateLabels() {
     if (mk.el.hidden) continue;
     tmp.copy(mk.p).project(camera);
     const dist = camPos.distanceTo(mk.p);
-    let vis = tmp.z < 1 && tmp.x > -1.2 && tmp.x < 1.2 && tmp.y > -1.2 && tmp.y < 1.2 && (mk.kind !== 'town' || dist < 9000) && (mk.kind === 'town' || mk.kind === 'player' || mk.kind === 'shrine' || mk.kind === 'ent' || dist < 4500) && (mk.kind !== 'ent' || dist < 6500 || PLAY);
+    let vis = tmp.z < 1 && tmp.x > -1.2 && tmp.x < 1.2 && tmp.y > -1.2 && tmp.y < 1.2 && (mk.kind !== 'town' || dist < 9000) && (mk.kind === 'town' || mk.kind === 'player' || mk.kind === 'admin' || mk.kind === 'shrine' || mk.kind === 'ent' || dist < 4500) && (mk.kind !== 'ent' || dist < 6500 || PLAY);
     if (vis && WALK.on) vis = dist < (mk.kind === 'town' ? 700 : 120);                       // walking: only what is around you
     if (vis && mk.kind === 'ent' && mk.item.hole && camera.position.distanceTo(controls.target) > 1400) vis = false;   // ground openings only when zoomed in
     if (mk.kind === 'ent' && (mk.item.ent === 'manhole' || mk.item.ent === 'hatch')) {   // walking up to an opening: tell them how to use it
@@ -802,7 +808,8 @@ renderer.domElement.addEventListener('pointerup', (e) => {
     const c = hit.object.userData.cat, model = (hit.object.userData.model || {}).path || '';
     const nice = model.replace(/^.*\//, '').replace(/\.cgf$/i, '').replace(/[_-]+/g, ' ');
     const p = hit.point;
-    showCard(c === 'roads' ? 'Road' : c === 'water' ? 'Water' : (nice || c), (c === 'roads' ? 'road surface' : c === 'water' ? 'river or lake' : c + ' · ' + model) + ' · ' + nearestTown(p.x, -p.z) + ' · ground ' + p.y.toFixed(1) + ' m');
+    if (PUBLIC) showCard(nearestTown(p.x, -p.z).replace(/ \(.*$/, '') || 'Here', 'x ' + p.x.toFixed(0) + '  y ' + (-p.z).toFixed(0) + ' · height ' + p.y.toFixed(1) + ' m · ' + nearestTown(p.x, -p.z));
+    else showCard(c === 'roads' ? 'Road' : c === 'water' ? 'Water' : (nice || c), (c === 'roads' ? 'road surface' : c === 'water' ? 'river or lake' : c + ' · ' + model) + ' · ' + nearestTown(p.x, -p.z) + ' · ground ' + p.y.toFixed(1) + ' m');
   } else if (th) {
     const p = th.point; showCard('Ground', 'x ' + p.x.toFixed(0) + '  y ' + (-p.z).toFixed(0) + '  height ' + p.y.toFixed(1) + ' m · ' + nearestTown(p.x, -p.z));
   }
@@ -854,6 +861,26 @@ qEl.addEventListener('input', () => {
 qEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const b = resEl.querySelector('button'); if (b) b.click(); } if (e.key === 'Escape') { resEl.classList.remove('open'); qEl.blur(); } });
 qEl.addEventListener('focus', () => { if (qEl.value.trim()) qEl.dispatchEvent(new Event('input')); });
 addEventListener('pointerdown', (e) => { if (!resEl.contains(e.target) && e.target !== qEl) resEl.classList.remove('open'); });
+// Track admin: the public copy asks the map server where the admin is and tells the admin in game that someone is looking
+var trackTimer = null, adminMk = null;
+function toast(t, ms) { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), ms || 2500); }
+async function trackTick(first) {
+  try {
+    const r = await fetch(ADMIN_API + '/admin.json', { cache: 'no-store' }); const a = await r.json();
+    if (!a.online || a.x == null) { if (adminMk) { adminMk.el.remove(); markers.splice(markers.indexOf(adminMk), 1); adminMk = null; } $('b-track').textContent = 'Track admin (offline)'; return; }
+    if (!adminMk) adminMk = addMarker({ title: a.name || 'Admin', sub: 'The admin, right now', x: a.x, y: a.y, z: null }, 'admin', a.name || 'Admin', '#ff4040');
+    adminMk.item.x = a.x; adminMk.item.y = a.y; adminMk.item.sub = 'The admin · ' + nearestTown(a.x, a.y) + ' · x ' + Math.round(a.x) + ' y ' + Math.round(a.y);
+    placeMarkers(); $('b-track').textContent = 'Tracking admin';
+    if (first) goTo(a.x, a.y, null, a.name || 'Admin', adminMk.item.sub);
+  } catch (e) { $('b-track').textContent = 'Track admin (unavailable)'; }
+}
+$('b-track').onclick = async () => {
+  if (trackTimer) { clearInterval(trackTimer); trackTimer = null; $('b-track').textContent = 'Track admin'; $('b-track').classList.remove('active'); if (adminMk) { adminMk.el.remove(); markers.splice(markers.indexOf(adminMk), 1); adminMk = null; } return; }
+  toast('You feeling lucky, punk?', 3000);
+  try { fetch(ADMIN_API + '/lucky', { method: 'POST' }); } catch (e) {}
+  $('b-track').classList.add('active'); await trackTick(true); trackTimer = setInterval(() => trackTick(false), 5000);
+};
+if (PUBLIC && ADMIN_API) $('b-track').style.display = '';
 $('b-online').onclick = () => { $('log').classList.remove('open'); $('panel').classList.remove('open'); $('online').classList.toggle('open'); renderOnline(); };
 $('b-log').onclick = () => { $('online').classList.remove('open'); $('panel').classList.remove('open'); const o = $('log').classList.toggle('open'); if (o) loadLog(); };
 if (PUBLIC) { for (const id of ['b-online', 'b-log', 'b-me', 'b-follow', 'card-pin']) $(id).style.display = 'none'; qEl.placeholder = 'Search places, vendors, entrances, or x y'; }
