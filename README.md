@@ -129,3 +129,7 @@ Admin: **Toll Troll** on the server. Issues with this page or the server: [open 
 - **2026-09-07** — 2x harvest, axe/hatchet rebalance, admin commands mod, BMW & Charger mod (Charger in police spawns), "NEW" tag.
 - **2026-09-06** — 2x loot, 2x vehicles, wood 2x HP, indestructible plated, server renamed to Deadwood Isle, 50 slots.
 - **2026-09-05** — Server launched.
+
+## 3D map
+
+A browser 3D map of the island built from the game's level files lives in [`docs/3d/`](docs/3d/) (open `index.html` from a static host; with GitHub Pages enabled for this repo it is served at `/deadwood-isle/docs/3d/`). It shows terrain, every building and prop, roads, water, sewers, mines and bunkers, with a walk mode. Player positions are not included.

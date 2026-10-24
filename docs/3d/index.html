@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Deadwood Isle 3D</title>
+<style>
+:root {
+  --bg: #0d1116; --panel: rgba(18, 22, 28, 0.92); --line: rgba(255, 255, 255, 0.12); --text: #e8ecf1; --muted: #9aa6b2;
+  --accent: #ffb347; --online: #7cff9a; --player: #8fb4ff; --vendor: #5ee6ff; --vehicle: #e0c060; --base: #ff9f43; --stash: #c98bff;
+  --trap: #ff6b6b; --pin: #ffd166; --shrine: #7fc4ff; --town: rgba(240, 236, 220, 0.95);
+}
+* { box-sizing: border-box; }
+.mk, .bar, #walk, #pad, #hint, #panel label, #card .t { user-select: none; -webkit-user-select: none; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+#c { position: fixed; inset: 0; display: block; touch-action: none; }
+#labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+.mk { position: absolute; transform: translate(-50%, -100%); pointer-events: auto; cursor: pointer; display: flex; flex-direction: column; align-items: center; white-space: nowrap; }
+.mk .lbl { font-size: 12px; padding: 1px 6px; border-radius: 4px; background: rgba(0, 0, 0, 0.55); color: #fff; margin-bottom: 2px; }
+.mk .pt { width: 10px; height: 10px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.6); background: #fff; }
+.mk .stem { width: 2px; height: 14px; background: rgba(255, 255, 255, 0.7); }
+.mk.town { transform: translate(-50%, -50%); pointer-events: none; }
+.mk.town .lbl { background: none; color: var(--town); font-weight: 600; letter-spacing: 0.04em; text-shadow: 0 1px 3px #000, 0 0 8px #000; font-size: 13px; }
+.mk.town .pt, .mk.town .stem { display: none; }
+.mk.nolabel .lbl { display: none; }
+.mk[hidden] { display: none; }
+.bar { position: fixed; left: 12px; right: 12px; top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; pointer-events: none; }
+.bar > * { pointer-events: auto; }
+.title { font-weight: 700; letter-spacing: 0.02em; padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.btn { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font: inherit; cursor: pointer; min-height: 38px; }
+.btn:hover { border-color: rgba(255, 255, 255, 0.3); }
+.spacer { flex: 1; }
+#panel { position: fixed; right: 12px; top: 60px; width: min(320px, calc(100vw - 24px)); max-height: calc(100vh - 80px); overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: none; }
+#panel.open { display: block; }
+#panel h3 { margin: 12px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+#panel h3:first-child { margin-top: 0; }
+#panel label { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; }
+#panel label.dis { color: var(--muted); cursor: default; }
+#panel .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+#panel small { color: var(--muted); display: block; margin-top: 6px; }
+#card { position: fixed; left: 12px; bottom: 12px; width: min(380px, calc(100vw - 24px)); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: none; }
+#card.open { display: block; }
+#card .t { font-weight: 700; font-size: 15px; }
+#card .s { color: var(--muted); margin-top: 4px; word-break: break-word; }
+#card .x { position: absolute; right: 8px; top: 6px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+#load { position: fixed; inset: 0; display: grid; place-items: center; background: var(--bg); z-index: 5; }
+#load .box { text-align: center; }
+#load .bar2 { width: 240px; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+#load .fill { height: 100%; width: 0; background: var(--accent); transition: width 0.2s; }
+#hud { position: fixed; left: 50%; transform: translateX(-50%); bottom: 12px; display: flex; gap: 14px; align-items: flex-end; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 12px; font-size: 12px; color: var(--text); pointer-events: none; white-space: nowrap; }
+#hud .bar3 { height: 0; border-bottom: 3px solid #fff; border-left: 2px solid #fff; border-right: 2px solid #fff; height: 8px; box-sizing: border-box; }
+#hud .lab { color: var(--muted); }
+#hud b { font-weight: 600; }
+@media (max-width: 600px) { #hud { bottom: 8px; font-size: 11px; padding: 5px 9px; gap: 10px; } }
+#hint { position: fixed; left: 50%; transform: translateX(-50%); top: 60px; color: var(--muted); font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; max-width: calc(100vw - 24px); text-align: center; transition: opacity 1s; }
+#hint.fade { opacity: 0; pointer-events: none; }
+#q { width: min(300px, calc(100vw - 24px)); }
+#results { position: fixed; left: 12px; top: 60px; width: min(360px, calc(100vw - 24px)); max-height: 50vh; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; display: none; z-index: 5; }
+#results.open { display: block; }
+#results button { display: block; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid var(--line); color: var(--text); padding: 8px 12px; font: inherit; cursor: pointer; }
+#results button:hover { background: rgba(255, 255, 255, 0.06); }
+#results button small { display: block; color: var(--muted); font-size: 12px; }
+#online, #log { position: fixed; right: 12px; top: 60px; width: min(340px, calc(100vw - 24px)); max-height: calc(100vh - 80px); overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: none; z-index: 5; }
+#online.open, #log.open { display: block; }
+#online h3, #log h3 { margin: 0 0 8px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#online button { display: block; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid var(--line); color: var(--text); padding: 7px 4px; font: inherit; cursor: pointer; }
+#online button small, #log small { color: var(--muted); font-size: 12px; }
+#log .row { padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.mk.vehicle .pt { background: var(--vehicle); width: 9px; height: 9px; }
+.mk.ent .lbl { background: rgba(60, 20, 70, 0.8); border: 1px solid rgba(255, 150, 240, 0.5); font-weight: 600; }
+.mk.ent .pt { width: 12px; height: 12px; }
+#walk { position: fixed; left: 50%; transform: translateX(-50%); top: 60px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; display: none; font-size: 13px; text-align: center; max-width: calc(100vw - 24px); }
+#walk.on { display: block; }
+#walk button { margin-left: 10px; }
+#pad { position: fixed; right: 12px; bottom: 12px; display: none; grid-template-columns: repeat(3, 56px); gap: 6px; }
+#pad.on { display: grid; }
+#pad button { height: 56px; font-size: 22px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 12px; touch-action: none; user-select: none; -webkit-user-select: none; }
+#pad button:active { background: rgba(255, 179, 71, 0.4); }
+@media (hover: hover) and (pointer: fine) { #pad.on { display: none; } }
+body.play .mk.town .lbl { font-size: 17px; letter-spacing: 0.06em; text-shadow: 0 1px 2px #000, 0 0 10px #000, 0 0 3px #000; }
+body.play .mk.player .pt { width: 16px; height: 16px; border-width: 3px; }
+body.play .mk.player .lbl { font-size: 13px; font-weight: 600; }
+body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--accent); }
+#card .btn { margin-top: 8px; padding: 6px 10px; min-height: 32px; }
+@media (max-width: 600px) { .title { display: none; } #hint { display: none; } #pad.on ~ #hud { display: none; } #walk { top: 52px; font-size: 12px; } .bar { left: 8px; right: 8px; top: 8px; gap: 6px; } .btn { padding: 7px 10px; min-height: 36px; } #panel { top: 52px; right: 8px; width: calc(100vw - 16px); } }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="labels"></div>
+<div class="bar">
+  <div class="title">Deadwood Isle 3D</div>
+  
+  <input id="q" class="btn" type="search" placeholder="Search players, places, vendors, pins, or x y" autocomplete="off">
+  <button class="btn" id="b-me">Me</button>
+  <button class="btn" id="b-top">Top view</button>
+  <button class="btn" id="b-walk" title="Walk around at eye level: go into buildings, caves and tunnels">Walk</button>
+  <button class="btn" id="b-streets" title="Bold street and path lines like the paper map (hidden where hills, trees or buildings are in the way)">Streets</button>
+  <button class="btn" id="b-follow" title="Keep the view centred on you">Follow me</button>
+  <div class="spacer"></div>
+  <button class="btn" id="b-online" title="Who is on the server right now">Online</button>
+  <button class="btn" id="b-log" title="Who was online when">Log</button>
+  <button class="btn" id="b-set">Settings</button>
+</div>
+<div id="panel">
+  <h3>Map</h3>
+  <label><input type="checkbox" data-k="building" checked><span class="sw" style="background:#c9b79c"></span>Buildings</label>
+  <label><input type="checkbox" data-k="designer" checked><span class="sw" style="background:#b8bcc4"></span>Structures (level geometry)</label>
+  <label><input type="checkbox" data-k="rock" checked><span class="sw" style="background:#7d7a74"></span>Rocks and cliffs</label>
+  <label><input type="checkbox" data-k="prop" checked><span class="sw" style="background:#a8794f"></span>Props (vehicles, containers, pallets, barrels)</label>
+  <label><input type="checkbox" data-k="other" checked><span class="sw" style="background:#8a96a3"></span>Signs, barriers, small items</label>
+  <label><input type="checkbox" data-k="fence" checked><span class="sw" style="background:#8d7b66"></span>Fences and walls</label>
+  <label><input type="checkbox" data-k="sidewalk" checked><span class="sw" style="background:#9c9a94"></span>Sidewalks and curbs</label>
+  <label><input type="checkbox" data-k="roads" checked><span class="sw" style="background:#4a4a4c"></span>Roads and paths</label>
+  <label><input type="checkbox" data-k="under" checked><span class="sw" style="background:#58d0ff"></span>Underground passages (sewers, mines, tunnels, bunkers), drawn through the ground</label>
+  <label><input type="checkbox" data-k="interior" checked><span class="sw" style="background:#b58e6a"></span>Interior furnishings and clutter</label>
+  <label><input type="checkbox" data-k="nature" checked><span class="sw" style="background:#6f7f4a"></span>Logs and bushes</label>
+  <label><input type="checkbox" data-k="trees" checked><span class="sw" style="background:#2f5a34"></span>Trees</label>
+  <label><input type="checkbox" id="o-play"><span class="sw" style="background:#fff"></span>Play view: north-up, no tilt, big place names, no interiors</label>
+  <h3>Look inside</h3>
+  <label>Cutaway
+    <select id="o-cut" class="btn" style="margin-left:auto;padding:4px 8px;min-height:30px;max-width:60%">
+      <option value="0">Off</option>
+      <option value="3">Ground floor (3 m above ground)</option>
+      <option value="6">Two floors (6 m)</option>
+      <option value="9">Three floors (9 m)</option>
+      <option value="-1">Below ground only (tunnels, bunkers)</option>
+    </select>
+  </label>
+  <small>Slices away everything above that height at the centre of the view, so you can look into buildings. The ground is cut out where the game has cave and tunnel entrances.</small>
+  <h3>Models</h3>
+  <label>Detail
+    <select id="o-detail" class="btn" style="margin-left:auto;padding:4px 8px;min-height:30px;max-width:60%">
+      <option value="full">Full: every object is its real model</option>
+      <option value="low">Light: simpler models, small props as blocks, no clutter</option>
+      <option value="box">Blocks only (fastest)</option>
+    </select>
+  </label>
+  <small>Models are the game's own meshes with per-material colours (no textures). Changing detail reloads the scene. Light detail leaves out clutter smaller than 60 cm.</small>
+  <h3>Markers</h3>
+  <label><input type="checkbox" data-m="player" checked><span class="sw" style="background:var(--online)"></span>Players</label>
+  <label><input type="checkbox" data-m="town" checked><span class="sw" style="background:var(--town)"></span>Place names</label>
+  <label><input type="checkbox" data-m="vendor" checked><span class="sw" style="background:var(--vendor)"></span>Vendors and caches</label>
+  <label><input type="checkbox" data-m="base" checked><span class="sw" style="background:var(--base)"></span>Bases</label>
+  <label><input type="checkbox" data-m="stash" checked><span class="sw" style="background:var(--stash)"></span>Stashes</label>
+  <label><input type="checkbox" data-m="trap" checked><span class="sw" style="background:var(--trap)"></span>Text traps</label>
+  <label><input type="checkbox" data-m="shrine" checked><span class="sw" style="background:var(--shrine)"></span>Shrine</label>
+  <label><input type="checkbox" data-m="userpin" checked><span class="sw" style="background:var(--pin)"></span>Pins</label>
+  <label><input type="checkbox" data-m="vehicle"><span class="sw" style="background:var(--vehicle)"></span>Vehicles</label>
+  <label><input type="checkbox" data-m="ent" checked><span class="sw" style="background:#ff8ae6"></span>Entrances: manholes, hatches, caves, tunnels, mines</label>
+  <h3>Display</h3>
+  <label><input type="checkbox" id="o-hd"><span class="sw" style="background:#4b7a45"></span>High detail terrain near the view (4 m, 8 MB download)</label>
+  <label><input type="checkbox" id="o-labels" checked><span class="sw" style="background:#fff"></span>Labels on markers</label>
+  <small id="stats"></small>
+</div>
+<div id="card"><button class="x" id="card-x">&times;</button><div class="t" id="card-t"></div><div class="s" id="card-s"></div><button class="btn" id="card-walk">Walk here</button> <button class="btn" id="card-pin" title="Save a named pin here (shared with the 2D map)">Pin here</button> <button class="btn" id="card-del" style="display:none">Delete pin</button></div>
+<div id="results"></div>
+<div id="online"><h3>Online now</h3><div id="online-list"></div></div>
+<div id="log"><h3>Sessions (newest first)</h3><div id="log-list"></div></div>
+<div id="walk"><span id="walk-t">Walk: W A S D move · drag or mouse to look · Space jumps · Shift runs · walls, floors and stairs are solid · G flies through anything · Esc exits</span><button class="btn" id="walk-x">Exit walk</button></div>
+<div id="pad">
+  <button data-k="up" title="jump (fly mode: up)">&#8679;</button><button data-k="fwd">&#9650;</button><button data-k="down" title="down (fly mode)">&#8681;</button>
+  <button data-k="left">&#9664;</button><button data-k="back">&#9660;</button><button data-k="right">&#9654;</button>
+</div>
+<div id="hud"><div><div class="bar3" id="hud-bar"></div><span class="lab" id="hud-scale">100 m</span></div><div id="hud-elev"></div></div>
+<div id="hint">Drag to move, right-drag or two fingers to turn, wheel or pinch to zoom. Tap anything to identify it, then "Walk here" to go inside.</div>
+<div id="load"><div class="box"><div id="load-t">Loading the island...</div><div class="bar2"><div class="fill" id="load-f"></div></div></div></div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { MapControls } from 'three/addons/controls/MapControls.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+
+const WATER = 14.7, WORLD = 8192;
+const CAT_COLORS = { building: 0xc9b79c, designer: 0xb8bcc4, rock: 0x7d7a74, prop: 0xa8794f, nature: 0x6f7f4a, other: 0x8a96a3, fence: 0x8d7b66, sidewalk: 0x9c9a94, interior: 0xb58e6a };
+const VER = '20261023o';
+const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log   // bumps the browser cache for every data file
+const $ = (id) => document.getElementById(id);
+const store = { get(k, d) { try { const v = localStorage.getItem('dw3d-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+                set(k, v) { try { localStorage.setItem('dw3d-' + k, JSON.stringify(v)); } catch (e) {} } };
+// world (x east, y north, z up) -> three (x, y up, z south)
+const W = (x, y, z) => new THREE.Vector3(x, z, -y);
+
+const renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, logarithmicDepthBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setSize(innerWidth, innerHeight);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x9fb6c9);
+scene.fog = new THREE.Fog(0x9fb6c9, 6000, 16000);
+const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 1, 40000);
+camera.position.copy(W(4096 + 2600, 4096 - 5200, 3800));
+const controls = new MapControls(camera, renderer.domElement);
+controls.target.copy(W(4096, 4300, 60));
+controls.enableDamping = true; controls.dampingFactor = 0.12;
+controls.maxPolarAngle = Math.PI * 0.47; controls.minDistance = 15; controls.maxDistance = 18000;
+controls.screenSpacePanning = false; controls.zoomToCursor = true; controls.zoomSpeed = 1.3;
+controls.update();
+scene.add(new THREE.HemisphereLight(0xdfe9f5, 0x4a4436, 1.0));
+const sun = new THREE.DirectionalLight(0xfff2dd, 1.5); sun.position.set(-0.5, 1, 0.35); scene.add(sun);
+
+let meta = null, terrainMesh = null, heights = null, hN = 0;
+let holes = null;   // Set of (ix + iy * 4096) in 2 m cells
+async function loadHoles() {
+  try { const dv = new DataView(await bin('holes.bin')); holes = new Set(); for (let o = 0; o + 4 <= dv.byteLength; o += 4) holes.add(dv.getUint16(o, true) + dv.getUint16(o + 2, true) * 4096); }
+  catch (e) { console.warn('holes', e); holes = new Set(); }
+}
+// is the terrain cell at world (x0..x0+step, y0..y0+step) a hole? (enough of its 2 m sub-cells are flagged)
+function cellIsHole(x0, y0, step) {
+  if (!holes || !holes.size) return false;
+  const n = step / 2, i0 = x0 / 2, j0 = y0 / 2; let c = 0;
+  for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) if (holes.has(i0 + a + (j0 + b) * 4096)) c++;
+  return c >= Math.max(1, Math.round(n * n / 4));
+}
+const groups = {};   // category -> [InstancedMesh]
+let treeMesh = null, treeGeoNear = null, treeGeoFar = null;
+
+function progress(f, t) { $('load-f').style.width = Math.round(f * 100) + '%'; if (t) $('load-t').textContent = t; }
+async function bin(url) { const r = await fetch(url + '?v=' + VER); if (!r.ok) throw new Error(url + ' ' + r.status); return r.arrayBuffer(); }
+
+// ---------- terrain
+function heightAt(x, y) {
+  if (!heights) return 0;
+  const step = WORLD / (hN - 1);
+  const fx = Math.min(Math.max(x / step, 0), hN - 1.001), fy = Math.min(Math.max(y / step, 0), hN - 1.001);
+  const ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+  const h = (i, j) => heights[j * hN + i] / 64;
+  return (h(ix, iy) * (1 - tx) + h(ix + 1, iy) * tx) * (1 - ty) + (h(ix, iy + 1) * (1 - tx) + h(ix + 1, iy + 1) * tx) * ty;
+}
+async function loadTerrain(hd) {
+  const n = hd ? meta.terrain['4m'] : meta.terrain['8m'];
+  const buf = await bin('terrain_' + (hd ? '4m' : '8m') + '.bin');
+  heights = new Uint16Array(buf); hN = n;
+  const step = WORLD / (n - 1);
+  const pos = new Float32Array(n * n * 3), col = new Float32Array(n * n * 3);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const k = j * n + i, z = heights[k] / 64;
+    pos[k * 3] = i * step; pos[k * 3 + 1] = z; pos[k * 3 + 2] = -j * step;
+  }
+  const idx = new Uint32Array((n - 1) * (n - 1) * 6); let t = 0;
+  for (let j = 0; j < n - 1; j++) for (let i = 0; i < n - 1; i++) {
+    if (cellIsHole(i * step, j * step, step)) continue;
+    const a = j * n + i, b = a + 1, c = a + n, d = c + 1;
+    idx[t++] = a; idx[t++] = b; idx[t++] = c; idx[t++] = b; idx[t++] = d; idx[t++] = c;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setIndex(new THREE.BufferAttribute(idx.subarray(0, t), 1));
+  g.computeVertexNormals();
+  const nrm = g.getAttribute('normal').array;
+  const c = new THREE.Color();
+  for (let k = 0; k < n * n; k++) {
+    const z = pos[k * 3 + 1], up = nrm[k * 3 + 1];
+    terrainColor(c, z, up);
+    col[k * 3] = c.r; col[k * 3 + 1] = c.g; col[k * 3 + 2] = c.b;
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  if (terrainMesh) { terrainGroup.remove(terrainMesh); terrainMesh.geometry.dispose(); }
+  terrainMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true }));
+  terrainGroup.add(terrainMesh);
+  placeMarkers();
+}
+// high detail: a 1.6 km patch of the 4 m heights around the view, rebuilt when the view moves (a whole-island 4 m mesh
+// is ~250 MB and froze phones); drawn 0.4 m above the 8 m terrain so it wins
+let hdH = null, hdMesh = null, hdAt = null, hdBox = null;
+const terrainGroup = new THREE.Group(); scene.add(terrainGroup);
+
+function terrainColor(c, z, up) {
+  if (z < WATER + 1.2) c.setRGB(0.76, 0.70, 0.52);
+  else if (up < 0.72) c.setRGB(0.42, 0.40, 0.37);
+  else if (z > 330) c.setRGB(0.80, 0.80, 0.78);
+  else { const t2 = Math.min(1, (z - WATER) / 320); c.setRGB(0.26 + 0.20 * t2, 0.40 + 0.06 * t2, 0.20 + 0.10 * t2); }
+}
+function buildHDPatch() {
+  if (!hdH) return;
+  const N = 2049, step = 4, half = 200;   // 401 x 401 points = 1.6 km
+  const cx = Math.round(controls.target.x / step), cy = Math.round(-controls.target.z / step);
+  if (hdAt && Math.abs(hdAt[0] - cx) < 60 && Math.abs(hdAt[1] - cy) < 60) return;
+  hdAt = [cx, cy];
+  const x0 = Math.max(0, cx - half), x1 = Math.min(N - 1, cx + half), y0 = Math.max(0, cy - half), y1 = Math.min(N - 1, cy + half);
+  const nx = x1 - x0 + 1, ny = y1 - y0 + 1;
+  const pos = new Float32Array(nx * ny * 3);
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const k = j * nx + i; pos[k * 3] = (x0 + i) * step; pos[k * 3 + 1] = hdH[(y0 + j) * N + x0 + i] / 64 + 0.4; pos[k * 3 + 2] = -(y0 + j) * step;
+  }
+  const idx = new Uint32Array((nx - 1) * (ny - 1) * 6); let t = 0;
+  for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) { if (cellIsHole((x0 + i) * step, (y0 + j) * step, step)) continue; const a = j * nx + i, b = a + 1, c = a + nx, d = c + 1; idx[t++] = a; idx[t++] = b; idx[t++] = c; idx[t++] = b; idx[t++] = d; idx[t++] = c; }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setIndex(new THREE.BufferAttribute(idx.subarray(0, t), 1)); g.computeVertexNormals();
+  const nrm = g.getAttribute('normal').array, col = new Float32Array(nx * ny * 3), c = new THREE.Color();
+  for (let k = 0; k < nx * ny; k++) { terrainColor(c, pos[k * 3 + 1], nrm[k * 3 + 1]); col[k * 3] = c.r; col[k * 3 + 1] = c.g; col[k * 3 + 2] = c.b; }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  if (hdMesh) { terrainGroup.remove(hdMesh); hdMesh.geometry.dispose(); }
+  hdMesh = new THREE.Mesh(g, terrainMesh.material); terrainGroup.add(hdMesh);
+  hdBox = [x0 * step, y0 * step, x1 * step, y1 * step]; drapeRoads();
+}
+async function setHD(on) {
+  if (!on) { if (hdMesh) { terrainGroup.remove(hdMesh); hdMesh.geometry.dispose(); hdMesh = null; } hdAt = null; hdBox = null; drapeRoads(); return; }
+  try { if (!hdH) hdH = new Uint16Array(await bin('terrain_4m.bin')); buildHDPatch(); }
+  catch (e) { store.set('hd', false); $('o-hd').checked = false; console.error(e); }
+}
+// ground level the way it is drawn right now (the HD patch sits 0.4 m above the 8 m terrain)
+function groundAt(x, y) {
+  if (hdMesh && hdH && hdBox && x >= hdBox[0] && x <= hdBox[2] && y >= hdBox[1] && y <= hdBox[3]) {
+    const N = 2049, fx = Math.min(x / 4, N - 1.001), fy = Math.min(y / 4, N - 1.001), ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+    const h = (i, j) => hdH[j * N + i] / 64;
+    return (h(ix, iy) * (1 - tx) + h(ix + 1, iy) * tx) * (1 - ty) + (h(ix, iy + 1) * (1 - tx) + h(ix + 1, iy + 1) * tx) * ty + 0.4;
+  }
+  return heightAt(x, y);
+}
+// roads.bin: the level's road splines (CryEngine road nodes): per road uint16 n, uint8 class, uint8 sort priority, then n x (uint16 x*8, uint16 y*8, uint16 (z+100)*64);
+// vertices alternate left/right edge along the road. Drawn draped on the terrain, with a painted centre line where the game's material has one.
+const ROAD_COLORS = [[0.33, 0.33, 0.34], [0.36, 0.34, 0.31], [0.58, 0.57, 0.53], [0.47, 0.38, 0.27], [0.50, 0.44, 0.32], [0.34, 0.33, 0.32], [0.37, 0.37, 0.38]];
+let roadMesh = null, roadXY = null, roadZ = null, roadLift = null, roadCount = 0;
+const roadCentre = { paved: [], dirt: [] };   // segment endpoints (world x,y,z) for the bold map lines
+let roadLines = null;
+// parallel lane strips (dual carriageways, painted-line overlays) would draw as a thick band: keep one line where segments run side by side
+const lineGrid = new Map(), pendingLines = {}; let lineId = 0;
+function lineDup(a, b, r, id) {
+  const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+  const gx = Math.floor(mx / 8), gy = Math.floor(my / 8), R = Math.ceil(r / 8);
+  for (let i = -R; i <= R; i++) for (let j = -R; j <= R; j++) {
+    const l = lineGrid.get((gx + i) + ',' + (gy + j)); if (!l) continue;
+    for (const q of l) if (q[4] !== id && Math.hypot(q[0] - mx, q[1] - my) < r && Math.abs((q[2] * dx + q[3] * dy) / len) > 0.8) return true;
+  }
+  const key = gx + ',' + gy; let l = lineGrid.get(key); if (!l) lineGrid.set(key, l = []); l.push([mx, my, dx / len, dy / len, id]);
+  return false;
+}
+async function loadRoads() {
+  const dv = new DataView(await bin('roads.bin'));
+  const xy = [], zz = [], lift = [], col = [], idx = []; let o = 0, base = 0;
+  const push = (x, y, z, l, c) => { xy.push(x, y); zz.push(z); lift.push(l); col.push(c[0], c[1], c[2]); return base++; };
+  while (o + 4 <= dv.byteLength) {
+    const n = dv.getUint16(o, true), cls = dv.getUint8(o + 2), sort = dv.getUint8(o + 3); o += 4;
+    const c = ROAD_COLORS[cls] || ROAD_COLORS[0], l = 0.25 + Math.min(60, sort) * 0.004;
+    const pts = [];
+    for (let i = 0; i < n; i++, o += 6) pts.push([dv.getUint16(o, true) / 8, dv.getUint16(o + 2, true) / 8, dv.getUint16(o + 4, true) / 64 - 100]);
+    const first = base;
+    for (const p of pts) push(p[0], p[1], p[2], l, c);
+    { const mids = []; for (let i = 0; i + 1 < n; i += 2) mids.push([(pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2, (pts[i][2] + pts[i + 1][2]) / 2]);
+      (pendingLines[cls] = pendingLines[cls] || []).push(mids); }
+    for (let i = 0; i + 3 < n; i += 2) idx.push(first + i, first + i + 1, first + i + 2, first + i + 1, first + i + 3, first + i + 2);
+    if (cls === 5 || cls === 6) {   // centre line: yellow (5) or white lane paint (6), 0.35 m wide, a little higher
+      const lc = cls === 5 ? [0.85, 0.72, 0.25] : [0.80, 0.80, 0.78], lf = base, w = 0.175;
+      for (let i = 0; i + 1 < n; i += 2) {
+        const ax = pts[i][0], ay = pts[i][1], bx = pts[i + 1][0], by = pts[i + 1][1];
+        const mx = (ax + bx) / 2, my = (ay + by) / 2, dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+        const mz = (pts[i][2] + pts[i + 1][2]) / 2;
+        push(mx - dx / len * w, my - dy / len * w, mz, l + 0.04, lc); push(mx + dx / len * w, my + dy / len * w, mz, l + 0.04, lc);
+      }
+      const m = Math.floor(n / 2);
+      for (let k = 0; k + 1 < m; k++) { const a = lf + k * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+    }
+    roadCount++;
+  }
+  // map lines: one line per road. Asphalt first, then dirt tracks, then the painted lane-marking strips only where no line
+  // exists yet (a highway is several parallel strips: lanes, paint, shoulders - all within ~12 m of each other)
+  for (const cls of [0, 1, 2, 3, 4, 5, 6]) {
+    const arr = (cls === 3 || cls === 4) ? roadCentre.dirt : roadCentre.paved, r = cls <= 2 ? 10 : cls <= 4 ? 6 : 13;
+    for (const mids of pendingLines[cls] || []) { const id = ++lineId; let px = null; for (const m of mids) { if (px && !lineDup(px, m, r, id)) arr.push(px[0], px[1], px[2], m[0], m[1], m[2]); px = m; } }
+  }
+  roadXY = new Float32Array(xy); roadZ = new Float32Array(zz); roadLift = new Float32Array(lift);
+  const pos = new Float32Array(base * 3);
+  for (let i = 0; i < base; i++) { pos[i * 3] = roadXY[i * 2]; pos[i * 3 + 2] = -roadXY[i * 2 + 1]; }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(col), 3));
+  g.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
+  roadMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }));
+  roadMesh.userData.cat = 'roads'; roadMesh.userData.model = { path: 'road' };
+  scene.add(roadMesh); drapeRoads();
+}
+// Play view: the roads as bold lines in screen pixels, drawn on top like the paper map
+function buildRoadLines() {
+  if (roadLines) { const vis = roadLines.visible; scene.remove(roadLines); for (const l of roadLines.children) { l.geometry.dispose(); l.material.dispose(); } roadLines = null; buildRoadLines(); roadLines.visible = vis; return; }
+  roadLines = new THREE.Group();
+  for (const [key, color, width] of [['paved', 0xf4f4f0, 3], ['dirt', 0xe6d3a3, 2]]) {
+    const src = roadCentre[key]; if (!src.length) continue;
+    const pos = new Float32Array(src.length);
+    for (let i = 0; i < src.length; i += 3) { const g = groundAt(src[i], src[i + 1]); pos[i] = src[i]; pos[i + 1] = (Math.abs(src[i + 2] - g) < 3 ? g : src[i + 2]) + 1.5; pos[i + 2] = -src[i + 1]; }
+    const g = new LineSegmentsGeometry(); g.setPositions(pos);
+    const m = new LineMaterial({ color, linewidth: width, worldUnits: false, depthTest: true, depthWrite: false, transparent: true, opacity: 0.95 });
+    m.resolution.set(innerWidth, innerHeight);
+    const l = new LineSegments2(g, m); l.renderOrder = 10; l.frustumCulled = false; l.userData.w = width; roadLines.add(l);
+  }
+  roadLines.visible = false; scene.add(roadLines);
+}
+function drapeRoads() {
+  if (!roadMesh || !heights) return;
+  const pos = roadMesh.geometry.getAttribute('position');
+  for (let i = 0; i < pos.count; i++) { const g = groundAt(roadXY[i * 2], roadXY[i * 2 + 1]); pos.array[i * 3 + 1] = (Math.abs(roadZ[i] - g) < 3 ? g : roadZ[i]) + roadLift[i]; }
+  pos.needsUpdate = true; roadMesh.geometry.computeVertexNormals(); roadMesh.geometry.computeBoundingSphere();
+  if (roadLines) buildRoadLines();
+  placeManholes(); placeMarkers();
+}
+// passages.bin: underground passage sketch (one segment per sewer / mine / road-tunnel / bunker / cave piece that sits under the
+// terrain): 6 x uint16 (x*8, y*8, (z+100)*64 twice) + class (0 sewer, 1 mine, 2 road tunnel, 3 bunker, 4 cave) + pad
+const UNDER_COLORS = [0x58d0ff, 0xe8c070, 0xdfe6ee, 0xffb347, 0xd9b38c];
+let underLines = null;
+async function loadPassages() {
+  const dv = new DataView(await bin('passages.bin')); const by = [[], [], [], [], []];
+  for (let o = 0; o + 14 <= dv.byteLength; o += 14) {
+    const c = dv.getUint8(o + 12); if (c > 4) continue;
+    by[c].push(dv.getUint16(o, true) / 8, dv.getUint16(o + 4, true) / 64 - 100, -dv.getUint16(o + 2, true) / 8, dv.getUint16(o + 6, true) / 8, dv.getUint16(o + 10, true) / 64 - 100, -dv.getUint16(o + 8, true) / 8);
+  }
+  underLines = new THREE.Group();
+  by.forEach((arr, c) => {
+    if (!arr.length) return;
+    const g = new LineSegmentsGeometry(); g.setPositions(new Float32Array(arr));
+    const m = new LineMaterial({ color: UNDER_COLORS[c], linewidth: 2.5, worldUnits: false, depthTest: false, depthWrite: false, transparent: true, opacity: 0.85 });
+    m.resolution.set(innerWidth, innerHeight);
+    const l = new LineSegments2(g, m); l.renderOrder = 11; l.frustumCulled = false; l.userData.w = 2.5; underLines.add(l);
+  });
+  underLines.visible = !!layerOn.under; scene.add(underLines);
+}
+let manholeMesh = null;
+function addManholeCovers() {   // the game draws manhole covers as decals, which the map does not have: a dark disc marks each one
+  const list = ENT.filter((e) => e.kind === 'manhole' || e.kind === 'hatch'); if (!list.length) return;
+  const geo = new THREE.CylinderGeometry(1, 1, 0.1, 24);
+  manholeMesh = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({ color: 0x050505 }), list.length);   // unlit black: reads as the hole itself
+  manholeMesh.frustumCulled = false;   // the instanced mesh's own bounding sphere sits at the origin, which would cull every cover
+  manholeMesh.userData.list = list; placeManholes(); scene.add(manholeMesh);
+}
+function placeManholes() {   // re-seated whenever the drawn ground changes (HD terrain patch)
+  if (!manholeMesh) return;
+  const m = new THREE.Matrix4();
+  const rc = new THREE.Raycaster(); rc.far = 12; const down = new THREE.Vector3(0, -1, 0);
+  manholeMesh.userData.list.forEach((e, i) => {
+    // sit on whatever surface is there: the draped road, a paving slab, or the bare ground
+    const g = groundAt(e.x, e.y); let top = g;
+    if (roadMesh) { rc.set(new THREE.Vector3(e.x, g + 6, -e.y), down); const h = rc.intersectObject(roadMesh, false)[0]; if (h && h.point.y > top) top = h.point.y; }
+    _o.set(e.x, g + 6, -e.y); gatherCands(_o); const d = castRay(_o, down, 12); if (d >= 0 && g + 6 - d > top && g + 6 - d < g + 3) top = g + 6 - d;
+    const r = e.kind === 'hatch' ? 0.95 : 0.65; m.makeScale(r, 1, r); m.setPosition(e.x, top + 0.06, -e.y); manholeMesh.setMatrixAt(i, m);
+  });
+  candAt = null;
+  manholeMesh.instanceMatrix.needsUpdate = true; manholeMesh.computeBoundingSphere();
+}
+// water.bin: the level's water volumes (rivers, lakes, ponds): per volume uint16 nTris, uint8 class (0 clean, 1 poison, 2 cave), pad, then triangles of (uint16 x*8, y*8, (z+100)*64)
+let waterMesh = null;
+let waterTris = null; const waterGrid = new Map();
+function waterAt(x, y) {   // height of the water surface at x,y (river, lake, pool) or null
+  const l = waterGrid.get(Math.floor(x / 32) + ',' + Math.floor(y / 32)); let best = null;
+  if (l) for (const t of l) {
+    const o = t * 9, ax = waterTris[o], ay = -waterTris[o + 2], bx = waterTris[o + 3], by = -waterTris[o + 5], cx = waterTris[o + 6], cy = -waterTris[o + 8];
+    const d1 = (bx - ax) * (y - ay) - (by - ay) * (x - ax), d2 = (cx - bx) * (y - by) - (cy - by) * (x - bx), d3 = (ax - cx) * (y - cy) - (ay - cy) * (x - cx);
+    if ((d1 >= 0 && d2 >= 0 && d3 >= 0) || (d1 <= 0 && d2 <= 0 && d3 <= 0)) { const z = Math.max(waterTris[o + 1], waterTris[o + 4], waterTris[o + 7]); if (best === null || z > best) best = z; }
+  }
+  if (best === null && heightAt(x, y) < WATER) best = WATER;   // the sea
+  return best;
+}
+async function loadWater() {
+  const dv = new DataView(await bin('water.bin'));
+  const pos = [], col = []; let o = 0, nv = 0;
+  const C = [[0.17, 0.36, 0.54], [0.16, 0.44, 0.42], [0.12, 0.26, 0.36]];   // clean blue, irradiated teal-green, cave dark
+  while (o + 4 <= dv.byteLength) {
+    const nt = dv.getUint16(o, true), cls = dv.getUint8(o + 2); o += 4; const c = C[cls] || C[0];
+    for (let i = 0; i < nt * 3; i++, o += 6) { pos.push(dv.getUint16(o, true) / 8, dv.getUint16(o + 4, true) / 64 - 100 + 0.05, -dv.getUint16(o + 2, true) / 8); col.push(c[0], c[1], c[2]); nv++; }
+  }
+  waterTris = new Float32Array(pos);   // kept for wading: a 32 m grid of triangle indices
+  for (let t = 0; t < waterTris.length / 9; t++) {
+    const xs = [waterTris[t * 9], waterTris[t * 9 + 3], waterTris[t * 9 + 6]], ys = [-waterTris[t * 9 + 2], -waterTris[t * 9 + 5], -waterTris[t * 9 + 8]];
+    for (let gx = Math.floor(Math.min(...xs) / 32); gx <= Math.floor(Math.max(...xs) / 32); gx++) for (let gy = Math.floor(Math.min(...ys) / 32); gy <= Math.floor(Math.max(...ys) / 32); gy++) { const k = gx + ',' + gy; let l = waterGrid.get(k); if (!l) waterGrid.set(k, l = []); l.push(t); }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
+  g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(col), 3));
+  g.computeVertexNormals();
+  waterMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.97, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 }));
+  waterMesh.userData.cat = 'water'; waterMesh.userData.model = { path: 'water' }; waterMesh.renderOrder = 1;
+  scene.add(waterMesh);
+}
+function addWater() {
+  const g = new THREE.PlaneGeometry(60000, 60000); g.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: 0x2b5d8a, transparent: true, opacity: 0.86 }));
+  m.position.set(4096, WATER, -4096); scene.add(m);
+}
+
+// ---------- objects: the game's own models, instanced
+// instances.bin: uint16 model, uint8 category, uint8 source, float32[12] row-major 3x4 world matrix (x east, y north, z up)
+// models.bin: per model uint16 x,y,z (quantised in the mesh bbox) + rgb + pad (10 bytes), then uint16/uint32 indices
+const DETAIL = store.get('detail', (navigator.deviceMemory && navigator.deviceMemory <= 4) || innerWidth < 700 ? 'low' : 'full');
+const BOX_CATS_LOW = { prop: 1, other: 1, nature: 1, fence: 0, sidewalk: 0 };
+const SKIP_CATS_LOW = { interior: 1 };   // light detail: no interior clutter at all
+let M = null;   // models.json
+async function fetchProgress(url, from, to, label) {
+  const r = await fetch(url + '?v=' + VER);
+  if (!r.ok) throw new Error(url + ' ' + r.status);
+  const total = +r.headers.get('X-Raw-Length') || 0;
+  if (!r.body || !total) return r.arrayBuffer();
+  const reader = r.body.getReader(); const chunks = []; let got = 0;
+  for (;;) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); got += value.length;
+    progress(from + (to - from) * Math.min(1, got / total), label + ' (' + (got / 1048576).toFixed(0) + ' / ' + (total / 1048576).toFixed(0) + ' MB)'); }
+  const out = new Uint8Array(got); let o = 0; for (const c of chunks) { out.set(c, o); o += c.length; }
+  return out.buffer;
+}
+function modelGeometry(rec, dv, asBox) {
+  if (asBox || !rec.t) {
+    const bb = rec.bb, sx = Math.max(0.2, bb[3] - bb[0]), sy = Math.max(0.2, bb[4] - bb[1]), sz = Math.max(0.2, bb[5] - bb[2]);
+    const g = new THREE.BoxGeometry(sx, sy, sz); g.translate((bb[0] + bb[3]) / 2, (bb[1] + bb[4]) / 2, (bb[2] + bb[5]) / 2);
+    return g;
+  }
+  const n = rec.v, pos = new Float32Array(n * 3), col = new Uint8Array(n * 3), mb = rec.mb;
+  const sx = (mb[3] - mb[0]) / 65535, sy = (mb[4] - mb[1]) / 65535, sz = (mb[5] - mb[2]) / 65535;
+  for (let i = 0; i < n; i++) {
+    const o = rec.vo + i * 10;
+    pos[i * 3] = mb[0] + dv.getUint16(o, true) * sx; pos[i * 3 + 1] = mb[1] + dv.getUint16(o + 2, true) * sy; pos[i * 3 + 2] = mb[2] + dv.getUint16(o + 4, true) * sz;
+    col[i * 3] = dv.getUint8(o + 6); col[i * 3 + 1] = dv.getUint8(o + 7); col[i * 3 + 2] = dv.getUint8(o + 8);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3, true));
+  const idx = rec.w ? new Uint32Array(dv.buffer, rec.io, rec.t * 3) : new Uint16Array(dv.buffer, rec.io, rec.t * 3);
+  g.setIndex(new THREE.BufferAttribute(idx.slice(), 1));
+  g.computeVertexNormals();
+  let r = 0, gg = 0, b = 0; for (let i = 0; i < n; i++) { r += col[i * 3]; gg += col[i * 3 + 1]; b += col[i * 3 + 2]; }
+  g.userData.avg = n ? [r / n / 255, gg / n / 255, b / n / 255] : null;
+  return g;
+}
+// cutaway: a clipping plane on the object materials only (terrain, water and roads stay)
+const cutPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e9); renderer.localClippingEnabled = true;
+let CUT = store.get('cut', 0);
+const meshMat = new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, clippingPlanes: [cutPlane] });
+const boxMats = {}; for (const [c, col] of Object.entries(CAT_COLORS)) boxMats[c] = new THREE.MeshLambertMaterial({ color: col, clippingPlanes: [cutPlane] });
+// Every (model, tile) pair is its own InstancedMesh: the GPU then only draws tiles in view, and small things are dropped beyond a distance per category.
+const TILE = { building: 1024, designer: 1024, rock: 1024 };            // other categories use 512 m tiles
+const FAR = 2400;   // beyond this (3D distance) a tile is drawn as one merged mesh of coloured boxes instead of hundreds of instanced groups
+const CULL = { interior: 450, sidewalk: 1500, fence: 1500, prop: 1800, other: 1800, nature: 2200, rock: FAR, building: FAR, designer: FAR };
+const FAR_CATS = { building: 1, designer: 1, rock: 1, prop: 1 };   // props only when they are big (silos, cranes, wrecks)
+const tileMeshes = [];   // every object InstancedMesh with its tile box, for culling and collision
+const farMeshes = [];    // merged far-view meshes, one per (1024 m tile, category)
+const farBuild = new Map();   // key -> { cat, pos: [], nrm: [], col: [] } while loading
+const farBox = new THREE.BoxGeometry(1, 1, 1).toNonIndexed(), farP = farBox.getAttribute('position').array, farN = farBox.getAttribute('normal').array;
+function farAdd(cat, tx, ty, f, bb, rgb) {
+  const key = cat + ':' + tx + ':' + ty; let fb = farBuild.get(key); if (!fb) farBuild.set(key, fb = { cat, tx, ty, pos: [], nrm: [], col: [] });
+  const cx = (bb[0] + bb[3]) / 2, cy = (bb[1] + bb[4]) / 2, cz = (bb[2] + bb[5]) / 2, sx = Math.max(0.3, bb[3] - bb[0]), sy = Math.max(0.3, bb[4] - bb[1]), sz = Math.max(0.3, bb[5] - bb[2]);
+  const m0 = f(0), m1 = f(1), m2 = f(2), m3 = f(3), m4 = f(4), m5 = f(5), m6 = f(6), m7 = f(7), m8 = f(8), m9 = f(9), m10 = f(10), m11 = f(11);
+  for (let v = 0; v < 36; v++) {
+    const x = cx + farP[v * 3] * sx, y = cy + farP[v * 3 + 1] * sy, z = cz + farP[v * 3 + 2] * sz;
+    const wx = m0 * x + m1 * y + m2 * z + m3, wy = m4 * x + m5 * y + m6 * z + m7, wz = m8 * x + m9 * y + m10 * z + m11;
+    fb.pos.push(wx, wz, -wy);
+    const nx = farN[v * 3], ny = farN[v * 3 + 1], nz = farN[v * 3 + 2];
+    let ax = m0 * nx + m1 * ny + m2 * nz, ay = m4 * nx + m5 * ny + m6 * nz, az = m8 * nx + m9 * ny + m10 * nz; const l = Math.hypot(ax, ay, az) || 1;
+    fb.nrm.push(ax / l * 127, az / l * 127, -ay / l * 127);
+    fb.col.push(rgb[0], rgb[1], rgb[2]);
+  }
+}
+function farFinish() {
+  const mat = new THREE.MeshLambertMaterial({ vertexColors: true, clippingPlanes: [cutPlane] });
+  for (const fb of farBuild.values()) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(fb.pos), 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(new Int8Array(fb.nrm), 3, true));
+    g.setAttribute('color', new THREE.BufferAttribute(new Uint8Array(fb.col), 3, true));
+    g.computeBoundingSphere();
+    const mesh = new THREE.Mesh(g, mat); mesh.userData.cat = fb.cat; mesh.userData.far = true;
+    const sp = g.boundingSphere; mesh.userData.cx = sp.center.x; mesh.userData.cy = -sp.center.z; mesh.userData.cz = sp.center.y; mesh.userData.cr = sp.radius;
+    mesh.visible = false; farMeshes.push(mesh); scene.add(mesh);
+  }
+  farBuild.clear();
+}
+const hiGeos = new Map(), loGeos = new Map(); let loReady = false;   // full detail also fetches the light meshes and swaps to them beyond 1.5 km
+async function loadObjects() {
+  const set = DETAIL === 'full' ? 'hi' : 'lo';
+  M = await (await fetch('models_' + set + '.json?v=' + VER, { cache: 'no-store' })).json();
+  const mdv = DETAIL === 'box' ? null : new DataView(await fetchProgress('models_' + set + '.bin', 0.45, 0.62, 'Loading the models'));
+  const idv = new DataView(await fetchProgress('instances.bin', 0.62, 0.7, 'Loading object positions'));
+  progress(0.72, 'Placing ' + M.instances.toLocaleString() + ' objects...');
+  const recs = {}; for (const r of M.models) recs[r.i] = r;
+  const byKey = new Map(); const n = idv.byteLength / 52;
+  for (let i = 0; i < n; i++) {
+    const mi = idv.getUint16(i * 52, true); const rec = recs[mi]; if (!rec || rec.s || rec.cat === 'sky' || /\/sky\/|\/spawners\//i.test(rec.path)) continue;   // sky dome and invisible loot-spawner helpers are not drawn (or walked on)
+    if (DETAIL === 'low' && SKIP_CATS_LOW[rec.cat]) continue;
+    const ts = TILE[rec.cat] || 512, tx = Math.floor(idv.getFloat32(i * 52 + 4 + 12, true) / ts), ty = Math.floor(idv.getFloat32(i * 52 + 4 + 28, true) / ts);
+    const key = mi + ':' + tx + ':' + ty; let l = byKey.get(key); if (!l) byKey.set(key, l = []); l.push(i);
+  }
+  const geos = hiGeos; const m4 = new THREE.Matrix4(); let tris = 0, k = 0;
+  const corners = [];
+  for (const [key, list] of byKey) {
+    const mi = +key.split(':')[0], rec = recs[mi], cat = rec.cat;
+    const asBox = DETAIL === 'box' || (DETAIL === 'low' && BOX_CATS_LOW[cat]) || !rec.t || !mdv;
+    let geo = geos.get(mi);
+    if (!geo) { try { geo = modelGeometry(rec, mdv, asBox); } catch (e) { console.warn('model', rec.path, e); geo = modelGeometry(rec, null, true); } geos.set(mi, geo); }
+    const mesh = new THREE.InstancedMesh(geo, asBox ? (boxMats[cat] || boxMats.other) : meshMat, list.length);
+    const sph = new Float32Array(list.length * 4), bb = rec.bb;
+    const farOk = FAR_CATS[cat] && (cat !== 'prop' || Math.max(bb[3] - bb[0], bb[4] - bb[1], bb[5] - bb[2]) > 7);
+    const avg = geo.userData.avg, cc = new THREE.Color(CAT_COLORS[cat] || CAT_COLORS.other), farRGB = avg ? [avg[0] * 255, avg[1] * 255, avg[2] * 255] : [cc.r * 255, cc.g * 255, cc.b * 255];
+    let minx = 1e9, miny = 1e9, minz = 1e9, maxx = -1e9, maxy = -1e9, maxz = -1e9;
+    list.forEach((i, j) => {
+      const o = i * 52 + 4, f = (q) => idv.getFloat32(o + q * 4, true);
+      m4.set(f(0), f(1), f(2), f(3),   f(8), f(9), f(10), f(11),   -f(4), -f(5), -f(6), -f(7),   0, 0, 0, 1);
+      mesh.setMatrixAt(j, m4);
+      if (farOk) farAdd(cat, Math.floor(f(3) / 1024), Math.floor(f(7) / 1024), f, bb, farRGB);
+      // world bounding sphere of this instance (three coordinates), used for collision candidates
+      let ax = 1e9, ay = 1e9, az = 1e9, bx = -1e9, by = -1e9, bz = -1e9;
+      for (let c = 0; c < 8; c++) {
+        const x = c & 1 ? bb[3] : bb[0], y = c & 2 ? bb[4] : bb[1], z = c & 4 ? bb[5] : bb[2];
+        const wx = f(0) * x + f(1) * y + f(2) * z + f(3), wy = f(4) * x + f(5) * y + f(6) * z + f(7), wz = f(8) * x + f(9) * y + f(10) * z + f(11);
+        if (wx < ax) ax = wx; if (wx > bx) bx = wx; if (wy < ay) ay = wy; if (wy > by) by = wy; if (wz < az) az = wz; if (wz > bz) bz = wz;
+      }
+      sph[j * 4] = (ax + bx) / 2; sph[j * 4 + 1] = (az + bz) / 2; sph[j * 4 + 2] = -(ay + by) / 2; sph[j * 4 + 3] = Math.hypot(bx - ax, by - ay, bz - az) / 2;
+      if (ax < minx) minx = ax; if (bx > maxx) maxx = bx; if (ay < miny) miny = ay; if (by > maxy) maxy = by; if (az < minz) minz = az; if (bz > maxz) maxz = bz;
+    });
+    mesh.instanceMatrix.needsUpdate = true; mesh.frustumCulled = true;
+    mesh.boundingSphere = new THREE.Sphere(new THREE.Vector3((minx + maxx) / 2, (minz + maxz) / 2, -(miny + maxy) / 2), Math.hypot(maxx - minx, maxy - miny, maxz - minz) / 2 + 1);
+    mesh.userData.cat = cat; mesh.userData.model = rec; mesh.userData.sph = sph; mesh.userData.on = true; mesh.userData.hi = geo; mesh.userData.asBox = asBox; mesh.userData.lod = 'hi';
+    mesh.userData.box = [minx, miny, minz, maxx, maxy, maxz];   // world (x east, y north, z up)
+    mesh.userData.cx = (minx + maxx) / 2; mesh.userData.cy = (miny + maxy) / 2; mesh.userData.cz = (minz + maxz) / 2; mesh.userData.cr = Math.hypot(maxx - minx, maxy - miny, maxz - minz) / 2;
+    (groups[cat] = groups[cat] || []).push(mesh); tileMeshes.push(mesh); scene.add(mesh);
+    tris += (asBox ? 12 : rec.t) * list.length;
+    if ((++k & 511) === 0) { progress(0.72 + 0.03 * k / byKey.size); await new Promise((r) => setTimeout(r, 0)); }
+  }
+  M.sceneTris = tris; M.drawGroups = byKey.size;
+  farFinish();
+}
+let cullAt = null;
+function cullStep(force) {
+  const cx = camera.position.x, cy = -camera.position.z, cz = camera.position.y;
+  if (!force && cullAt && Math.abs(cullAt[0] - cx) < 25 && Math.abs(cullAt[1] - cy) < 25 && Math.abs(cullAt[3] - cz) < 25 && cullAt[2] === PLAY) return;
+  cullAt = [cx, cy, PLAY, cz];
+  for (const m of farMeshes) { const u = m.userData; m.visible = !!layerOn[u.cat] && Math.hypot(u.cx - cx, u.cy - cy, u.cz - cz) - u.cr >= FAR; }
+  if (treeMesh) { const far = camera.position.distanceTo(controls.target) > 2000; const want = far ? treeGeoFar : treeGeoNear; if (treeMesh.geometry !== want) treeMesh.geometry = want; }
+  for (const g of tileMeshes) {
+    const u = g.userData; const lim = CULL[u.cat] || 2000;
+    const d = Math.hypot(u.cx - cx, u.cy - cy, u.cz - cz) - u.cr;
+    g.visible = u.on && d < lim;
+    if (loReady && !u.asBox && g.visible) {
+      const want = d > 1600 ? 'lo' : d < 1400 ? 'hi' : u.lod;
+      if (want !== u.lod) { u.lod = want; const lo = loGeos.get(u.model.i); g.geometry = (want === 'lo' && lo) ? lo : u.hi; }
+    }
+  }
+}
+async function loadLoGeos() {
+  const Mlo = await (await fetch('models_lo.json?v=' + VER, { cache: 'no-store' })).json();
+  const dv = new DataView(await bin('models_lo.bin'));
+  let k = 0;
+  for (const rec of Mlo.models) {
+    if (!rec.t || rec.s || !hiGeos.has(rec.i)) continue;
+    try { loGeos.set(rec.i, modelGeometry(rec, dv, false)); } catch (e) {}
+    if ((++k & 255) === 0) await new Promise((r) => setTimeout(r, 0));
+  }
+  loReady = true; cullStep(true);
+}
+async function loadTrees() {
+  const dv = new DataView(await bin('trees.bin'));
+  const n = dv.byteLength / 8;
+  treeGeoNear = new THREE.ConeGeometry(0.5, 1, 7, 1, true); treeGeoNear.translate(0, 0.5, 0);   // open cones: the base is never seen
+  treeGeoFar = new THREE.ConeGeometry(0.5, 1, 3, 1, true); treeGeoFar.translate(0, 0.5, 0);      // 3 triangles per tree beyond 2 km
+  treeMesh = new THREE.InstancedMesh(treeGeoNear, new THREE.MeshLambertMaterial({ color: 0x2f5a34, clippingPlanes: [cutPlane], side: THREE.DoubleSide }), n);
+  const m = new THREE.Matrix4();
+  for (let i = 0; i < n; i++) {
+    const o = i * 8, x = dv.getUint16(o, true) / 8, y = dv.getUint16(o + 2, true) / 8, z = dv.getUint16(o + 4, true) / 32 - 100;
+    const h = dv.getUint8(o + 6) / 4, w = Math.max(1.5, dv.getUint8(o + 7) / 4 * 0.7);
+    m.makeScale(w, h, w); m.setPosition(x, z, -y); treeMesh.setMatrixAt(i, m);
+  }
+  treeMesh.instanceMatrix.needsUpdate = true; treeMesh.computeBoundingSphere();
+  scene.add(treeMesh);
+}
+
+// ---------- markers (same data as the 2D live map)
+const labelsEl = $('labels'); let D = null; const markers = [];
+const markOn = Object.assign({ player: true, town: true, vendor: true, base: true, stash: true, trap: true, shrine: true, userpin: true, ent: true, vehicle: false }, store.get('markers', {}));
+let ENT = [];   // entrances.json: caves, manholes, hatches, tunnels, mines, ground openings
+const ENT_ICON = { manhole: 'Manhole', hatch: 'Bunker hatch', tunnel: 'Tunnel', sewer: 'Sewer entrance', cave: 'Cave', basement: 'Basement', mine: 'Mine', hole: 'Ground opening' };
+const ENT_COLOR = { manhole: '#ff8ae6', hatch: '#ffb347', tunnel: '#cfd8e3', sewer: '#9fe3ff', cave: '#d9b38c', basement: '#c9a0ff', mine: '#e8c070', hole: '#b0b0b0' };
+function addMarker(item, kind, label, color) {
+  const el = document.createElement('div'); el.className = 'mk ' + kind;
+  el.innerHTML = '<div class="lbl"></div><div class="pt"></div><div class="stem"></div>';
+  el.querySelector('.lbl').textContent = label || '';
+  el.querySelector('.pt').style.background = color;
+  el.addEventListener('click', (e) => { e.stopPropagation(); lastHit = mk.p.clone(); cardItem = item; showCard(item.title || label || kind, item.sub || ''); });
+  labelsEl.appendChild(el);
+  const mk = { item, kind, el, p: new THREE.Vector3(), label0: label || '', lbl: label || '' }; markers.push(mk); return mk;
+}
+function placeMarkers() {
+  for (const mk of markers) {
+    const it = mk.item; const z = (it.z != null && it.z !== '' && !isNaN(+it.z)) ? +it.z : groundAt(+it.x, +it.y);   // the ground as drawn right now (HD patch or 8 m)
+    mk.p.copy(W(+it.x, +it.y, z + (mk.kind === 'town' ? 40 : 1.5)));
+  }
+}
+function nearestTown(x, y) {
+  let best = null, bd = 1e18;
+  for (const t of (D && D.towns) || []) { const d = (t.x - x) ** 2 + (t.y - y) ** 2; if (d < bd) { bd = d; best = t; } }
+  return best ? best.name + ' (' + Math.round(Math.sqrt(bd)) + ' m)' : '';
+}
+async function loadData() {
+  try { const r = await fetch(PUBLIC ? 'data_public.json?v=' + VER : '/data.json', { cache: 'no-store' }); D = await r.json(); } catch (e) { return; }
+  if (PUBLIC) { D.players = []; D.bases = []; D.vehicles = []; D.stashes = []; D.traps = []; D.pins = []; D.online = []; }
+  for (const mk of markers) mk.el.remove(); markers.length = 0;
+  for (const t of D.towns || []) addMarker(Object.assign({ title: t.name, sub: 'Place' }, t), 'town', t.name, '#fff');
+  for (const v of D.vendors || []) addMarker(Object.assign({ title: v.name, sub: (v.type === 'cache' ? 'Supply cache' : 'Vendor') + (v.area ? ' · ' + v.area : '') }, v), 'vendor', v.name, 'var(--vendor)');
+  for (const b of D.bases || []) addMarker(Object.assign({ title: b.name || 'Base', sub: (b.parts ? b.parts + ' placed parts · ' : '') + nearestTown(b.x, b.y) }, b), 'base', '', 'var(--base)');
+  for (const s of D.stashes || []) addMarker(Object.assign({ title: s.name, sub: 'Gun stash · ' + nearestTown(s.x, s.y) }, s), 'stash', '', 'var(--stash)');
+  for (const t of D.traps || []) addMarker(Object.assign({ title: t.name || 'Text trap', sub: 'Text trap · ' + nearestTown(t.x, t.y) }, t), 'trap', '', 'var(--trap)');
+  for (const s of D.shrines || []) addMarker(Object.assign({ title: s.name, sub: 'The worthy may lift the hammer · ' + nearestTown(s.x, s.y) }, s), 'shrine', s.name, 'var(--shrine)');
+  for (const p of D.pins || []) addMarker(Object.assign({ title: p.name, sub: 'Pin · ' + nearestTown(p.x, p.y) + (p.created ? ' · ' + p.created : ''), pinId: p.id }, p), 'userpin', p.name, 'var(--pin)');
+  for (const v of D.vehicles || []) { const nm = (v.cls || 'vehicle').replace(/_/g, ' '); addMarker(Object.assign({ title: nm, sub: 'Vehicle · ' + nearestTown(v.x, v.y), name: nm }, v), 'vehicle', '', 'var(--vehicle)'); }
+  for (const e of ENT) {
+    const t = e.kind === 'hole' ? e.label : (ENT_ICON[e.kind] || e.label);   // openings carry their own label (Parking garage, Sewer opening...)
+    addMarker({ title: e.label, ent: e.kind, sub: (e.n > 1 ? e.n + ' pieces · ' : '') + nearestTown(e.x, e.y) + ' · x ' + Math.round(e.x) + ' y ' + Math.round(e.y), x: e.x, y: e.y, z: (e.kind === 'hole' || e.kind === 'manhole' || e.kind === 'hatch') ? null : e.z + 1, hole: e.kind === 'hole' }, 'ent', t, ENT_COLOR[e.kind] || '#fff');
+  }
+  for (const p of D.players || []) {
+    const col = p.online ? 'var(--online)' : 'var(--player)';
+    const pname = p.name || 'Unknown player';
+    const mk = addMarker(Object.assign({ title: pname, sub: (p.online ? 'Online' : 'Offline') + ' · ' + nearestTown(p.x, p.y) }, p), 'player', pname, col);
+    mk.key = p.id || p.name; mk.quiet = !p.online;   // offline players: a dot, no label (many have no known name)
+  }
+  placeMarkers(); applyMarkerVis(); renderOnline();
+}
+function renderOnline() {
+  const list = $('online-list'); if (!list || !D) return;
+  const on = (D.players || []).filter((p) => p.online);
+  const ids = new Set(on.map((p) => String(p.id)));
+  for (const o of D.online || []) if (!ids.has(String(o.id))) { on.push({ id: o.id, name: o.name, online: true, noPos: true }); ids.add(String(o.id)); }
+  $('b-online').textContent = 'Online' + (on.length ? ' (' + on.length + ')' : '');
+  list.innerHTML = '';
+  if (!on.length) { list.innerHTML = '<small>Nobody is on the server right now.</small>'; return; }
+  for (const p of on) {
+    const b = document.createElement('button'); b.innerHTML = '<span></span><small></small>';
+    b.firstChild.textContent = p.isMe || (D.me && String(p.id) === String(D.me)) ? 'You (' + (p.name || '') + ')' : (p.name || 'Unknown player');
+    b.lastChild.textContent = p.noPos ? 'position not reported yet' : nearestTown(p.x, p.y) + (p.since ? ' · since ' + p.since : '') + (p.hp != null ? ' · ' + Math.round(p.hp) + ' hp' : '');
+    if (!p.noPos) b.onclick = () => { const mk = markers.find((m) => m.kind === 'player' && (String(m.item.id) === String(p.id) || m.item.name === p.name)); goTo(p.x, p.y, mk ? mk.p.y - 1.5 : null, p.name || 'Player', b.lastChild.textContent); };
+    list.appendChild(b);
+  }
+}
+async function loadLog() {
+  const list = $('log-list'); list.innerHTML = '<small>Loading…</small>';
+  try {
+    const r = await fetch('/sessions.json', { cache: 'no-store' }); const J = await r.json();
+    list.innerHTML = '';
+    for (const sess of (J.sessions || []).slice(0, 60)) {
+      const d = document.createElement('div'); d.className = 'row';
+      d.innerHTML = '<b></b> <small></small>'; d.firstChild.textContent = sess.name || sess.id;
+      d.lastChild.textContent = (sess.start || '') + ' → ' + (sess.end ? sess.end.slice(11) : 'now') + ' · ' + Math.round(sess.mins || 0) + ' min' + (sess.how && sess.how !== 'left' ? ' · ' + sess.how : '');
+      list.appendChild(d);
+    }
+    if (!list.childElementCount) list.innerHTML = '<small>No sessions recorded yet.</small>';
+  } catch (e) { list.innerHTML = '<small>Could not load the log.</small>'; }
+}
+// fly to a place and open its card (search results, online list)
+function goTo(x, y, z, title, sub) {
+  const g = (z != null && !isNaN(z)) ? z : groundAt(x, y);
+  if (WALK.on) stopWalk();
+  flyTo(x, y, g, 250); lastHit = W(x, y, g); cardItem = null; showCard(title, sub || nearestTown(x, y));
+}
+async function liveTick() {
+  try {
+    const r = await fetch('/live.json', { cache: 'no-store' }); const L = await r.json();
+    for (const v of Object.values(L)) {
+      const mk = markers.find((m) => m.kind === 'player' && m.item.name === v.name);
+      if (mk) { mk.item.x = v.x; mk.item.y = v.y; mk.item.z = v.z; mk.item.online = true; mk.quiet = false; mk.el.querySelector('.pt').style.background = 'var(--online)'; }
+    }
+    placeMarkers(); applyMarkerVis();
+  } catch (e) {}
+}
+function applyMarkerVis() {
+  const lab = $('o-labels').checked;
+  for (const mk of markers) { mk.el.hidden = !markOn[mk.kind]; mk.el.classList.toggle('nolabel', (!lab && mk.kind !== 'town') || !!mk.quiet); }
+}
+const tmp = new THREE.Vector3();
+function updateLabels() {
+  const w = innerWidth, h = innerHeight, camPos = camera.position;
+  for (const mk of markers) {
+    if (mk.el.hidden) continue;
+    tmp.copy(mk.p).project(camera);
+    const dist = camPos.distanceTo(mk.p);
+    let vis = tmp.z < 1 && tmp.x > -1.2 && tmp.x < 1.2 && tmp.y > -1.2 && tmp.y < 1.2 && (mk.kind !== 'town' || dist < 9000) && (mk.kind === 'town' || mk.kind === 'player' || mk.kind === 'shrine' || mk.kind === 'ent' || dist < 4500) && (mk.kind !== 'ent' || dist < 6500 || PLAY);
+    if (vis && WALK.on) vis = dist < (mk.kind === 'town' ? 700 : 120);                       // walking: only what is around you
+    if (vis && mk.kind === 'ent' && mk.item.hole && camera.position.distanceTo(controls.target) > 1400) vis = false;   // ground openings only when zoomed in
+    if (mk.kind === 'ent' && (mk.item.ent === 'manhole' || mk.item.ent === 'hatch')) {   // walking up to an opening: tell them how to use it
+      const want = (WALK.on && dist < 14) ? 'Press F to use the ladder' : mk.label0;
+      if (want !== mk.lbl) { mk.lbl = want; mk.el.querySelector('.lbl').textContent = want; }
+    }
+    mk.el.style.display = vis ? '' : 'none';
+    if (vis) mk.el.style.left = ((tmp.x + 1) / 2 * w) + 'px', mk.el.style.top = ((1 - tmp.y) / 2 * h) + 'px';
+  }
+}
+
+// ---------- identify on tap
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(); let downAt = null;
+renderer.domElement.addEventListener('pointerdown', (e) => { downAt = [e.clientX, e.clientY]; });
+var lastHit = null;
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (WALK.on) return;
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const targets = Object.values(groups).flat().filter((g) => g.visible); if (roadMesh && roadMesh.visible) targets.push(roadMesh); if (waterMesh) targets.push(waterMesh);
+  const hits = ray.intersectObjects(targets, false);
+  const th = terrainMesh ? ray.intersectObject(terrainMesh, false)[0] : null;
+  const hit = hits[0];
+  lastHit = hit && (!th || hit.distance <= th.distance + 0.5) ? hit.point.clone() : (th ? th.point.clone() : null); cardItem = null;
+  if (hit && (!th || hit.distance <= th.distance + 0.5)) {
+    const c = hit.object.userData.cat, model = (hit.object.userData.model || {}).path || '';
+    const nice = model.replace(/^.*\//, '').replace(/\.cgf$/i, '').replace(/[_-]+/g, ' ');
+    const p = hit.point;
+    showCard(c === 'roads' ? 'Road' : c === 'water' ? 'Water' : (nice || c), (c === 'roads' ? 'road surface' : c === 'water' ? 'river or lake' : c + ' · ' + model) + ' · ' + nearestTown(p.x, -p.z) + ' · ground ' + p.y.toFixed(1) + ' m');
+  } else if (th) {
+    const p = th.point; showCard('Ground', 'x ' + p.x.toFixed(0) + '  y ' + (-p.z).toFixed(0) + '  height ' + p.y.toFixed(1) + ' m · ' + nearestTown(p.x, -p.z));
+  }
+});
+let cardItem = null;   // the marker item the card is showing (null for a tap on the ground)
+function showCard(t, s) { $('card-t').textContent = t; $('card-s').textContent = s; $('card').classList.add('open'); $('card-del').style.display = (cardItem && cardItem.pinId) ? '' : 'none'; $('card-pin').style.display = (PUBLIC || !lastHit) ? 'none' : ''; }
+$('card-pin').onclick = async () => {
+  if (!lastHit) return;
+  const name = prompt('Name for this pin'); if (!name) return;
+  const x = lastHit.x, y = -lastHit.z, z = lastHit.y;
+  try { const r = await fetch('/pins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'add', name, x: +x.toFixed(1), y: +y.toFixed(1), z: +z.toFixed(1) }) }); if (!r.ok) throw new Error(r.status); }
+  catch (e) { alert('Could not save the pin (' + e.message + ')'); return; }
+  $('card').classList.remove('open'); await loadData();
+};
+$('card-del').onclick = async () => {
+  if (!cardItem || !cardItem.pinId) return;
+  if (!confirm('Delete the pin "' + (cardItem.title || cardItem.name) + '"?')) return;
+  try { await fetch('/pins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: cardItem.pinId }) }); } catch (e) {}
+  $('card').classList.remove('open'); cardItem = null; await loadData();
+};
+$('card-x').onclick = () => $('card').classList.remove('open');
+$('card-walk').onclick = () => { if (lastHit) { startWalk(lastHit.x, -lastHit.z); $('card').classList.remove('open'); } };
+
+// ---------- search: players, places, vendors, bases, vehicles, pins, stashes, traps, shrines, entrances, or "x y"
+const qEl = $('q'), resEl = $('results');
+function searchItems(v) {
+  const items = []; const m = v.match(/^(-?\d+(?:\.\d+)?)[ ,]+(-?\d+(?:\.\d+)?)/);
+  if (m) items.push({ name: 'Point ' + m[1] + ', ' + m[2], kind: 'point', x: +m[1], y: +m[2] });
+  const lv = v.toLowerCase(); if (!D) return items;
+  const pools = [['town', D.towns], ['vendor', D.vendors], ['player', D.players], ['base', D.bases], ['vehicle', D.vehicles], ['pin', D.pins], ['stash', D.stashes], ['trap', D.traps], ['shrine', D.shrines]];
+  for (const [kind, arr] of pools) for (const it of arr || []) {
+    const nm = it.name || it.ownerName || (it.cls ? it.cls.replace(/_/g, ' ') : ''); if (!nm) continue;
+    if (nm.toLowerCase().includes(lv) || (it.id && String(it.id).includes(lv))) { items.push(Object.assign({ kind, name: nm }, it, { name: nm })); if (items.length > 14) return items; }
+  }
+  for (const e of ENT) if (e.label.toLowerCase().includes(lv)) { items.push({ kind: 'entrance', name: e.label, x: e.x, y: e.y }); if (items.length > 14) return items; }
+  return items;
+}
+qEl.addEventListener('input', () => {
+  const v = qEl.value.trim(); resEl.innerHTML = ''; if (!v) { resEl.classList.remove('open'); return; }
+  const items = searchItems(v);
+  for (const it of items) {
+    const b = document.createElement('button'); b.innerHTML = '<span></span><small></small>';
+    b.firstChild.textContent = it.name; b.lastChild.textContent = it.kind + ' · ' + nearestTown(it.x, it.y) + ' · x ' + Math.round(it.x) + ' y ' + Math.round(it.y);
+    b.onclick = () => { resEl.classList.remove('open'); qEl.value = ''; const mk = { town: 'town', vendor: 'vendor', player: 'player', base: 'base', vehicle: 'vehicle', pin: 'userpin', stash: 'stash', trap: 'trap', shrine: 'shrine', entrance: 'ent' }[it.kind]; if (mk && !markOn[mk]) { markOn[mk] = true; store.set('markers', markOn); const cb = document.querySelector('#panel input[data-m="' + mk + '"]'); if (cb) cb.checked = true; applyMarkerVis(); } goTo(it.x, it.y, null, it.name, it.kind + ' · ' + nearestTown(it.x, it.y)); };
+    resEl.appendChild(b);
+  }
+  resEl.classList.toggle('open', items.length > 0);
+});
+qEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const b = resEl.querySelector('button'); if (b) b.click(); } if (e.key === 'Escape') { resEl.classList.remove('open'); qEl.blur(); } });
+qEl.addEventListener('focus', () => { if (qEl.value.trim()) qEl.dispatchEvent(new Event('input')); });
+addEventListener('pointerdown', (e) => { if (!resEl.contains(e.target) && e.target !== qEl) resEl.classList.remove('open'); });
+$('b-online').onclick = () => { $('log').classList.remove('open'); $('panel').classList.remove('open'); $('online').classList.toggle('open'); renderOnline(); };
+$('b-log').onclick = () => { $('online').classList.remove('open'); $('panel').classList.remove('open'); const o = $('log').classList.toggle('open'); if (o) loadLog(); };
+if (PUBLIC) for (const id of ['b-online', 'b-log', 'b-me', 'b-follow', 'card-pin']) $(id).style.display = 'none';
+if (PUBLIC) for (const k of ['player', 'base', 'stash', 'trap', 'userpin', 'vehicle']) { const cb = document.querySelector('#panel input[data-m="' + k + '"]'); if (cb) cb.closest('label').style.display = 'none'; }
+
+// ---------- settings
+$('b-set').onclick = () => { $('online').classList.remove('open'); $('log').classList.remove('open'); $('panel').classList.toggle('open'); };
+const layerOn = Object.assign({ building: true, designer: true, rock: true, prop: true, other: true, nature: true, trees: true, fence: true, sidewalk: true, interior: true, roads: true, under: true }, store.get('layers', {}));
+for (const cb of document.querySelectorAll('#panel input[data-k]')) {
+  const k = cb.dataset.k; if (k === 'interiors') continue;
+  cb.checked = !!layerOn[k];
+  cb.onchange = () => { layerOn[k] = cb.checked; store.set('layers', layerOn); applyLayers(); };
+}
+for (const cb of document.querySelectorAll('#panel input[data-m]')) {
+  const k = cb.dataset.m; cb.checked = !!markOn[k];
+  cb.onchange = () => { markOn[k] = cb.checked; store.set('markers', markOn); applyMarkerVis(); };
+}
+$('o-labels').checked = store.get('labels', true);
+$('o-labels').onchange = () => { store.set('labels', $('o-labels').checked); applyMarkerVis(); };
+$('o-hd').checked = store.get('hd', false);
+$('o-hd').onchange = async () => { store.set('hd', $('o-hd').checked); await setHD($('o-hd').checked); };
+function applyLayers() { for (const [c, l] of Object.entries(groups)) for (const g of l) g.userData.on = !!layerOn[c] && !(PLAY && c === 'interior'); cullStep(true); if (treeMesh) treeMesh.visible = !!layerOn.trees; if (roadMesh) roadMesh.visible = !!layerOn.roads; if (underLines) underLines.visible = !!layerOn.under && !WALK.on; }
+
+$('o-detail').value = DETAIL;
+$('o-detail').onchange = () => { store.set('detail', $('o-detail').value); location.reload(); };
+
+// ---------- walk mode: first person at eye level, no collision; the ground is followed except inside cave / tunnel openings
+const WALK = { on: false, yaw: 0, pitch: -0.1, eye: 0, keys: {}, pos: new THREE.Vector3(), lastT: 0 };
+const WALK_HELP = 'Walk: W A S D move · drag or mouse to look · Space jumps · Shift runs · F uses a ladder you stand next to · doors are open, just walk through · G flies through anything · Esc exits';
+const _lc = new THREE.Vector3();
+function findLadder() {   // nearest ladder among the collision candidates, within 2.2 m horizontally
+  const P = WALK.pos; let best = null, bd = 2.2;
+  for (const [g, j] of cands) {
+    const u = g.userData; if (!/\/ladders?\//i.test(u.model.path)) continue;
+    g.getMatrixAt(j, _m); const bb = u.model.bb; let lo = 1e9, hi = -1e9, sx = 0, sz = 0;
+    for (let c = 0; c < 8; c++) { _lc.set(c & 1 ? bb[3] : bb[0], c & 2 ? bb[4] : bb[1], c & 4 ? bb[5] : bb[2]).applyMatrix4(_m); if (_lc.y < lo) lo = _lc.y; if (_lc.y > hi) hi = _lc.y; sx += _lc.x / 8; sz += _lc.z / 8; }
+    const d = Math.hypot(sx - P.x, sz - P.z); if (d < bd) { bd = d; best = { x: sx, z: sz, top: hi, bottom: lo }; }
+  }
+  return best;
+}
+function useLadder() {
+  const L = WALK.ladder; if (!L) return;
+  const P = WALK.pos, feet = P.y - 1.7, up = feet < (L.top + L.bottom) / 2;
+  let dx = P.x - L.x, dz = P.z - L.z; const len = Math.hypot(dx, dz) || 1; dx /= len; dz /= len;   // step off on the side you came from
+  if (up) {   // step off on solid ground next to the opening (not over the shaft, or you fall straight back down)
+    let bx = L.x + dx * 1.3, bz = L.z + dz * 1.3;
+    search: for (const r of [1.3, 2.0]) for (const [ax, az] of [[dx, dz], [-dz, dx], [dz, -dx], [-dx, -dz]]) {
+      const x = L.x + ax * r, z = L.z + az * r; if (!inHole(x, -z) && Math.abs(groundAt(x, -z) - L.top) < 1.5) { bx = x; bz = z; break search; }
+    }
+    P.x = bx; P.z = bz; P.y = L.top + 0.15 + 1.7;
+  } else { P.x = L.x + dx * 0.55; P.z = L.z + dz * 0.55; P.y = L.bottom + 0.05 + 1.7; }
+  WALK.vy = 0; candAt = null;
+  $('walk-t').textContent = up ? 'Climbed up the ladder' : 'Climbed down the ladder'; setTimeout(() => { if (WALK.on && !WALK.fly) $('walk-t').textContent = WALK_HELP; }, 1500);
+}
+function inHole(x, y) { return cellIsHole(Math.floor(x / 2) * 2, Math.floor(y / 2) * 2, 2); }
+function startWalk(x, y) {
+  const g = groundAt(x, y);
+  const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
+  WALK.yaw = Math.atan2(-dir.x, -dir.z); WALK.pitch = -0.05; WALK.eye = 0;
+  WALK.pos.set(x, g + 1.7, -y); WALK.on = true; WALK.safe = null; WALK.meshFloorT = 0; WALK.lastT = performance.now(); WALK.vy = 0; WALK.fly = false; candAt = null; $('walk-t').textContent = WALK_HELP;
+  controls.enabled = false; camera.near = 0.25; camera.updateProjectionMatrix();
+  if (roadLines) roadLines.visible = false; if (underLines) underLines.visible = false;   // no map lines at eye level
+  cutPlane.constant = 1e9;
+  $('walk').classList.add('on'); $('pad').classList.add('on'); $('b-walk').classList.add('active'); $('hint').style.display = 'none';
+  renderer.domElement.focus();
+}
+function stopWalk() {
+  if (!WALK.on) return;
+  WALK.on = false; WALK.keys = {}; if (underLines) underLines.visible = !!layerOn.under; if (roadLines) roadLines.visible = STREETS || PLAY;
+  if (document.pointerLockElement) document.exitPointerLock();
+  $('walk').classList.remove('on'); $('pad').classList.remove('on'); $('b-walk').classList.remove('active'); $('hint').style.display = '';
+  camera.near = 1; camera.updateProjectionMatrix();
+  const x = WALK.pos.x, y = -WALK.pos.z; controls.enabled = true;
+  flyTo(x, y, groundAt(x, y), PLAY ? 600 : 120); applyPlay();
+}
+// collision: short rays against the instances near the player (their world bounding spheres were stored at load)
+const NOCOLL = { nature: 1 };
+const _ray = new THREE.Ray(), _inv = new THREE.Matrix4(), _m = new THREE.Matrix4(), _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3(), _hit = new THREE.Vector3(), _w = new THREE.Vector3();
+const _o = new THREE.Vector3(), _dir = new THREE.Vector3();   // the walker's probe origin / direction (castRay must not share these)
+let cands = [], candAt = null;
+function gatherCands(p) {
+  if (candAt && candAt.distanceTo(p) < 3) return;
+  candAt = p.clone(); cands = [];
+  const wx = p.x, wy = -p.z;
+  for (const g of tileMeshes) {
+    const u = g.userData; if (!u.on || NOCOLL[u.cat] || u.model.path.includes('/doors/')) continue;
+    if (Math.hypot(u.cx - wx, u.cy - wy) - u.cr > 8) continue;
+    const sph = u.sph;
+    for (let j = 0; j < g.count; j++) {
+      const r = sph[j * 4 + 3]; if (r > 400) continue;   // skip island-sized helper meshes
+      if (Math.hypot(sph[j * 4] - p.x, sph[j * 4 + 1] - p.y, sph[j * 4 + 2] - p.z) < r + 6) cands.push([g, j]);
+    }
+  }
+}
+// nearest hit distance along dir (unit) within maxD, or -1
+function castRay(origin, dir, maxD) {
+  let best = -1;
+  for (const [g, j] of cands) {
+    g.getMatrixAt(j, _m); _inv.copy(_m).invert();
+    _ray.origin.copy(origin); _ray.direction.copy(dir); _ray.applyMatrix4(_inv);
+    const geo = g.geometry; if (!geo.boundingBox) geo.computeBoundingBox();
+    if (!_ray.intersectsBox(geo.boundingBox)) continue;
+    const pos = geo.attributes.position.array, idx = geo.index ? geo.index.array : null, nt = idx ? idx.length / 3 : pos.length / 9;
+    for (let t = 0; t < nt; t++) {
+      const i0 = idx ? idx[t * 3] : t * 3, i1 = idx ? idx[t * 3 + 1] : t * 3 + 1, i2 = idx ? idx[t * 3 + 2] : t * 3 + 2;
+      _a.fromArray(pos, i0 * 3); _b.fromArray(pos, i1 * 3); _c.fromArray(pos, i2 * 3);
+      if (!_ray.intersectTriangle(_a, _b, _c, false, _hit)) continue;
+      _w.copy(_hit).applyMatrix4(_m); const d = _w.distanceTo(origin);
+      if (d <= maxD && (best < 0 || d < best)) best = d;
+    }
+  }
+  return best;
+}
+WALK.vy = 0; WALK.fly = false; WALK.grounded = true;
+function walkStep() {
+  const now = performance.now(), dt = Math.min(0.05, (now - WALK.lastT) / 1000); WALK.lastT = now;
+  const k = WALK.keys, run = k.ShiftLeft || k.ShiftRight;
+  const sp = (run ? 7 : 3.2) * dt, turn = 1.6 * dt;
+  if (k.ArrowLeft) WALK.yaw += turn; if (k.ArrowRight) WALK.yaw -= turn;
+  const fx = -Math.sin(WALK.yaw), fz = -Math.cos(WALK.yaw), rx = Math.cos(WALK.yaw), rz = -Math.sin(WALK.yaw);
+  let mx = 0, mz = 0;
+  if (k.KeyW || k.ArrowUp || k.fwd) { mx += fx; mz += fz; } if (k.KeyS || k.ArrowDown || k.back) { mx -= fx; mz -= fz; }
+  if (k.KeyA || k.left) { mx -= rx; mz -= rz; } if (k.KeyD || k.right) { mx += rx; mz += rz; }
+  const P = WALK.pos; let feet = P.y - 1.7;
+  if (WALK.fly) {   // no-clip: the old behaviour, for getting unstuck
+    P.x += mx * sp * 2; P.z += mz * sp * 2; P.y += ((k.KeyR || k.up) ? 4 : 0) * dt - ((k.KeyF || k.down) ? 4 : 0) * dt;
+  } else {
+    gatherCands(P);
+    // walls: probe each axis at knee and chest height; a blocked axis is dropped so you slide along walls
+    const tryAxis = (dx, dz) => {
+      const len = Math.hypot(dx, dz); if (len < 1e-6) return true;
+      _dir.set(dx / len, 0, dz / len);
+      for (const h of [0.9, 1.5]) { _o.set(P.x, feet + h, P.z); const d = castRay(_o, _dir, len + 0.35); if (d >= 0) return false; }   // probes above step height, so stairs and steep board ramps are climbed, not blocked
+      return true;
+    };
+    const ddx = mx * sp, ddz = mz * sp;
+    const ox = P.x, oz = P.z;
+    if (tryAxis(ddx, 0)) P.x += ddx; if (tryAxis(0, ddz)) P.z += ddz;
+    // floor: the nearest surface below (mesh or terrain). Underground (terrain above your head) only the mesh counts; a hole cell has no terrain.
+    const wx = P.x, wy = -P.z;
+    gatherCands(P);
+    _o.set(P.x, feet + 0.87, P.z); _dir.set(0, -1, 0);
+    const d = castRay(_o, _dir, 0.87 + 6);
+    const meshFloor = d >= 0 ? feet + 0.87 - d : -1e9;
+    let floor = meshFloor;
+    if (d >= 0) WALK.meshFloorT = now;
+    if (!inHole(wx, wy)) {
+      const terr = groundAt(wx, wy);
+      const inside = d >= 0 && meshFloor >= feet - 1.0 && terr > feet + 0.6 && terr > meshFloor + 0.3;   // already under the surface and standing on a floor there (sewer pipe, cellar): the ground above is not a floor
+      if (inside) floor = meshFloor;
+      else if (terr <= feet + 0.85) floor = Math.max(meshFloor, terr);     // terrain is reachable: it is a floor like any other
+      else if (d < 0) {
+        // under the terrain with nothing within 7 m below: cave floors are meshes with small gaps, so look further down
+        // first and keep falling for a moment; only pop back to the surface when there really is nothing underneath
+        const d2 = castRay(_o, _dir, 0.87 + 40), wz = waterTris ? waterAt(wx, wy) : null;
+        if (d2 >= 0) floor = feet + 0.87 - d2;
+        else if (wz !== null) floor = wz - 0.5;                                   // a pool: wade in it
+        else if (now - (WALK.meshFloorT || 0) > 4000 || (WALK.safe && feet < WALK.safe.y - 1.7 - 80)) {   // 4 s of falling (or 80 m) with nothing underneath   // nothing underneath at all: back to the last place you stood (not up to the surface)
+          if (WALK.safe) { P.x = WALK.safe.x; P.z = WALK.safe.z; feet = WALK.safe.y - 1.7; floor = feet; WALK.vy = 0; WALK.meshFloorT = now; candAt = null; }
+          else { floor = terr; if (WALK.vy <= 0) feet = terr; }
+        }
+      }
+    }
+    if (waterTris) { const wz = waterAt(wx, wy); if (wz !== null && wz - 0.5 > floor) floor = wz - 0.5; }   // water: wade knee-deep instead of sinking to the bottom
+    if ((k.Space || k.up) && WALK.grounded) { WALK.vy = 5.2; WALK.grounded = false; }   // ~1.4 m jump: enough for a mine portal ledge
+    if (WALK.vy > 0) { feet += WALK.vy * dt; WALK.vy -= 9.8 * dt; }                       // rising from a jump
+    else if (floor > feet + 0.85) { P.x = ox; P.z = oz; }                                 // too high to step onto: stay (or jump)
+    else if (floor >= feet - 0.02) { feet = floor; WALK.vy = 0; WALK.grounded = true; WALK.meshFloorT = now; if (!WALK.safe) WALK.safe = new THREE.Vector3(); if (now - (WALK.safeT || 0) > 400) { WALK.safe.set(P.x, feet + 1.7, P.z); WALK.safeT = now; } }  // on the ground, or a step up (remembered as a safe spot)
+    else { WALK.vy -= 9.8 * dt; feet = Math.max(floor, feet + WALK.vy * dt); WALK.grounded = feet === floor; if (WALK.grounded) WALK.vy = 0; }
+    if (feet < -300) { feet = groundAt(wx, wy); WALK.vy = 0; }
+    P.y = feet + 1.7;
+    if (now - (WALK.ladderT || 0) > 150) { WALK.ladderT = now; const L = findLadder(); const had = !!WALK.ladder; WALK.ladder = L; if (!!L !== had && $('walk-t').textContent.startsWith('Walk')) $('walk-t').textContent = L ? 'Press F to use the ladder' : WALK_HELP; }
+  }
+  P.x = Math.min(WORLD, Math.max(0, P.x)); P.z = Math.max(-WORLD, Math.min(0, P.z));
+  camera.position.copy(P);
+  camera.rotation.set(WALK.pitch, WALK.yaw, 0, 'YXZ');
+  controls.target.copy(P).add(new THREE.Vector3(fx * 10, Math.sin(WALK.pitch) * 10, fz * 10));
+}
+addEventListener('keydown', (e) => { if (!WALK.on) return; if (e.code === 'Escape') { stopWalk(); return; } if (e.code === 'KeyF' && !e.repeat && !WALK.fly && WALK.ladder) { useLadder(); e.preventDefault(); return; } if (e.code === 'KeyG' && !e.repeat) { WALK.fly = !WALK.fly; $('walk-t').textContent = WALK.fly ? 'Fly (no collision): W A S D move · R / F up and down · G back to walking · Esc exits' : WALK_HELP; } WALK.keys[e.code] = true; if (/^(Arrow|Key[WASDRF]|Shift|Space)/.test(e.code)) e.preventDefault(); });
+addEventListener('keyup', (e) => { WALK.keys[e.code] = false; });
+renderer.domElement.addEventListener('pointerdown', (e) => { if (WALK.on && e.pointerType === 'mouse' && !document.pointerLockElement) renderer.domElement.requestPointerLock(); });
+addEventListener('mousemove', (e) => { if (WALK.on && document.pointerLockElement) { WALK.yaw -= e.movementX * 0.0025; WALK.pitch = Math.max(-1.45, Math.min(1.45, WALK.pitch - e.movementY * 0.0025)); } });
+let lookTouch = null;
+renderer.domElement.addEventListener('pointerdown', (e) => { if (WALK.on && e.pointerType !== 'mouse') lookTouch = [e.pointerId, e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointermove', (e) => { if (WALK.on && lookTouch && e.pointerId === lookTouch[0]) { WALK.yaw -= (e.clientX - lookTouch[1]) * 0.006; WALK.pitch = Math.max(-1.45, Math.min(1.45, WALK.pitch - (e.clientY - lookTouch[2]) * 0.006)); lookTouch[1] = e.clientX; lookTouch[2] = e.clientY; } });
+addEventListener('pointerup', (e) => { if (lookTouch && e.pointerId === lookTouch[0]) lookTouch = null; });
+addEventListener('wheel', (e) => { if (WALK.on) { if (WALK.fly) WALK.pos.y -= Math.sign(e.deltaY) * 0.5; e.preventDefault(); } }, { passive: false });
+for (const b of document.querySelectorAll('#pad button')) {
+  const k = b.dataset.k; const on = (e) => { WALK.keys[k] = true; e.preventDefault(); }, off = () => { WALK.keys[k] = false; };
+  b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
+}
+$('b-walk').onclick = () => { if (WALK.on) stopWalk(); else startWalk(controls.target.x, -controls.target.z); };
+$('walk-x').onclick = stopWalk;
+
+// ---------- play view: north-up bird's eye for use while playing (bold roads, big names, no interiors); ?play=1 opens it directly
+let PLAY = new URLSearchParams(location.search).has('play') ? true : store.get('play', false);
+let FOLLOW = store.get('follow', false);
+let STREETS = store.get('streets', false);   // bold map-style street lines, in any view
+function applyPlay() {
+  document.body.classList.toggle('play', PLAY);
+  $('o-play').checked = PLAY; $('b-follow').classList.toggle('active', FOLLOW);
+  $('b-streets').classList.toggle('active', STREETS || PLAY);
+  if (PLAY) {
+    controls.minPolarAngle = 0; controls.maxPolarAngle = 0.001; controls.enableRotate = false; controls.minDistance = 30; controls.maxDistance = 14000;
+    const t = controls.target.clone(), d = Math.max(400, camera.position.distanceTo(t)); camera.position.set(t.x, t.y + d, t.z + 0.01);
+  } else {
+    controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI * 0.47; controls.enableRotate = true; controls.minDistance = 15; controls.maxDistance = 18000;
+  }
+  if (roadLines) roadLines.visible = (STREETS || PLAY) && !WALK.on;
+  controls.update(); applyLayers();
+}
+$('o-play').onchange = () => { PLAY = $('o-play').checked; store.set('play', PLAY); if (WALK.on) stopWalk(); applyPlay(); };
+$('b-streets').onclick = () => { STREETS = !STREETS; store.set('streets', STREETS); applyPlay(); };
+$('b-follow').onclick = () => { FOLLOW = !FOLLOW; store.set('follow', FOLLOW); $('b-follow').classList.toggle('active', FOLLOW); };
+function meMarker() { return markers.find((m) => m.kind === 'player' && ((D && D.me && (m.item.id === D.me || m.item.name === D.me)) || m.item.isMe)) || markers.find((m) => m.kind === 'player' && m.item.online); }
+function followStep() {
+  if (!FOLLOW || WALK.on) return;
+  const me = meMarker(); if (!me) return;
+  const dx = me.p.x - controls.target.x, dz = me.p.z - controls.target.z;
+  if (Math.abs(dx) + Math.abs(dz) < 0.5) return;
+  const k = 0.08; controls.target.x += dx * k; controls.target.z += dz * k; camera.position.x += dx * k; camera.position.z += dz * k;
+}
+
+// ---------- camera helpers
+function flyTo(x, y, z, dist) {
+  const tgt = W(x, y, z); const dir = PLAY ? new THREE.Vector3(0, 1, 0.00001) : camera.position.clone().sub(controls.target).normalize();
+  controls.target.copy(tgt); camera.position.copy(tgt.clone().add(dir.multiplyScalar(dist || 350))); controls.update();
+}
+$('b-me').onclick = () => {
+  const me = markers.find((m) => m.kind === 'player' && ((D && D.me && (m.item.id === D.me || m.item.name === D.me)) || m.item.isMe)) || markers.find((m) => m.kind === 'player' && m.item.online);
+  if (me) { flyTo(+me.item.x, +me.item.y, +me.item.z || heightAt(+me.item.x, +me.item.y), 250); showCard(me.item.name, me.item.sub || ''); }
+};
+$('b-top').onclick = () => { if (WALK.on) stopWalk(); const t = controls.target.clone(); camera.position.set(t.x + 0.01, t.y + 2500, t.z + 0.01); controls.update(); };
+
+addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); for (const grp of [roadLines, underLines]) if (grp) for (const l of grp.children) l.material.resolution.set(innerWidth, innerHeight); });
+function updateCut() {
+  if (!CUT || WALK.on) { cutPlane.constant = 1e9; return; }
+  const g = groundAt(controls.target.x, -controls.target.z);
+  cutPlane.constant = CUT < 0 ? g - 0.3 : g + CUT;
+}
+$('o-cut').value = String(CUT);
+$('o-cut').onchange = () => { CUT = +$('o-cut').value; store.set('cut', CUT); if (CUT && controls.maxPolarAngle < Math.PI * 0.47) controls.maxPolarAngle = Math.PI * 0.47; };
+// scale bar for the current zoom (metres per screen pixel at the view centre) and an elevation readout
+const NICE = [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+let hudT = 0;
+function updateHud() {
+  const now = performance.now(); if (now - hudT < 150) return; hudT = now;
+  const dist = WALK.on ? 12 : camera.position.distanceTo(controls.target);
+  if (roadLines && roadLines.visible) {   // street lines thin out as the view zooms out
+    const k = dist < 800 ? 1 : dist > 5000 ? 0.45 : 1 - 0.55 * (dist - 800) / 4200;
+    for (const l of roadLines.children) { const w = l.userData.w * k; if (Math.abs(l.material.linewidth - w) > 0.02) l.material.linewidth = w; }
+  }
+  const mpp = 2 * dist * Math.tan(camera.fov * Math.PI / 360) / innerHeight;   // metres per pixel at the view centre
+  let m = NICE[0]; for (const n of NICE) { if (n / mpp <= 180) m = n; }
+  $('hud-bar').style.width = Math.max(10, m / mpp).toFixed(0) + 'px';
+  $('hud-scale').textContent = (m >= 1000 ? (m / 1000) + ' km' : m + ' m') + (WALK.on ? '' : ' · camera ' + (dist >= 1000 ? (dist / 1000).toFixed(1) + ' km' : Math.round(dist) + ' m') + ' from the view centre');
+  let e;
+  if (WALK.on) {
+    const feet = WALK.pos.y - 1.7, wx = WALK.pos.x, wy = -WALK.pos.z, g = groundAt(wx, wy), under = g - feet;
+    e = 'You: <b>' + feet.toFixed(1) + ' m</b> elevation' + (under > 1.5 ? ' · <b>' + under.toFixed(0) + ' m underground</b>' : (feet - g > 1.5 ? ' · ' + (feet - g).toFixed(0) + ' m above the ground' : '')) + ' · x ' + Math.round(wx) + ' y ' + Math.round(wy);
+  } else {
+    const tx = controls.target.x, ty = -controls.target.z, g = groundAt(tx, ty);
+    e = 'Ground at centre: <b>' + g.toFixed(0) + ' m</b> elevation · camera ' + Math.round(camera.position.y - g) + ' m above it · x ' + Math.round(tx) + ' y ' + Math.round(ty);
+  }
+  $('hud-elev').innerHTML = e;
+}
+function loop() { if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); } cullStep(false); renderer.render(scene, camera); updateLabels(); updateHud(); requestAnimationFrame(loop); }
+
+(async () => {
+  try {
+    progress(0.05, 'Loading the island...');
+    meta = await (await fetch('meta.json', { cache: 'no-store' })).json();
+    addWater();
+    progress(0.12, 'Shaping the terrain...'); await loadHoles(); await loadTerrain(false);
+    progress(0.4, 'Laying the roads...'); try { await loadRoads(); buildRoadLines(); } catch (e) { console.warn('roads', e); }
+    try { ENT = (await (await fetch('entrances.json?v=' + VER)).json()).entrances || []; addManholeCovers(); } catch (e) { console.warn('entrances', e); }
+    try { await loadPassages(); } catch (e) { console.warn('passages', e); }
+    try { await loadWater(); } catch (e) { console.warn('water', e); }
+    progress(0.45, 'Loading the models...'); await loadObjects();
+    progress(0.75, 'Planting ' + meta.trees.toLocaleString() + ' trees...'); await loadTrees();
+    applyLayers();
+    progress(0.9, 'Finding players...'); await loadData();
+    $('stats').textContent = M.instances.toLocaleString() + ' objects (' + M.models.length + ' models, ' + (M.sceneTris / 1e6).toFixed(1) + 'M triangles in ' + M.drawGroups.toLocaleString() + ' tile groups) · ' + roadCount.toLocaleString() + ' road pieces · ' + ENT.length + ' entrances · ' + meta.trees.toLocaleString() + ' trees · built from the game files ' + M.built;
+    // a link can carry the view: #x,y[,distance]  (the address bar keeps it updated, so a view can be shared)
+    const hm = location.hash.match(/^#(-?[\d.]+),(-?[\d.]+)(?:,([\d.]+))?/);
+    if (hm) flyTo(+hm[1], +hm[2], heightAt(+hm[1], +hm[2]), hm[3] ? +hm[3] : 400);
+    const wm = location.hash.match(/walk=(-?[\d.]+),(-?[\d.]+)/); if (wm) startWalk(+wm[1], +wm[2]);
+    setInterval(() => { const t = controls.target, dd = camera.position.distanceTo(t); const h = '#' + Math.round(t.x) + ',' + Math.round(-t.z) + ',' + Math.round(dd); if (location.hash !== h) history.replaceState(null, '', h); }, 1000);
+    setTimeout(() => $('hint').classList.add('fade'), 20000);
+    if (DETAIL === 'full') loadLoGeos().catch((e) => console.warn('light meshes', e));
+    applyPlay(); window.dw3d = { THREE, camera, controls, WALK, scene, renderer, far: farMeshes, findLadder, useLadder, ENT: () => ENT, cands: () => cands, castRay, gatherCands, groundAt, M: () => M, tiles: tileMeshes, lo: () => loReady };   // for tests
+    $('load').remove(); loop();
+    if (store.get('hd', false)) setHD(true);
+    setInterval(() => { if (hdMesh) buildHDPatch(); }, 1500);
+    if (!PUBLIC) { setInterval(liveTick, 2000); setInterval(loadData, 30000); }
+  } catch (e) { $('load-t').textContent = 'Could not load the map: ' + e.message; console.error(e); }
+})();
+</script>
+</body>
+</html>
