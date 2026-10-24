@@ -528,6 +528,7 @@ function modelGeometry(rec, dv, asBox) {
   const idx = rec.w ? new Uint32Array(dv.buffer, rec.io, rec.t * 3) : new Uint16Array(dv.buffer, rec.io, rec.t * 3);
   g.setIndex(new THREE.BufferAttribute(idx.slice(), 1));
   g.computeVertexNormals();
+  if (isRock(rec)) smoothByPosition(g);   // rocks are low-poly: share normals across split vertices so they shade round, not faceted
   let r = 0, gg = 0, b = 0; for (let i = 0; i < n; i++) { r += col[i * 3]; gg += col[i * 3 + 1]; b += col[i * 3 + 2]; }
   g.userData.avg = n ? [r / n / 255, gg / n / 255, b / n / 255] : null;
   return g;
@@ -536,6 +537,52 @@ function modelGeometry(rec, dv, asBox) {
 const cutPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e9); renderer.localClippingEnabled = true;
 let CUT = store.get('cut', 0);
 const meshMat = new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, clippingPlanes: [cutPlane] });
+// natural rock models, whatever category they were filed under (rock walls are 'fence')
+const isRock = (rec) => rec.cat === 'rock' || /natural\/rocks\//i.test(rec.path);
+// average the normals of vertices that sit at the same spot (the exporter splits them per material/UV seam)
+function smoothByPosition(g) {
+  const p = g.attributes.position.array, nr = g.attributes.normal.array, acc = new Map();
+  for (let i = 0; i < p.length; i += 3) {
+    const k = Math.round(p[i] * 100) + ',' + Math.round(p[i + 1] * 100) + ',' + Math.round(p[i + 2] * 100);
+    let a = acc.get(k); if (!a) acc.set(k, a = [0, 0, 0, []]);
+    a[0] += nr[i]; a[1] += nr[i + 1]; a[2] += nr[i + 2]; a[3].push(i);
+  }
+  for (const a of acc.values()) { const l = Math.hypot(a[0], a[1], a[2]) || 1; for (const i of a[3]) { nr[i] = a[0] / l; nr[i + 1] = a[1] / l; nr[i + 2] = a[2] / l; } }
+  g.attributes.normal.needsUpdate = true;
+}
+// rock: the models only carry one flat colour per material, so add stone grain, faint strata, moss on top faces and
+// darker undersides (cave ceilings, overhangs) in the shader, all in world space so neighbouring rocks match
+const rockMat = new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, clippingPlanes: [cutPlane] });
+rockMat.onBeforeCompile = (sh) => {
+  sh.vertexShader = `varying vec3 vRockP;\nvarying vec3 vRockN;\n` +sh.vertexShader.replace('#include <worldpos_vertex>', `#include <worldpos_vertex>
+    vec4 rwp = vec4(transformed, 1.0);
+    mat3 rm = mat3(modelMatrix);
+    #ifdef USE_INSTANCING
+      rwp = instanceMatrix * rwp; rm = rm * mat3(instanceMatrix);
+    #endif
+    vRockP = (modelMatrix * rwp).xyz; vRockN = normalize(rm * objectNormal);`);
+  sh.fragmentShader = `varying vec3 vRockP;
+varying vec3 vRockN;
+float rkH(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+float rkN(vec3 x) { vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(rkH(i), rkH(i + vec3(1, 0, 0)), f.x), mix(rkH(i + vec3(0, 1, 0)), rkH(i + vec3(1, 1, 0)), f.x), f.y),
+             mix(mix(rkH(i + vec3(0, 0, 1)), rkH(i + vec3(1, 0, 1)), f.x), mix(rkH(i + vec3(0, 1, 1)), rkH(i + vec3(1, 1, 1)), f.x), f.y), f.z); }
+float rkF(vec3 p) { return 0.5 * rkN(p) + 0.25 * rkN(p * 2.03) + 0.125 * rkN(p * 4.01) + 0.0625 * rkN(p * 8.07); }
+` + sh.fragmentShader
+    .replace('#include <color_fragment>', `#include <color_fragment>
+    vec3 rp = mod(vRockP, 2048.0);
+    float big = rkF(rp * 0.35), grain = rkF(rp * 3.3);
+    vec3 rc = diffuseColor.rgb * (0.70 + 0.55 * big) * (0.88 + 0.24 * grain);
+    rc *= 0.94 + 0.06 * sin(vRockP.y * 1.9 + big * 7.0);
+    rc *= vec3(1.03, 1.0, 0.95);
+    float moss = smoothstep(0.55, 0.9, vRockN.y + (big - 0.45) * 0.7);
+    rc = mix(rc, vec3(0.29, 0.35, 0.20) * (0.75 + 0.5 * grain), moss * 0.7);
+    rc *= mix(1.0, 0.55, smoothstep(-0.15, -0.8, vRockN.y));
+    diffuseColor.rgb = rc;`)
+    .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+    { vec3 q = mod(vRockP, 2048.0) * 1.7; normal = normalize(normal + (vec3(rkN(q), rkN(q + 7.3), rkN(q + 13.1)) - 0.5) * 0.45); }`);
+};
+rockMat.customProgramCacheKey = () => 'rock1';
 const boxMats = {}; for (const [c, col] of Object.entries(CAT_COLORS)) boxMats[c] = new THREE.MeshLambertMaterial({ color: col, clippingPlanes: [cutPlane] });
 // Every (model, tile) pair is its own InstancedMesh: the GPU then only draws tiles in view, and small things are dropped beyond a distance per category.
 const TILE = { building: 1024, designer: 1024, rock: 1024 };            // other categories use 512 m tiles
@@ -596,7 +643,7 @@ async function loadObjects() {
     const asBox = DETAIL === 'box' || (DETAIL === 'low' && BOX_CATS_LOW[cat]) || !rec.t || !mdv;
     let geo = geos.get(mi);
     if (!geo) { try { geo = modelGeometry(rec, mdv, asBox); } catch (e) { console.warn('model', rec.path, e); geo = modelGeometry(rec, null, true); } geos.set(mi, geo); }
-    const mesh = new THREE.InstancedMesh(geo, asBox ? (boxMats[cat] || boxMats.other) : meshMat, list.length);
+    const mesh = new THREE.InstancedMesh(geo, asBox ? (boxMats[cat] || boxMats.other) : (isRock(rec) ? rockMat : meshMat), list.length);
     const sph = new Float32Array(list.length * 4), bb = rec.bb;
     const farOk = FAR_CATS[cat] && (cat !== 'prop' || Math.max(bb[3] - bb[0], bb[4] - bb[1], bb[5] - bb[2]) > 7);
     const avg = geo.userData.avg, cc = new THREE.Color(CAT_COLORS[cat] || CAT_COLORS.other), farRGB = avg ? [avg[0] * 255, avg[1] * 255, avg[2] * 255] : [cc.r * 255, cc.g * 255, cc.b * 255];
