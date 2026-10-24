@@ -113,6 +113,14 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
 html, body { touch-action: none; }
 #panel, #results, #online, #log, #card, .bar { touch-action: pan-x pan-y; }
 .mk, .btn, button, input, select, label { touch-action: manipulation; }
+/* touch: turn / tilt / zoom / north buttons (pinch only zooms and pans on phones) */
+#ctl { position: fixed; right: 8px; top: 56px; display: none; grid-template-columns: repeat(2, 50px); gap: 6px; z-index: 2; }
+#ctl.off { display: none !important; }
+#ctl button { height: 50px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 12px; font: 600 20px/1 system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; touch-action: none; user-select: none; -webkit-user-select: none; padding: 0; }
+#ctl button small { font-size: 9px; font-weight: 500; color: var(--muted); letter-spacing: 0.02em; }
+#ctl button.on { background: rgba(255, 179, 71, 0.45); }
+#ctl button[data-a="north"] { grid-column: span 2; height: 36px; font-size: 14px; flex-direction: row; gap: 6px; }
+@media (pointer: coarse) { #ctl { display: grid; } #panel, #card, #results, #online, #log { z-index: 5; } }
 </style>
 </head>
 <body>
@@ -194,6 +202,12 @@ html, body { touch-action: none; }
 <div id="online"><h3>Online now</h3><div id="online-list"></div></div>
 <div id="log"><h3>Sessions (newest first)</h3><div id="log-list"></div></div>
 <div id="walk"><span id="walk-t">Walk: W A S D move · drag or mouse to look · Space jumps · Shift runs · walls, floors and stairs are solid · G flies through anything · Esc exits</span><button class="btn" id="walk-x">Exit walk</button></div>
+<div id="ctl">
+  <button data-a="rotL" aria-label="Turn left">&#8634;<small>turn</small></button><button data-a="rotR" aria-label="Turn right">&#8635;<small>turn</small></button>
+  <button data-a="tiltU" aria-label="Tilt toward the horizon">&#9650;<small>tilt</small></button><button data-a="tiltD" aria-label="Tilt toward top-down">&#9660;<small>tilt</small></button>
+  <button data-a="zin" aria-label="Zoom in">+<small>zoom</small></button><button data-a="zout" aria-label="Zoom out">&minus;<small>zoom</small></button>
+  <button data-a="north" aria-label="Face north">N<small>north up</small></button>
+</div>
 <div id="joy"><div id="joy-k"></div></div>
 <div id="pad">
   <button data-k="up" title="jump (fly mode: up)">&#8679;</button><button data-k="fwd">&#9650;</button><button data-k="down" title="down (fly mode)">&#8681;</button>
@@ -238,6 +252,7 @@ const controls = new MapControls(camera, renderer.domElement);
 // iOS Safari: block page pinch-zoom (it ignores maximum-scale) and never let a lost touch leave the map controls thinking a
 // second finger is still down (one finger would then only rotate and zoom). When the last finger lifts, any pointer the
 // canvas saw go down but never up is released by hand.
+if (TOUCH) controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;   // phones: pinch zooms and pans; turning and tilting are on the #ctl buttons
 for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
 {
   const cv = renderer.domElement;
@@ -1205,14 +1220,14 @@ function startWalk(x, y) {
   controls.enabled = false; camera.near = 0.25; camera.updateProjectionMatrix();
   if (roadLines) roadLines.visible = false; if (underLines) underLines.visible = false;   // no map lines at eye level
   cutPlane.constant = 1e9;
-  $('walk').classList.add('on'); $('pad').classList.add('on'); $('joy').classList.add('on'); $('b-walk').classList.add('active'); $('hint').style.display = 'none';
+  $('walk').classList.add('on'); $('pad').classList.add('on'); $('joy').classList.add('on'); $('ctl').classList.add('off'); $('b-walk').classList.add('active'); $('hint').style.display = 'none';
   renderer.domElement.focus();
 }
 function stopWalk() {
   if (!WALK.on) return;
   WALK.on = false; WALK.keys = {}; if (underLines) underLines.visible = !!layerOn.under; if (roadLines) roadLines.visible = STREETS || PLAY;
   if (document.pointerLockElement) document.exitPointerLock();
-  $('walk').classList.remove('on'); $('pad').classList.remove('on'); $('joy').classList.remove('on'); $('b-walk').classList.remove('active'); $('hint').style.display = '';
+  $('walk').classList.remove('on'); $('pad').classList.remove('on'); $('joy').classList.remove('on'); $('ctl').classList.remove('off'); $('b-walk').classList.remove('active'); $('hint').style.display = '';
   camera.near = 1; camera.updateProjectionMatrix();
   const x = WALK.pos.x, y = -WALK.pos.z; controls.enabled = true;
   flyTo(x, y, groundAt(x, y), PLAY ? 600 : 120); applyPlay();
@@ -1345,6 +1360,28 @@ joy.addEventListener('pointerdown', (e) => { joyId = e.pointerId; try { joy.setP
 joy.addEventListener('pointermove', (e) => { if (e.pointerId === joyId) joySet(e); });
 const joyOff = (e) => { if (e.pointerId !== joyId) return; joyId = null; WALK.joy = null; joyK.style.transform = ''; };
 joy.addEventListener('pointerup', joyOff); joy.addEventListener('pointercancel', joyOff);
+// touch buttons: hold to turn, tilt or zoom around the view centre; N turns the view north-up
+const ctl = { a: null, last: 0 }, _sp = new THREE.Spherical(), _off = new THREE.Vector3();
+for (const b of document.querySelectorAll('#ctl button')) {
+  const a = b.dataset.a;
+  const on = (e) => { e.preventDefault(); if (a === 'north') { ctlApply('north', 0); return; } ctl.a = a; ctl.last = performance.now(); b.classList.add('on'); };
+  const off = () => { if (ctl.a === a) ctl.a = null; b.classList.remove('on'); };
+  b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
+}
+function ctlApply(a, dt) {
+  _off.copy(camera.position).sub(controls.target); _sp.setFromVector3(_off);
+  if (a === 'north') _sp.theta = 0;
+  if (controls.enableRotate) { if (a === 'rotL') _sp.theta -= 1.2 * dt; if (a === 'rotR') _sp.theta += 1.2 * dt; }
+  if (a === 'tiltU') _sp.phi += 0.8 * dt; if (a === 'tiltD') _sp.phi -= 0.8 * dt;
+  _sp.phi = Math.min(Math.max(_sp.phi, controls.minPolarAngle + 0.001), controls.maxPolarAngle);
+  if (a === 'zin') _sp.radius *= Math.pow(0.35, dt); if (a === 'zout') _sp.radius /= Math.pow(0.35, dt);
+  _sp.radius = Math.min(Math.max(_sp.radius, controls.minDistance), controls.maxDistance);
+  _sp.makeSafe(); _off.setFromSpherical(_sp); camera.position.copy(controls.target).add(_off); camera.lookAt(controls.target);
+}
+function ctlStep() {
+  const now = performance.now(), dt = Math.min(0.05, (now - (ctl.last || now)) / 1000); ctl.last = now;
+  if (ctl.a && !WALK.on) ctlApply(ctl.a, dt);
+}
 $('b-walk').onclick = () => { if (WALK.on) stopWalk(); else startWalk(controls.target.x, -controls.target.z); };
 $('walk-x').onclick = stopWalk;
 
@@ -1421,7 +1458,7 @@ function updateHud() {
   }
   $('hud-elev').innerHTML = e;
 }
-function loop() { govern(); if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); } cullStep(false); sizeCross(); renderer.render(scene, camera); updateLabels(); updateHud(); requestAnimationFrame(loop); }
+function loop() { govern(); ctlStep(); if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); } cullStep(false); sizeCross(); renderer.render(scene, camera); updateLabels(); updateHud(); requestAnimationFrame(loop); }
 
 (async () => {
   try {
