@@ -89,6 +89,20 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
 #card-tp .btn { margin-top: 2px; padding: 4px 8px; min-height: 28px; font-size: 13px; font-family: Consolas, monospace; }
 #card-tp .btn.done { border-color: var(--online); color: var(--online); }
 @media (max-width: 600px) { .title { display: none; } #hint { display: none; } #pad.on ~ #hud { display: none; } #walk { top: 52px; font-size: 12px; } .bar { left: 8px; right: 8px; top: 8px; gap: 6px; } .btn { padding: 7px 10px; min-height: 36px; } #panel { top: 52px; right: 8px; width: calc(100vw - 16px); } }
+/* phones: one swipeable button row (search and Settings first), card above the status line, status line wraps */
+@media (max-width: 600px) {
+  .bar { flex-wrap: nowrap; overflow-x: auto; pointer-events: auto; scrollbar-width: none; padding-right: 28px; -webkit-mask-image: linear-gradient(90deg, #000 86%, transparent); mask-image: linear-gradient(90deg, #000 86%, transparent); }
+  .bar::-webkit-scrollbar { display: none; }
+  .bar > * { flex: none; }
+  #q { order: -2; width: 150px; flex: none; }
+  #b-set { order: -1; }
+  #results { left: 8px; top: 52px; width: calc(100vw - 16px); }
+  #card { left: 8px; right: 8px; width: auto; bottom: 46px; max-height: 46vh; overflow: auto; }
+  #hud { left: 8px; right: 8px; transform: none; justify-content: center; flex-wrap: wrap; white-space: normal; text-align: center; gap: 2px 10px; }
+}
+/* touch: the walk box shows the touch controls instead of the keyboard list */
+@media (pointer: coarse) { #walk-t { display: none; } #walk::before { content: 'Use the pad to move, drag to look around'; display: block; margin-bottom: 6px; } }
+.mk.crowd .lbl { visibility: hidden; }
 </style>
 </head>
 <body>
@@ -920,6 +934,34 @@ function updateLabels() {
     }
     mk.el.style.display = vis ? '' : 'none';
     if (vis) mk.el.style.left = ((tmp.x + 1) / 2 * w) + 'px', mk.el.style.top = ((1 - tmp.y) / 2 * h) + 'px';
+  }
+  declutter();
+}
+
+// labels that would overlap a more important one are hidden (the dot stays): players first, then place names, then
+// vendors and landmarks, then the rest, nearer before farther; re-run five times a second
+let declAt = 0;
+function declutter() {
+  const now = performance.now(); if (now - declAt < 200) return; declAt = now;
+  const cam = camera.position, list = [];
+  for (const mk of markers) {
+    if (mk.el.hidden || mk.el.style.display === 'none' || mk.el.classList.contains('nolabel')) { mk.el.classList.remove('crowd'); continue; }
+    list.push(mk);
+  }
+  const pri = (mk) => (mk.kind === 'player' || mk.kind === 'admin') ? 0 : mk.kind === 'town' ? 1 : (mk.kind === 'vendor' || mk.kind === 'shrine' || mk.kind === 'church' || mk.kind === 'rad') ? 2 : 3;
+  for (const mk of list) mk.dd = cam.distanceTo(mk.p);
+  list.sort((a, b) => pri(a) - pri(b) || a.dd - b.dd);
+  const G = 80, grid = new Map();
+  for (const mk of list) {
+    if (mk.lt !== mk.lbl || !mk.lw) { mk.lw = mk.el.offsetWidth; mk.lh = mk.el.offsetHeight; mk.lt = mk.lbl; }
+    const x = parseFloat(mk.el.style.left), y = parseFloat(mk.el.style.top);
+    const r = mk.kind === 'town' ? [x - mk.lw / 2, y - mk.lh / 2, x + mk.lw / 2, y + mk.lh / 2] : [x - mk.lw / 2, y - mk.lh, x + mk.lw / 2, y - mk.lh + 20];
+    let hit = false;
+    const c0 = Math.floor(r[0] / G), c1 = Math.floor(r[2] / G), d0 = Math.floor(r[1] / G), d1 = Math.floor(r[3] / G);
+    for (let cx = c0; cx <= c1 && !hit; cx++) for (let cy = d0; cy <= d1 && !hit; cy++) for (const q of grid.get(cx + ',' + cy) || []) if (r[0] < q[2] && q[0] < r[2] && r[1] < q[3] && q[1] < r[3]) { hit = true; break; }
+    if (hit && pri(mk) === 0) hit = false;   // a player's name is always shown
+    mk.el.classList.toggle('crowd', hit);
+    if (!hit) for (let cx = c0; cx <= c1; cx++) for (let cy = d0; cy <= d1; cy++) { const k = cx + ',' + cy; let a = grid.get(k); if (!a) grid.set(k, a = []); a.push(r); }
   }
 }
 
