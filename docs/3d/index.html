@@ -189,9 +189,9 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 const WATER = 14.7, WORLD = 8192;
 const CAT_COLORS = { building: 0xc9b79c, designer: 0xb8bcc4, rock: 0x7d7a74, prop: 0xa8794f, nature: 0x6f7f4a, other: 0x8a96a3, fence: 0x8d7b66, sidewalk: 0x9c9a94, interior: 0xb58e6a };
-const VER = '20261023s';
+const VER = '20261023u';
 const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log
-const ADMIN_API = '';   // public copy: https endpoint of the map server's admin tracker (empty = no Track admin button)   // bumps the browser cache for every data file
+const ADMIN_API = 'https://map-api.bri-10.com';   // public copy: https endpoint of the map server's admin tracker (empty = no Track admin button)   // bumps the browser cache for every data file
 const $ = (id) => document.getElementById(id);
 const store = { get(k, d) { try { const v = localStorage.getItem('dw3d-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
                 set(k, v) { try { localStorage.setItem('dw3d-' + k, JSON.stringify(v)); } catch (e) {} } };
@@ -827,7 +827,9 @@ function tpButtons() {
   for (const [label, cmd] of [['!tp', '!tp ' + base], ['!tpfx', '!tpfx ' + base], ['p1', '!tpfx ' + base + ' p1'], ['p2', '!tpfx ' + base + ' p2'], ['p3', '!tpfx ' + base + ' p3'], ['p4', '!tpfx ' + base + ' p4']]) {
     const b = document.createElement('button'); b.className = 'btn'; b.textContent = label; b.title = 'Copy "' + cmd + '" to paste into the game chat';
     b.onclick = () => { const done = () => { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = label; }, 1200); };
-      try { navigator.clipboard.writeText(cmd).then(done, () => { const ta = document.createElement('textarea'); ta.value = cmd; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove(); done(); }); } catch (e) { done(); } };
+      const fallback = () => { const ta = document.createElement('textarea'); ta.value = cmd; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.focus(); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); if (ok) done(); else { b.textContent = 'copy failed'; setTimeout(() => { b.textContent = label; }, 1500); } };
+      // plain http pages (the admin map) have no navigator.clipboard: use the old selection copy there
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(cmd).then(done, fallback); else fallback(); };
     box.appendChild(b);
   }
 }
@@ -1127,7 +1129,7 @@ function flyTo(x, y, z, dist) {
 }
 $('b-me').onclick = () => {
   const me = markers.find((m) => m.kind === 'player' && ((D && D.me && (m.item.id === D.me || m.item.name === D.me)) || m.item.isMe)) || markers.find((m) => m.kind === 'player' && m.item.online);
-  if (me) { flyTo(+me.item.x, +me.item.y, +me.item.z || heightAt(+me.item.x, +me.item.y), 250); showCard(me.item.name, me.item.sub || ''); }
+  if (me) { const z = +me.item.z || heightAt(+me.item.x, +me.item.y); flyTo(+me.item.x, +me.item.y, z, 250); lastHit = W(+me.item.x, +me.item.y, z); cardItem = me.item; showCard(me.item.name, me.item.sub || ''); }
 };
 $('b-top').onclick = () => { if (WALK.on) stopWalk(); const t = controls.target.clone(); camera.position.set(t.x + 0.01, t.y + 2500, t.z + 0.01); controls.update(); };
 
