@@ -189,7 +189,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 const WATER = 14.7, WORLD = 8192;
 const CAT_COLORS = { building: 0xc9b79c, designer: 0xb8bcc4, rock: 0x7d7a74, prop: 0xa8794f, nature: 0x6f7f4a, other: 0x8a96a3, fence: 0x8d7b66, sidewalk: 0x9c9a94, interior: 0xb58e6a };
-const VER = '20261023u';
+const VER = '20261024b';
 const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log
 const ADMIN_API = 'https://map-api.bri-10.com';   // public copy: https endpoint of the map server's admin tracker (empty = no Track admin button)   // bumps the browser cache for every data file
 const $ = (id) => document.getElementById(id);
@@ -673,6 +673,20 @@ async function loadTrees() {
 
 // ---------- markers (same data as the 2D live map)
 const labelsEl = $('labels'); let D = null; const markers = [];
+// pins are HTML over the canvas: the wheel is handed to the map so zooming works with the cursor over a label, and a
+// press that turns into a drag is handed over too (the map then captures the pointer); a plain click stays with the pin
+let labelDown = null, labelDrag = false;
+labelsEl.addEventListener('wheel', (e) => { if (!e.target.closest('.mk')) return; renderer.domElement.dispatchEvent(new WheelEvent('wheel', e)); e.preventDefault(); }, { passive: false });
+labelsEl.addEventListener('pointerdown', (e) => { const mk = e.target.closest('.mk'); if (!mk) return; labelDown = [e.clientX, e.clientY, e.button, e.pointerId]; labelDrag = false; try { mk.setPointerCapture(e.pointerId); } catch (err) {} });
+labelsEl.addEventListener('pointermove', (e) => {
+  if (!labelDown || labelDrag || Math.hypot(e.clientX - labelDown[0], e.clientY - labelDown[1]) <= 6) return;
+  labelDrag = true;   // became a drag: start it on the map from where the press began
+  renderer.domElement.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: labelDown[0], clientY: labelDown[1], button: labelDown[2], buttons: e.buttons, pointerId: labelDown[3], pointerType: e.pointerType, isPrimary: true }));
+  renderer.domElement.dispatchEvent(new PointerEvent('pointermove', e));
+});
+labelsEl.addEventListener('pointerup', () => { labelDown = null; });
+labelsEl.addEventListener('pointercancel', () => { labelDown = null; });
+labelsEl.addEventListener('contextmenu', (e) => { if (e.target.closest('.mk')) e.preventDefault(); });
 const markOn = Object.assign({ player: true, town: true, vendor: true, base: true, stash: true, trap: true, shrine: true, userpin: true, ent: true, cavemine: true, vehicle: false }, store.get('markers', {}));
 let ENT = [];   // entrances.json: caves, manholes, hatches, tunnels, mines, ground openings
 const ENT_ICON = { manhole: 'Manhole', hatch: 'Bunker hatch', tunnel: 'Tunnel', sewer: 'Sewer entrance', cave: 'Cave', basement: 'Basement', mine: 'Mine', hole: 'Ground opening' };
@@ -682,7 +696,7 @@ function addMarker(item, kind, label, color) {
   el.innerHTML = '<div class="lbl"></div><div class="pt"></div><div class="stem"></div>';
   el.querySelector('.lbl').textContent = label || '';
   el.querySelector('.pt').style.background = color;
-  el.addEventListener('click', (e) => { e.stopPropagation(); lastHit = mk.p.clone(); cardItem = item; showCard(item.title || label || kind, item.sub || ''); });
+  el.addEventListener('click', (e) => { e.stopPropagation(); if (labelDrag) return; lastHit = mk.p.clone(); cardItem = item; showCard(item.title || label || kind, item.sub || ''); });
   labelsEl.appendChild(el);
   const mk = { item, kind, el, p: new THREE.Vector3(), label0: label || '', lbl: label || '' }; markers.push(mk); return mk;
 }
@@ -700,7 +714,7 @@ function nearestTown(x, y) {
 async function loadData() {
   try { const r = await fetch(PUBLIC ? 'data_public.json?v=' + VER : '/data.json', { cache: 'no-store' }); D = await r.json(); } catch (e) { return; }
   if (PUBLIC) { D.players = []; D.bases = []; D.vehicles = []; D.stashes = []; D.traps = []; D.pins = []; D.online = []; }
-  for (const mk of markers) mk.el.remove(); markers.length = 0; adminMk = null;
+  for (const mk of markers) mk.el.remove(); markers.length = 0; adminMk = null; clearArrows();
   for (const t of D.towns || []) addMarker(Object.assign({ title: t.name, sub: 'Place' }, t), 'town', t.name, '#fff');
   for (const v of D.vendors || []) addMarker(Object.assign({ title: v.name, sub: (v.type === 'cache' ? 'Supply cache' : 'Vendor') + (v.area ? ' · ' + v.area : '') }, v), 'vendor', v.name, 'var(--vendor)');
   for (const b of D.bases || []) addMarker(Object.assign({ title: b.name || 'Base', sub: (b.parts ? b.parts + ' placed parts · ' : '') + nearestTown(b.x, b.y) }, b), 'base', '', 'var(--base)');
@@ -718,6 +732,7 @@ async function loadData() {
     const pname = p.name || 'Unknown player';
     const mk = addMarker(Object.assign({ title: pname, sub: (p.online ? 'Online' : 'Offline') + ' · ' + nearestTown(p.x, p.y) }, p), 'player', pname, col);
     mk.key = p.id || p.name; mk.quiet = !p.online;   // offline players: a dot, no label (many have no known name)
+    if (p.online && p.yaw != null) setArrow(mk.key, p.x, p.y, p.z != null ? p.z : groundAt(p.x, p.y), p.yaw);
   }
   placeMarkers(); applyMarkerVis(); renderOnline();
 }
@@ -762,13 +777,14 @@ async function liveTick() {
     const r = await fetch('/live.json', { cache: 'no-store' }); const L = await r.json();
     for (const v of Object.values(L)) {
       const mk = markers.find((m) => m.kind === 'player' && m.item.name === v.name);
-      if (mk) { mk.item.x = v.x; mk.item.y = v.y; mk.item.z = v.z; mk.item.online = true; mk.quiet = false; mk.el.querySelector('.pt').style.background = 'var(--online)'; }
+      if (mk) { mk.item.x = v.x; mk.item.y = v.y; mk.item.z = v.z; mk.item.online = true; mk.quiet = false; mk.el.querySelector('.pt').style.background = 'var(--online)'; if (v.yaw != null) setArrow(mk.key || v.name, v.x, v.y, v.z != null ? v.z : groundAt(v.x, v.y), v.yaw); }
     }
     placeMarkers(); applyMarkerVis();
   } catch (e) {}
 }
 function applyMarkerVis() {
   const lab = $('o-labels').checked;
+  for (const a of arrows.values()) a.visible = !!markOn.player && !WALK.on;
   for (const mk of markers) {
     const cm = mk.kind === 'ent' && (mk.item.ent === 'mine' || mk.item.ent === 'cave');   // caves and mines have their own switch
     mk.el.hidden = mk.kind === 'admin' ? false : cm ? !markOn.cavemine : !markOn[mk.kind]; mk.el.classList.toggle('nolabel', (!lab && mk.kind !== 'town') || !!mk.quiet);
@@ -806,7 +822,7 @@ renderer.domElement.addEventListener('pointerup', (e) => {
   const hits = ray.intersectObjects(targets, false);
   const th = terrainMesh ? ray.intersectObject(terrainMesh, false)[0] : null;
   const hit = hits[0];
-  lastHit = hit && (!th || hit.distance <= th.distance + 0.5) ? hit.point.clone() : (th ? th.point.clone() : null); cardItem = null;
+  lastHit = hit && (!th || hit.distance <= th.distance + 0.5) ? hit.point.clone() : (th ? th.point.clone() : null); cardItem = null; showCross(lastHit);
   if (hit && (!th || hit.distance <= th.distance + 0.5)) {
     const c = hit.object.userData.cat, model = (hit.object.userData.model || {}).path || '';
     const nice = model.replace(/^.*\//, '').replace(/\.cgf$/i, '').replace(/[_-]+/g, ' ');
@@ -818,6 +834,21 @@ renderer.domElement.addEventListener('pointerup', (e) => {
   }
 });
 let cardItem = null;   // the marker item the card is showing (null for a tap on the ground)
+// crosshair on the spot that was tapped (ring + four ticks, drawn on top)
+const crossMat = new THREE.LineBasicMaterial({ color: 0xffb347, depthTest: false, transparent: true, opacity: 0.95 });
+const crossGeo = (() => { const pts = []; for (let i = 0; i < 32; i++) { const a = i / 32 * Math.PI * 2, b = (i + 1) / 32 * Math.PI * 2; pts.push(Math.cos(a), 0, Math.sin(a), Math.cos(b), 0, Math.sin(b)); } for (const [x, z] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) pts.push(x * 0.6, 0, z * 0.6, x * 1.6, 0, z * 1.6); const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); return g; })();
+const cross = new THREE.LineSegments(crossGeo, crossMat); cross.renderOrder = 20; cross.visible = false; cross.frustumCulled = false; scene.add(cross);
+function showCross(p) { if (!p) { cross.visible = false; return; } cross.position.set(p.x, p.y + 0.15, p.z); cross.visible = true; }
+function sizeCross() { if (!cross.visible) return; const d = camera.position.distanceTo(cross.position); const k = Math.max(0.6, d / 90); if (Math.abs(cross.scale.x - k) > k * 0.05) cross.scale.setScalar(k); }
+// which way each live player is facing: a flat arrow on the ground at their feet, turned by the yaw the game reports
+const arrows = new Map();   // player key -> mesh
+const arrowGeo = (() => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute([2.6, 0, 0, -0.9, 0, 1.1, -0.9, 0, -1.1], 3)); g.computeVertexNormals(); return g; })();
+const arrowMat = new THREE.MeshBasicMaterial({ color: 0x7cff9a, side: THREE.DoubleSide, transparent: true, opacity: 0.9, depthTest: false });
+function setArrow(key, x, y, z, yaw) {
+  let a = arrows.get(key); if (!a) { a = new THREE.Mesh(arrowGeo, arrowMat); a.renderOrder = 19; a.frustumCulled = false; scene.add(a); arrows.set(key, a); }
+  a.position.set(x, z + 0.4, -y); a.rotation.y = Math.PI / 2 - yaw * Math.PI / 180; a.visible = !!markOn.player && !WALK.on;   // yaw: 0 = north, clockwise (as on the 2D map)
+}
+function clearArrows() { for (const a of arrows.values()) scene.remove(a); arrows.clear(); }
 function showCard(t, s) { $('card-t').textContent = t; $('card-s').textContent = s; $('card').classList.add('open'); $('card-del').style.display = (cardItem && cardItem.pinId) ? '' : 'none'; $('card-pin').style.display = (PUBLIC || !lastHit) ? 'none' : ''; tpButtons(); }
 // admin map: copy the chat commands that teleport you to this spot (!tp, !tpfx, and the four saved !tpfx presets p1-p4)
 function tpButtons() {
@@ -847,7 +878,7 @@ $('card-del').onclick = async () => {
   try { await fetch('/pins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: cardItem.pinId }) }); } catch (e) {}
   $('card').classList.remove('open'); cardItem = null; await loadData();
 };
-$('card-x').onclick = () => $('card').classList.remove('open');
+$('card-x').onclick = () => { $('card').classList.remove('open'); showCross(null); };
 $('card-walk').onclick = () => { if (lastHit) { startWalk(lastHit.x, -lastHit.z); $('card').classList.remove('open'); } };
 
 // ---------- search: players, places, vendors, bases, vehicles, pins, stashes, traps, shrines, entrances, or "x y"
@@ -1165,7 +1196,7 @@ function updateHud() {
   }
   $('hud-elev').innerHTML = e;
 }
-function loop() { if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); } cullStep(false); renderer.render(scene, camera); updateLabels(); updateHud(); requestAnimationFrame(loop); }
+function loop() { if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); } cullStep(false); sizeCross(); renderer.render(scene, camera); updateLabels(); updateHud(); requestAnimationFrame(loop); }
 
 (async () => {
   try {
