@@ -8,7 +8,7 @@
 :root {
   --bg: #0d1116; --panel: rgba(18, 22, 28, 0.92); --line: rgba(255, 255, 255, 0.12); --text: #e8ecf1; --muted: #9aa6b2;
   --accent: #ffb347; --online: #7cff9a; --player: #8fb4ff; --vendor: #5ee6ff; --vehicle: #e0c060; --base: #ff9f43; --stash: #c98bff;
-  --trap: #ff6b6b; --pin: #ffd166; --shrine: #7fc4ff; --church: #f2e2b0; --town: rgba(240, 236, 220, 0.95);
+  --trap: #ff6b6b; --pin: #ffd166; --shrine: #7fc4ff; --church: #f2e2b0; --rad: #c8ff3c; --town: rgba(240, 236, 220, 0.95);
 }
 * { box-sizing: border-box; }
 .mk, .bar, #walk, #pad, #hint, #panel label, #card .t { user-select: none; -webkit-user-select: none; }
@@ -154,6 +154,7 @@ body.play .btn.active, .btn.active { border-color: var(--accent); color: var(--a
   <label><input type="checkbox" data-m="trap" checked><span class="sw" style="background:var(--trap)"></span>Text traps</label>
   <label><input type="checkbox" data-m="shrine" checked><span class="sw" style="background:var(--shrine)"></span>Shrine</label>
   <label><input type="checkbox" data-m="church" checked><span class="sw" style="background:var(--church)"></span>Churches</label>
+  <label><input type="checkbox" data-m="rad" checked><span class="sw" style="background:var(--rad)"></span>Radiation zones</label>
   <label><input type="checkbox" data-m="userpin" checked><span class="sw" style="background:var(--pin)"></span>Pins</label>
   <label><input type="checkbox" data-m="vehicle"><span class="sw" style="background:var(--vehicle)"></span>Vehicles</label>
   <label><input type="checkbox" data-m="ent" checked><span class="sw" style="background:#ff8ae6"></span>Entrances: manholes, hatches, tunnels, sewers, cellars</label>
@@ -190,7 +191,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 const WATER = 14.7, WORLD = 8192;
 const CAT_COLORS = { building: 0xc9b79c, designer: 0xb8bcc4, rock: 0x7d7a74, prop: 0xa8794f, nature: 0x6f7f4a, other: 0x8a96a3, fence: 0x8d7b66, sidewalk: 0x9c9a94, interior: 0xb58e6a };
-const VER = '20261024d';
+const VER = '20261024e';
 const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log
 const ADMIN_API = 'https://map-api.bri-10.com';   // public copy: https endpoint of the map server's admin tracker (empty = no Track admin button)   // bumps the browser cache for every data file
 const $ = (id) => document.getElementById(id);
@@ -736,7 +737,21 @@ labelsEl.addEventListener('pointerup', () => { labelDown = null; });
 labelsEl.addEventListener('pointercancel', () => { labelDown = null; });
 labelsEl.addEventListener('contextmenu', (e) => { if (e.target.closest('.mk')) e.preventDefault(); });
 const CHURCHES = [{ name: 'Old stone church', style: 'stone', x: 2400, y: 2220, z: 42 }, { name: 'Modern church', style: 'modern', x: 3980, y: 6672, z: 30 }, { name: 'Modern church', style: 'modern', x: 7059, y: 4982, z: 56 }];
-const markOn = Object.assign({ player: true, town: true, vendor: true, base: true, stash: true, trap: true, shrine: true, church: true, userpin: true, ent: true, cavemine: true, vehicle: false }, store.get('markers', {}));
+const RADZONES = [{"name":"Radiation pools (Center Hills)","x":3197.8,"y":3313.0,"z":109.8,"gas":0,"geiger":4.0,"n":5,"polys":[[[3219.0,3220.2],[3224.4,3217.9],[3224.3,3215.9],[3226.8,3214.4],[3227.3,3211.9],[3230.4,3207.1],[3229.2,3204.7],[3225.3,3204.6],[3223.2,3208.0],[3220.1,3209.4],[3217.4,3214.2]],[[3200.5,3332.5],[3196.0,3335.0],[3195.0,3334.2],[3195.1,3332.1],[3193.4,3331.3],[3193.5,3327.3],[3196.7,3327.7],[3197.6,3326.8],[3199.8,3328.5],[3200.9,3330.1]],[[3145.1,3343.8],[3140.0,3342.9],[3139.7,3341.7],[3141.1,3340.1],[3140.2,3338.4],[3142.8,3335.4],[3145.1,3337.7],[3146.4,3337.6],[3147.0,3340.2],[3146.8,3342.2]],[[3139.3,3408.4],[3144.8,3406.4],[3144.8,3404.5],[3147.5,3403.1],[3148.2,3400.7],[3151.6,3396.1],[3150.6,3393.7],[3146.6,3393.3],[3144.3,3396.5],[3141.2,3397.6],[3138.1,3402.3]],[[3270.1,3287.2],[3275.9,3287.9],[3276.8,3286.2],[3279.8,3286.1],[3281.5,3284.3],[3286.7,3281.8],[3286.9,3279.2],[3283.5,3277.0],[3280.0,3278.8],[3276.7,3278.4],[3271.8,3281.2]]],"pz":[109.8,113.6,121.3,115.6,117.3]},{"name":"Radiation in cave","x":807.3,"y":3599.2,"z":84.8,"gas":5.0,"geiger":4.0,"n":2,"polys":[[[804.7,3611.2],[808.3,3619.4],[799.5,3623.8],[800.5,3627.8],[807.1,3628.6],[812.6,3624.5],[814.5,3619.1],[814.0,3615.7],[810.3,3608.9]],[[802.4,3571.7],[812.9,3577.7],[814.9,3580.7],[810.4,3583.9],[802.8,3581.0],[796.6,3575.5]]],"pz":[90.5,84.8]},{"name":"Radiation in cave","x":2009.7,"y":2567.3,"z":14.0,"gas":15.0,"geiger":3.0,"n":2,"polys":[[[2035.3,2574.2],[2034.0,2578.7],[2047.9,2581.6],[2048.8,2576.3]],[[1982.2,2561.3],[1981.7,2557.6],[1980.3,2554.4],[1979.4,2549.5],[1973.8,2552.2],[1972.2,2560.5],[1976.0,2563.6]]],"pz":[19.1,14.0]},{"name":"Radiation pools (Woodhaven North)","x":820.8,"y":6203.1,"z":30.8,"gas":0,"geiger":4.0,"n":3,"polys":[[[787.4,6295.4],[789.7,6300.1],[788.8,6301.1],[786.8,6300.8],[785.9,6302.6],[781.9,6302.2],[782.4,6299.0],[781.6,6298.1],[783.4,6296.0],[785.1,6295.0]],[[838.4,6204.1],[844.3,6204.2],[845.0,6202.4],[847.9,6202.1],[849.5,6200.1],[854.3,6197.0],[854.2,6194.4],[850.7,6192.6],[847.3,6194.8],[844.0,6194.7],[839.5,6198.0]],[[832.5,6108.0],[834.8,6112.6],[833.9,6113.6],[831.8,6113.4],[830.9,6115.1],[827.0,6114.8],[827.5,6111.6],[826.7,6110.6],[828.5,6108.6],[830.2,6107.5]]],"pz":[30.8,36.3,46.4]},{"name":"Radiation in cave (Center Hills)","x":3502.5,"y":3661.3,"z":222.4,"gas":0,"geiger":4.0,"n":1,"polys":[[[3491.2,3658.4],[3501.3,3674.1],[3508.4,3671.3],[3511.2,3660.7],[3507.2,3650.8],[3495.6,3652.5]]],"pz":[222.4]},{"name":"Radiation pools (Pinecrest North)","x":4407.0,"y":2320.8,"z":87.9,"gas":0,"geiger":4.0,"n":2,"polys":[[[4391.0,2342.8],[4387.1,2346.2],[4385.9,2345.6],[4385.6,2343.6],[4383.7,2343.1],[4383.0,2339.2],[4386.2,2338.9],[4386.9,2337.8],[4389.4,2339.0],[4390.8,2340.4]],[[4428.5,2296.1],[4431.5,2300.2],[4430.8,2301.3],[4428.8,2301.5],[4428.2,2303.3],[4424.2,2303.7],[4424.2,2300.5],[4423.2,2299.6],[4424.6,2297.3],[4426.1,2296.0]]],"pz":[101.0,87.9]}];
+// radiation zones from the level (rad_ray_* pools and radiation_gamevol_* areas): glowing outlines at their own height
+let radGroup = null;
+{
+  radGroup = new THREE.Group(); const fill = new THREE.MeshBasicMaterial({ color: 0xc8ff3c, transparent: true, opacity: 0.38, depthWrite: false, depthTest: false, side: THREE.DoubleSide });   // drawn through the ground like the passages: pools sit at or under the 8 m terrain
+  for (const r of RADZONES) r.polys.forEach((poly, k) => {
+    const sh = new THREE.Shape(poly.map((p) => new THREE.Vector2(p[0], p[1])));
+    const g = new THREE.ShapeGeometry(sh); g.rotateX(-Math.PI / 2); g.translate(0, r.pz[k] + 0.3, 0);
+    const m = new THREE.Mesh(g, fill); m.renderOrder = 12; radGroup.add(m);
+    const pts = poly.concat([poly[0]]).map((p) => W(p[0], p[1], r.pz[k] + 0.35));
+    { const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xe6ff6a, depthTest: false, transparent: true })); ln.renderOrder = 13; radGroup.add(ln); }
+  });
+  scene.add(radGroup);
+}
+const markOn = Object.assign({ player: true, town: true, vendor: true, base: true, stash: true, trap: true, shrine: true, church: true, rad: true, userpin: true, ent: true, cavemine: true, vehicle: false }, store.get('markers', {}));
 let ENT = [];   // entrances.json: caves, manholes, hatches, tunnels, mines, ground openings
 const ENT_ICON = { manhole: 'Manhole', hatch: 'Bunker hatch', tunnel: 'Tunnel', sewer: 'Sewer entrance', cave: 'Cave', basement: 'Basement', mine: 'Mine', hole: 'Ground opening' };
 const ENT_COLOR = { manhole: '#ff8ae6', hatch: '#ffb347', tunnel: '#cfd8e3', sewer: '#9fe3ff', cave: '#d9b38c', basement: '#c9a0ff', mine: '#e8c070', hole: '#b0b0b0' };
@@ -770,6 +785,7 @@ async function loadData() {
   for (const s of D.stashes || []) addMarker(Object.assign({ title: s.name, sub: 'Gun stash · ' + nearestTown(s.x, s.y) }, s), 'stash', '', 'var(--stash)');
   for (const t of D.traps || []) addMarker(Object.assign({ title: t.name || 'Text trap', sub: 'Text trap · ' + nearestTown(t.x, t.y) }, t), 'trap', '', 'var(--trap)');
   D.churches = CHURCHES; for (const c of D.churches) addMarker(Object.assign({ title: c.name, sub: (c.style === 'stone' ? 'Old stone church' : 'Modern church') + ' · ' + nearestTown(c.x, c.y), kind: 'church' }, c), 'church', c.name, 'var(--church)');
+  for (const r of RADZONES) addMarker(Object.assign({ title: r.name, sub: (r.gas > 0 ? 'Radiation dose ' + r.gas + ' while inside · ' : '') + 'Geiger level ' + r.geiger + ' · ' + r.n + (r.n > 1 ? ' zones' : ' zone') + ' · ' + nearestTown(r.x, r.y), kind: 'rad' }, r), 'rad', '☢ Radiation', 'var(--rad)');
   for (const s of D.shrines || []) addMarker(Object.assign({ title: s.name, sub: 'The worthy may lift the hammer · ' + nearestTown(s.x, s.y) }, s), 'shrine', s.name, 'var(--shrine)');
   for (const p of D.pins || []) addMarker(Object.assign({ title: p.name, sub: 'Pin · ' + nearestTown(p.x, p.y) + (p.created ? ' · ' + p.created : ''), pinId: p.id }, p), 'userpin', p.name, 'var(--pin)');
   for (const v of D.vehicles || []) { const nm = (v.cls || 'vehicle').replace(/_/g, ' '); addMarker(Object.assign({ title: nm, sub: 'Vehicle · ' + nearestTown(v.x, v.y), name: nm }, v), 'vehicle', '', 'var(--vehicle)'); }
@@ -833,6 +849,7 @@ async function liveTick() {
   } catch (e) {}
 }
 function applyMarkerVis() {
+  if (radGroup) radGroup.visible = !!markOn.rad;
   const lab = $('o-labels').checked;
   for (const a of arrows.values()) a.visible = !!markOn.player && !WALK.on;
   for (const mk of markers) {
@@ -847,7 +864,7 @@ function updateLabels() {
     if (mk.el.hidden) continue;
     tmp.copy(mk.p).project(camera);
     const dist = camPos.distanceTo(mk.p);
-    let vis = tmp.z < 1 && tmp.x > -1.2 && tmp.x < 1.2 && tmp.y > -1.2 && tmp.y < 1.2 && (mk.kind !== 'town' || dist < 9000) && (mk.kind === 'town' || mk.kind === 'player' || mk.kind === 'admin' || mk.kind === 'shrine' || mk.kind === 'church' || mk.kind === 'ent' || dist < 4500) && (mk.kind !== 'ent' || dist < 6500 || PLAY);
+    let vis = tmp.z < 1 && tmp.x > -1.2 && tmp.x < 1.2 && tmp.y > -1.2 && tmp.y < 1.2 && (mk.kind !== 'town' || dist < 9000) && (mk.kind === 'town' || mk.kind === 'player' || mk.kind === 'admin' || mk.kind === 'shrine' || mk.kind === 'church' || mk.kind === 'rad' || mk.kind === 'ent' || dist < 4500) && (mk.kind !== 'ent' || dist < 6500 || PLAY);
     if (vis && WALK.on) vis = dist < (mk.kind === 'town' ? 700 : 120);                       // walking: only what is around you
     if (vis && mk.kind === 'ent' && mk.item.hole && camera.position.distanceTo(controls.target) > 1400) vis = false;   // ground openings only when zoomed in
     if (mk.kind === 'ent' && (mk.item.ent === 'manhole' || mk.item.ent === 'hatch')) {   // walking up to an opening: tell them how to use it
@@ -942,7 +959,7 @@ function searchItems(v) {
   const items = []; const m = v.match(/^(-?\d+(?:\.\d+)?)[ ,]+(-?\d+(?:\.\d+)?)/);
   if (m) items.push({ name: 'Point ' + m[1] + ', ' + m[2], kind: 'point', x: +m[1], y: +m[2] });
   const lv = v.toLowerCase(); if (!D) return items;
-  const pools = [['town', D.towns], ['vendor', D.vendors], ['player', D.players], ['base', D.bases], ['vehicle', D.vehicles], ['pin', D.pins], ['stash', D.stashes], ['trap', D.traps], ['shrine', D.shrines], ['church', D.churches]];
+  const pools = [['town', D.towns], ['vendor', D.vendors], ['player', D.players], ['base', D.bases], ['vehicle', D.vehicles], ['pin', D.pins], ['stash', D.stashes], ['trap', D.traps], ['shrine', D.shrines], ['church', D.churches], ['rad', RADZONES]];
   for (const [kind, arr] of pools) for (const it of arr || []) {
     const nm = it.name || it.ownerName || (it.cls ? it.cls.replace(/_/g, ' ') : ''); if (!nm) continue;
     if (nm.toLowerCase().includes(lv) || (it.id && String(it.id).includes(lv))) { items.push(Object.assign({ kind, name: nm }, it, { name: nm })); if (items.length > 14) return items; }
@@ -956,7 +973,7 @@ qEl.addEventListener('input', () => {
   for (const it of items) {
     const b = document.createElement('button'); b.innerHTML = '<span></span><small></small>';
     b.firstChild.textContent = it.name; b.lastChild.textContent = it.kind + ' · ' + nearestTown(it.x, it.y) + ' · x ' + Math.round(it.x) + ' y ' + Math.round(it.y);
-    b.onclick = () => { resEl.classList.remove('open'); qEl.value = ''; const mk = it.kind === 'entrance' ? ((it.ekind === 'mine' || it.ekind === 'cave') ? 'cavemine' : 'ent') : { town: 'town', vendor: 'vendor', player: 'player', base: 'base', vehicle: 'vehicle', pin: 'userpin', stash: 'stash', trap: 'trap', shrine: 'shrine', church: 'church' }[it.kind]; if (mk && !markOn[mk]) { markOn[mk] = true; store.set('markers', markOn); const cb = document.querySelector('#panel input[data-m="' + mk + '"]'); if (cb) cb.checked = true; applyMarkerVis(); } goTo(it.x, it.y, null, it.name, it.kind + ' · ' + nearestTown(it.x, it.y)); if (it.kind === 'point') showCross(lastHit); };   // a searched coordinate gets the crosshair too
+    b.onclick = () => { resEl.classList.remove('open'); qEl.value = ''; const mk = it.kind === 'entrance' ? ((it.ekind === 'mine' || it.ekind === 'cave') ? 'cavemine' : 'ent') : { town: 'town', vendor: 'vendor', player: 'player', base: 'base', vehicle: 'vehicle', pin: 'userpin', stash: 'stash', trap: 'trap', shrine: 'shrine', church: 'church', rad: 'rad' }[it.kind]; if (mk && !markOn[mk]) { markOn[mk] = true; store.set('markers', markOn); const cb = document.querySelector('#panel input[data-m="' + mk + '"]'); if (cb) cb.checked = true; applyMarkerVis(); } goTo(it.x, it.y, null, it.name, it.kind + ' · ' + nearestTown(it.x, it.y)); if (it.kind === 'point') showCross(lastHit); };   // a searched coordinate gets the crosshair too
     resEl.appendChild(b);
   }
   resEl.classList.toggle('open', items.length > 0);
