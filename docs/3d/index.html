@@ -191,7 +191,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 const WATER = 14.7, WORLD = 8192;
 const CAT_COLORS = { building: 0xc9b79c, designer: 0xb8bcc4, rock: 0x7d7a74, prop: 0xa8794f, nature: 0x6f7f4a, other: 0x8a96a3, fence: 0x8d7b66, sidewalk: 0x9c9a94, interior: 0xb58e6a };
-const VER = '20261024f';
+const VER = '20261024g';
 const PUBLIC = true;   // true in the GitHub copy: no players, vehicles, bases, stashes, traps, pins, online list or log
 const ADMIN_API = 'https://map-api.bri-10.com';   // public copy: https endpoint of the map server's admin tracker (empty = no Track admin button)   // bumps the browser cache for every data file
 const $ = (id) => document.getElementById(id);
@@ -800,8 +800,8 @@ let radGroup = null;
 }
 const markOn = Object.assign({ player: true, town: true, vendor: true, base: true, stash: true, trap: true, shrine: true, church: true, rad: true, userpin: true, ent: true, cavemine: true, vehicle: false }, store.get('markers', {}));
 let ENT = [];   // entrances.json: caves, manholes, hatches, tunnels, mines, ground openings
-const ENT_ICON = { manhole: 'Manhole', hatch: 'Bunker hatch', tunnel: 'Tunnel', sewer: 'Sewer entrance', cave: 'Cave', basement: 'Basement', mine: 'Mine', hole: 'Ground opening' };
-const ENT_COLOR = { manhole: '#ff8ae6', hatch: '#ffb347', tunnel: '#cfd8e3', sewer: '#9fe3ff', cave: '#d9b38c', basement: '#c9a0ff', mine: '#e8c070', hole: '#b0b0b0' };
+const ENT_ICON = { manhole: 'Manhole', hatch: 'Bunker hatch', shelter: 'Shelter entrance', tunnel: 'Tunnel', sewer: 'Sewer entrance', cave: 'Cave', basement: 'Basement', mine: 'Mine', hole: 'Ground opening' };
+const ENT_COLOR = { manhole: '#ff8ae6', hatch: '#ffb347', shelter: '#ffd27a', tunnel: '#cfd8e3', sewer: '#9fe3ff', cave: '#d9b38c', basement: '#c9a0ff', mine: '#e8c070', hole: '#b0b0b0' };
 function addMarker(item, kind, label, color) {
   const el = document.createElement('div'); el.className = 'mk ' + kind;
   el.innerHTML = '<div class="lbl"></div><div class="pt"></div><div class="stem"></div>';
