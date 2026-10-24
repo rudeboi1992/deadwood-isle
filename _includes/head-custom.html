@@ -1,0 +1,45 @@
+<!-- Dark mode: dark by default, a button in the corner switches to light; the choice is remembered per browser -->
+<meta name="color-scheme" content="dark light">
+<script>
+  (function () {
+    var t = 'dark';
+    try { t = localStorage.getItem('dw-theme') || 'dark'; } catch (e) {}
+    document.documentElement.setAttribute('data-theme', t);
+    document.addEventListener('DOMContentLoaded', function () {
+      var b = document.createElement('button');
+      b.id = 'theme-toggle'; b.type = 'button';
+      var label = function () { var d = document.documentElement.getAttribute('data-theme') === 'dark'; b.textContent = d ? '☀ Light' : '☾ Dark'; b.title = d ? 'Switch to light mode' : 'Switch to dark mode'; };
+      b.addEventListener('click', function () {
+        var n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', n);
+        try { localStorage.setItem('dw-theme', n); } catch (e) {}
+        label();
+      });
+      label(); document.body.appendChild(b);
+    });
+  })();
+</script>
+<style>
+  #theme-toggle { position: fixed; top: 12px; right: 12px; z-index: 10; padding: 6px 12px; border-radius: 6px; font: 14px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; cursor: pointer; border: 1px solid #d0d7de; background: #f6f8fa; color: #24292f; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  html[data-theme="dark"] body { background: #0d1117; color: #c9d1d9; }
+  html[data-theme="dark"] .markdown-body { color: #c9d1d9; }
+  html[data-theme="dark"] .markdown-body a { color: #58a6ff; }
+  html[data-theme="dark"] .markdown-body h1, html[data-theme="dark"] .markdown-body h2 { border-bottom-color: #21262d; }
+  html[data-theme="dark"] .markdown-body h1, html[data-theme="dark"] .markdown-body h2, html[data-theme="dark"] .markdown-body h3,
+  html[data-theme="dark"] .markdown-body h4, html[data-theme="dark"] .markdown-body strong, html[data-theme="dark"] .markdown-body b { color: #e6edf3; }
+  html[data-theme="dark"] .markdown-body hr { background-color: #30363d; border-bottom-color: #30363d; }
+  html[data-theme="dark"] .markdown-body blockquote { color: #8b949e; border-left-color: #30363d; }
+  html[data-theme="dark"] .markdown-body code, html[data-theme="dark"] .markdown-body tt { background-color: rgba(110, 118, 129, 0.4); color: #e6edf3; }
+  html[data-theme="dark"] .markdown-body pre, html[data-theme="dark"] .markdown-body .highlight pre { background-color: #161b22; color: #e6edf3; }
+  html[data-theme="dark"] .markdown-body pre code { background: transparent; }
+  html[data-theme="dark"] .markdown-body table tr { background-color: #0d1117; border-top-color: #21262d; }
+  html[data-theme="dark"] .markdown-body table tr:nth-child(2n) { background-color: #161b22; }
+  html[data-theme="dark"] .markdown-body table th, html[data-theme="dark"] .markdown-body table td { border-color: #30363d; }
+  html[data-theme="dark"] .markdown-body kbd { background-color: #161b22; color: #c9d1d9; border-color: #30363d; box-shadow: inset 0 -1px 0 #30363d; }
+  html[data-theme="dark"] .markdown-body details summary { color: #e6edf3; }
+  html[data-theme="dark"] .markdown-body img { background-color: transparent; }
+  html[data-theme="dark"] .footer, html[data-theme="dark"] .border-top { border-color: #21262d !important; color: #8b949e; }
+  html[data-theme="dark"] #theme-toggle { border-color: #30363d; background: #21262d; color: #c9d1d9; }
+  @media (max-width: 600px) { #theme-toggle { top: 8px; right: 8px; padding: 5px 10px; font-size: 13px; } }
+</style>
