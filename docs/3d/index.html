@@ -888,6 +888,23 @@ let radGroup = null;
   });
   scene.add(radGroup);
 }
+// text trap radii: dashed red circles, draped over the ground, or level at the trap's own height when it sits well above
+// or below the ground there (rebuilt with the markers, so they follow the HD terrain)
+let trapGroup = null;
+function drawTraps() {
+  if (trapGroup) { scene.remove(trapGroup); trapGroup.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
+  trapGroup = new THREE.Group();
+  const mat = new THREE.LineDashedMaterial({ color: 0xff3b3b, dashSize: 2.2, gapSize: 1.6, depthTest: false, transparent: true });
+  for (const t of (D && D.traps) || []) {
+    const r = +t.r || 3, x0 = +t.x, y0 = +t.y, z0 = +t.z, g0 = groundAt(x0, y0);
+    const drape = isNaN(z0) || Math.abs(z0 - g0) < 4;
+    const n = Math.max(32, Math.min(256, Math.round(r * 3))); const pts = [];
+    for (let k = 0; k <= n; k++) { const a = k / n * Math.PI * 2, x = x0 + Math.cos(a) * r, y = y0 + Math.sin(a) * r; pts.push(W(x, y, (drape ? groundAt(x, y) : z0) + 0.6)); }
+    const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat); ln.computeLineDistances(); ln.renderOrder = 13; trapGroup.add(ln);
+  }
+  try { trapGroup.visible = !!markOn.trap; } catch (e) { trapGroup.visible = true; }
+  scene.add(trapGroup);
+}
 const markOn = Object.assign({ player: true, town: true, vendor: true, base: true, stash: true, trap: true, shrine: true, church: true, rad: true, userpin: true, ent: true, cavemine: true, vehicle: false }, store.get('markers', {}));
 let ENT = [];   // entrances.json: caves, manholes, hatches, tunnels, mines, ground openings
 const ENT_ICON = { manhole: 'Manhole', hatch: 'Bunker hatch', shelter: 'Shelter entrance', tunnel: 'Tunnel', sewer: 'Sewer entrance', cave: 'Cave', basement: 'Basement', mine: 'Mine', hole: 'Ground opening' };
@@ -902,6 +919,7 @@ function addMarker(item, kind, label, color) {
   const mk = { item, kind, el, p: new THREE.Vector3(), label0: label || '', lbl: label || '' }; markers.push(mk); return mk;
 }
 function placeMarkers() {
+  try { drawTraps(); } catch (e) { console.warn('trap circles', e); }
   for (const mk of markers) {
     const it = mk.item; const z = (it.z != null && it.z !== '' && !isNaN(+it.z)) ? +it.z : groundAt(+it.x, +it.y);   // the ground as drawn right now (HD patch or 8 m)
     mk.p.copy(W(+it.x, +it.y, z + (mk.kind === 'town' ? 40 : 1.5)));
@@ -987,6 +1005,7 @@ async function liveTick() {
 }
 function applyMarkerVis() {
   if (radGroup) radGroup.visible = !!markOn.rad;
+  if (trapGroup) trapGroup.visible = !!markOn.trap;
   const lab = $('o-labels').checked;
   for (const a of arrows.values()) a.visible = !!markOn.player && !WALK.on;
   for (const mk of markers) {
