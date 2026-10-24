@@ -956,7 +956,7 @@ qEl.addEventListener('input', () => {
   for (const it of items) {
     const b = document.createElement('button'); b.innerHTML = '<span></span><small></small>';
     b.firstChild.textContent = it.name; b.lastChild.textContent = it.kind + ' · ' + nearestTown(it.x, it.y) + ' · x ' + Math.round(it.x) + ' y ' + Math.round(it.y);
-    b.onclick = () => { resEl.classList.remove('open'); qEl.value = ''; const mk = it.kind === 'entrance' ? ((it.ekind === 'mine' || it.ekind === 'cave') ? 'cavemine' : 'ent') : { town: 'town', vendor: 'vendor', player: 'player', base: 'base', vehicle: 'vehicle', pin: 'userpin', stash: 'stash', trap: 'trap', shrine: 'shrine', church: 'church' }[it.kind]; if (mk && !markOn[mk]) { markOn[mk] = true; store.set('markers', markOn); const cb = document.querySelector('#panel input[data-m="' + mk + '"]'); if (cb) cb.checked = true; applyMarkerVis(); } goTo(it.x, it.y, null, it.name, it.kind + ' · ' + nearestTown(it.x, it.y)); };
+    b.onclick = () => { resEl.classList.remove('open'); qEl.value = ''; const mk = it.kind === 'entrance' ? ((it.ekind === 'mine' || it.ekind === 'cave') ? 'cavemine' : 'ent') : { town: 'town', vendor: 'vendor', player: 'player', base: 'base', vehicle: 'vehicle', pin: 'userpin', stash: 'stash', trap: 'trap', shrine: 'shrine', church: 'church' }[it.kind]; if (mk && !markOn[mk]) { markOn[mk] = true; store.set('markers', markOn); const cb = document.querySelector('#panel input[data-m="' + mk + '"]'); if (cb) cb.checked = true; applyMarkerVis(); } goTo(it.x, it.y, null, it.name, it.kind + ' · ' + nearestTown(it.x, it.y)); if (it.kind === 'point') showCross(lastHit); };   // a searched coordinate gets the crosshair too
     resEl.appendChild(b);
   }
   resEl.classList.toggle('open', items.length > 0);
