@@ -9,7 +9,7 @@
 | Map | Islands |
 | Players | 50 |
 | Day/night | Stock (nights run 4x faster than days) |
-| Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939), [BMW M4 & Charger Interceptor](https://steamcommunity.com/sharedfiles/filedetails/?id=2005194385) (101 MB) and [Deadwood Isle – Base Limits](https://steamcommunity.com/sharedfiles/filedetails/?id=3797893300) (small) — all three download automatically when you join |
+| Mods required | [Admin Chat Commands](https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939), [BMW M4 & Charger Interceptor](https://steamcommunity.com/sharedfiles/filedetails/?id=2005194385) (101 MB) and [Deadwood Isle – Base Limits](https://steamcommunity.com/sharedfiles/filedetails/?id=3797893300) (8 MB) — all three download automatically when you join |
 
 ## 🗺️ 3D map of the island
 
@@ -39,6 +39,13 @@ You don't need to install anything except the Workshop mods, which Steam handles
 - **Parked vehicles last 14 days.** Vanilla deletes a vehicle nobody has used for 6 hours (bikes, quads, jet skis, tractors), 2 days (cars) or 3 days (trucks and buses). Here every vehicle keeps its spot for 14 days untouched before it despawns and respawns elsewhere.
 - Abandoned vehicles respawn in 30 minutes instead of 60. Destroyed vehicles respawn in 1 hour instead of 2.
 - **Charger Interceptor** added via the Workshop mod: police car spawns alternate between the stock cop cars and the Charger. Sedan spawns stay stock. The BMW M4 from the same mod does not spawn in the world; it's an admin-only event car.
+
+#### BMW M4 and Charger: engines, boost and fire
+- **Real engine sound.** The BMW runs a turbo inline-six and the Charger a twin-turbo V8, each recorded at six rev points from idle to redline, on and off the throttle. They follow the car's real RPM and gears, idle while a car is left running and go quiet when the engine is off. Everyone with the server mod hears them, inside the car or standing outside.
+- **Six-speed gearboxes**, with longer gears than the stock mod so each gear pulls before it shifts.
+- **Boost: hold Shift**, like on the dirt bike. The boost lasts a few seconds and recharges while you drive. While it's on, gas-stove blue NOS flames pour out of the tail pipes.
+- **BMW turbo.** The blow-off valve hisses when you lift off the gas, including at top speed, but not on gear changes.
+- **Exhaust fire.** Small flames spit out of the tail pipes on every upshift, all four on the BMW. On downshifts the BMW also crackles and burbles with a few pops of flame.
 
 ### Harvesting
 - **Bigger nodes.** Trees give 2x the logs (a full-size tree is 132 hits, vanilla 66). Rock and iron nodes give 4x (80 and 160 hits, vanilla 20 and 40). Coal and pyrite give 2x (80, vanilla 40). Scrap metal piles and regeneration timers are stock.
@@ -176,6 +183,7 @@ No schedule. The world wipes only when base clutter hurts performance or new pla
 Admin: **Toll Troll** on the server. Issues with this page or the server: [open an issue on this repo](https://github.com/rudeboi1992/deadwood-isle/issues).
 
 ## Changelog
+- **2026-10-26** — BMW M4 and Charger: recorded inline-six and V8 engine sounds, six-speed gearboxes, Shift boost with blue NOS flames, BMW blow-off valve and downshift burbles, exhaust fire on every shift.
 - **2026-10-24** — Mjolnir and Thor's trial: legendary hammers (100 charges) from the supply-cache spins and from Mjolnir's shrine, the Norse Medallion, six rotating talisman hunts with Thor's Challenge scrolls, `!thor` and `!hint`.
 - **2026-10-20 (later)** — Mountain cache on the Radar Dish mountain: shady stock plus ammo, the 50-coin legendary crate (kitted guns, 3 mags), guarded by 15 mutants and 3 armored brutes around the clock. Food vendor retired from the bazaar.
 - **2026-10-20** — Mystery crate at the new Hayward Valley supply cache (`!spin`, 100 amcoins, 2 a day, guns come with two mags). Second Shady Dealer at Amalgamated Airfield. Crafting and clothing vendors removed from the bazaar (the General Store covers both). Amcoin stacks hold 255 and sales pay up to 255; space helmet now 250. `!coins`. Vendor map added to this page.
