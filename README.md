@@ -140,6 +140,9 @@ Thor's hammer is on the island. Only a few exist at once, and only the worthy ca
 
 </details>
 
+### The Mechanic's House
+A mission starts with a note on the office desk of one of the two auto shops in **Hayward Valley**. Use the **[3D map](https://rudeboi1992.github.io/deadwood-isle/docs/3d/)** for help finding the places it sends you.
+
 ### Chat commands for everyone
 - `!thor` explains how Mjolnir works; `!hint` repeats the current trial's hint; `!mjolnir charges` shows a legendary hammer's charges.
 - `!corpse` lists the coordinates of your nearest bodies so you can go get your gear back.
