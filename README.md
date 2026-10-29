@@ -172,8 +172,7 @@ Sledgehammer 60 per hit, pickaxe/axe 30, hatchet 22. Wood takes full damage from
 1. No cheating, exploiting or glitching through bases.
 2. No hate speech in chat. Trash talk is fine; slurs get you banned.
 3. Don't build inside or block spawn points, roads or loot buildings.
-4. **Two vehicles per base, maximum.** Extras get removed.
-5. Admin decisions are final. Admins don't play favorites and don't spawn gear for anyone in normal play.
+4. Admin decisions are final. Admins don't play favorites and don't spawn gear for anyone in normal play.
 
 ## Wipes
 No schedule. The world wipes only when base clutter hurts performance or new players can't find room, or when a game update forces it. Wipes are announced in the join message at least a few days ahead.
@@ -186,6 +185,7 @@ No schedule. The world wipes only when base clutter hurts performance or new pla
 Admin: **Toll Troll** on the server. Issues with this page or the server: [open an issue on this repo](https://github.com/rudeboi1992/deadwood-isle/issues).
 
 ## Changelog
+- **2026-10-29** — The two-vehicles-per-base rule is gone: keep as many vehicles as you like.
 - **2026-10-26** — BMW M4 and Charger: recorded inline-six and V8 engine sounds, six-speed gearboxes, Shift boost with blue NOS flames, BMW blow-off valve and downshift burbles, exhaust fire on every shift.
 - **2026-10-24** — Mjolnir and Thor's trial: legendary hammers (100 charges) from the supply-cache spins and from Mjolnir's shrine, the Norse Medallion, six rotating talisman hunts with Thor's Challenge scrolls, `!thor` and `!hint`.
 - **2026-10-20 (later)** — Mountain cache on the Radar Dish mountain: shady stock plus ammo, the 50-coin legendary crate (kitted guns, 3 mags), guarded by 15 mutants and 3 armored brutes around the clock. Food vendor retired from the bazaar.
