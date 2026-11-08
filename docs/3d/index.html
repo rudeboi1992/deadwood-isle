@@ -62,6 +62,16 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 #results button small { display: block; color: var(--muted); font-size: 12px; }
 #toast { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); background: rgba(10, 8, 6, 0.92); color: #ffb347; border: 2px solid #ffb347; border-radius: 14px; padding: 18px 26px; font-size: 26px; font-weight: 800; letter-spacing: 0.04em; opacity: 0; pointer-events: none; transition: opacity 0.4s; z-index: 9; text-align: center; }
 #toast.show { opacity: 1; }
+#ctx { position: fixed; z-index: 20; display: none; min-width: 200px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 5px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); }
+#ctx.open { display: block; }
+#ctx button { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; font-size: 14px; padding: 8px 10px; border-radius: 7px; cursor: pointer; }
+#ctx button:hover { background: rgba(255, 255, 255, 0.08); }
+#meas { position: fixed; left: 50%; transform: translateX(-50%); top: 60px; z-index: 6; display: none; background: var(--panel); border: 1px solid #5ad1ff; border-radius: 10px; padding: 7px 10px 8px 12px; font-size: 13px; color: var(--text); max-width: calc(100vw - 24px); text-align: center; }
+#meas.open { display: block; }
+#meas .big { color: #5ad1ff; font-size: 17px; font-weight: 700; }
+#meas .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+#meas button { margin-left: 8px; background: none; border: 1px solid var(--line); color: var(--text); border-radius: 7px; padding: 2px 8px; font: inherit; font-size: 12px; cursor: pointer; vertical-align: 2px; }
+#mlabel { position: fixed; z-index: 4; display: none; transform: translate(-50%, -140%); background: rgba(10, 14, 18, 0.88); border: 1px solid #5ad1ff; color: #5ad1ff; border-radius: 7px; padding: 2px 7px; font-size: 13px; font-weight: 700; pointer-events: none; white-space: nowrap; }
 .mk.admin .pt { background: #ff4040; width: 14px; height: 14px; border-width: 3px; box-shadow: 0 0 10px #ff4040; }
 #online, #log { position: fixed; right: 12px; top: 60px; width: min(340px, calc(100vw - 24px)); max-height: calc(100vh - 80px); overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: none; z-index: 5; }
 #online.open, #log.open { display: block; }
@@ -198,9 +208,12 @@ html, body { touch-action: none; }
   <label><input type="checkbox" id="o-labels" checked><span class="sw" style="background:#fff"></span>Labels on markers</label>
   <small id="stats"></small>
 </div>
-<div id="card"><button class="x" id="card-x">&times;</button><div class="t" id="card-t"></div><div class="s" id="card-s"></div><button class="btn" id="card-walk">Walk here</button> <button class="btn" id="card-pin" title="Save a named pin here (shared with the 2D map)">Pin here</button> <button class="btn" id="card-del" style="display:none">Delete pin</button><div id="card-tp"></div></div>
+<div id="card"><button class="x" id="card-x">&times;</button><div class="t" id="card-t"></div><div class="s" id="card-s"></div><button class="btn" id="card-walk">Walk here</button> <button class="btn" id="card-meas" title="Measure the distance from this spot to another one">Measure</button> <button class="btn" id="card-pin" title="Save a named pin here (shared with the 2D map)">Pin here</button> <button class="btn" id="card-del" style="display:none">Delete pin</button><div id="card-tp"></div></div>
 <div id="results"></div>
 <div id="toast"></div>
+<div id="ctx"><button id="ctx-meas">Measure distance from here</button><button id="ctx-clear">Clear measurement</button></div>
+<div id="meas"><span class="big" id="meas-t"></span><button id="meas-x" title="Clear the measurement (Esc)">Clear</button><div class="sub" id="meas-s"></div></div>
+<div id="mlabel"></div>
 <div id="online"><h3>Online now</h3><div id="online-list"></div></div>
 <div id="log"><h3>Sessions (newest first)</h3><div id="log-list"></div></div>
 <div id="walk"><span id="walk-t">Walk: W A S D move · drag or mouse to look · Space jumps · Shift runs · walls, floors and stairs are solid · G flies through anything · Esc exits</span><button class="btn" id="walk-x">Exit walk</button></div>
@@ -918,7 +931,7 @@ function addMarker(item, kind, label, color) {
   el.innerHTML = '<div class="lbl"></div><div class="pt"></div><div class="stem"></div>';
   el.querySelector('.lbl').textContent = label || '';
   el.querySelector('.pt').style.background = color;
-  el.addEventListener('click', (e) => { e.stopPropagation(); if (labelDrag) return; lastHit = mk.p.clone(); cardItem = item; showCard(item.title || label || kind, item.sub || ''); });
+  el.addEventListener('click', (e) => { e.stopPropagation(); if (labelDrag) return; if (MEAS.mode === 1) { measSet(mk.p.clone()); return; } lastHit = mk.p.clone(); cardItem = item; showCard(item.title || label || kind, item.sub || ''); });
   labelsEl.appendChild(el);
   const mk = { item, kind, el, p: new THREE.Vector3(), label0: label || '', lbl: label || '' }; markers.push(mk); return mk;
 }
@@ -1074,6 +1087,8 @@ var lastHit = null;
 renderer.domElement.addEventListener('pointerup', (e) => {
   if (WALK.on) return;
   if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
+  if (e.button === 2) return;                                         // a right-click opens the menu (Measure distance) instead
+  if (MEAS.mode === 1) { measEnd(e.clientX, e.clientY); return; }     // measuring: this click is the second point
   ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   ray.setFromCamera(ndc, camera);
   const targets = Object.values(groups).flat().filter((g) => g.visible); if (roadMesh && roadMesh.visible) targets.push(roadMesh); if (waterMesh) targets.push(waterMesh);
@@ -1141,6 +1156,93 @@ $('card-del').onclick = async () => {
   try { await fetch('/pins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: cardItem.pinId }) }); } catch (e) {}
   $('card').classList.remove('open'); cardItem = null; await loadData();
 };
+// ---------- measure distance (2026-11-08, user: "right click and select measure distance and itll drop a starting point then I
+// can click another point and see how far it is"). Right-click > Measure distance from here (touch: the card's Measure
+// button), then click the second point - a spot on the map or a marker. The readout: the flat (map) distance, the height
+// difference, the straight line and the heading. Esc, Clear or the right-click menu clears it.
+const MEAS = { mode: 0, a: null, b: null, hover: null, mouse: null, moved: false, rdown: null, ctxP: null };   // mode 1 = waiting for the second point
+const measMat = new THREE.LineBasicMaterial({ color: 0x5ad1ff, depthTest: false, transparent: true, opacity: 0.95 });
+const measGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+const measLine = new THREE.Line(measGeo, measMat); measLine.renderOrder = 21; measLine.frustumCulled = false; measLine.visible = false; scene.add(measLine);
+const measDots = [0, 1].map(() => { const m = new THREE.LineSegments(crossGeo, measMat); m.renderOrder = 21; m.frustumCulled = false; m.visible = false; scene.add(m); return m; });
+const measTmp = new THREE.Vector3();
+// the exact spot under the cursor: what a tap identifies (buildings, props, roads, water) or the ground
+function measPick(cx, cy) {
+  ndc.set(cx / innerWidth * 2 - 1, -(cy / innerHeight) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const targets = Object.values(groups).flat().filter((g) => g.visible); if (roadMesh && roadMesh.visible) targets.push(roadMesh); if (waterMesh) targets.push(waterMesh);
+  const hit = ray.intersectObjects(targets, false)[0];
+  const th = terrainMesh ? ray.intersectObject(terrainMesh, false)[0] : null;
+  return hit && (!th || hit.distance <= th.distance + 0.5) ? hit.point.clone() : (th ? th.point.clone() : null);
+}
+// the live preview while choosing the second point: a cheap march over the height field (no mesh raycast every frame)
+function measHover(cx, cy) {
+  ndc.set(cx / innerWidth * 2 - 1, -(cy / innerHeight) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const o = ray.ray.origin, d = ray.ray.direction, below = (t) => o.y + d.y * t <= groundAt(o.x + d.x * t, -(o.z + d.z * t));
+  let t = 0, prev = 0, step = Math.max(1, camera.position.distanceTo(controls.target) / 300);
+  for (let i = 0; i < 600 && t < 30000; i++) {
+    if (below(t)) { let lo = prev, hi = t; for (let k = 0; k < 14; k++) { const m = (lo + hi) / 2; if (below(m)) hi = m; else lo = m; } return new THREE.Vector3(o.x + d.x * hi, o.y + d.y * hi, o.z + d.z * hi); }
+    prev = t; t += step; step *= 1.015;
+  }
+  return null;
+}
+function measFmt(m) { return m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m'; }
+function measShow() {
+  const a = MEAS.a, b = MEAS.b || MEAS.hover;
+  if (!a) { $('meas').classList.remove('open'); return; }
+  if (!b) { $('meas-t').textContent = 'Click a second point'; $('meas-s').textContent = 'from x ' + a.x.toFixed(0) + '  y ' + (-a.z).toFixed(0) + ' \u00b7 Esc cancels'; }
+  else {
+    const dx = b.x - a.x, dy = a.z - b.z, dh = b.y - a.y, flat = Math.hypot(dx, dy);
+    const brg = (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360, pt = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(brg / 45) % 8];
+    $('meas-t').textContent = (MEAS.b ? '' : '\u2248 ') + measFmt(flat);
+    $('meas-s').textContent = 'height ' + (dh >= 0 ? '+' : '\u2212') + Math.abs(dh).toFixed(0) + ' m \u00b7 straight line ' + measFmt(Math.hypot(flat, dh)) + ' \u00b7 heading ' + brg.toFixed(0) + '\u00b0 ' + pt
+      + ' \u00b7 x ' + a.x.toFixed(0) + ' y ' + (-a.z).toFixed(0) + ' \u2192 x ' + b.x.toFixed(0) + ' y ' + (-b.z).toFixed(0);
+  }
+  $('meas').classList.add('open');
+}
+function measStart(p) {
+  if (!p) { toast('Nothing there to measure from'); return; }
+  MEAS.a = p.clone(); MEAS.b = null; MEAS.hover = null; MEAS.mode = 1;
+  $('hint').classList.add('fade'); $('card').classList.remove('open'); showCross(null);
+  measShow();
+}
+function measSet(p) { if (!p) return; MEAS.b = p; MEAS.mode = 0; MEAS.hover = null; measShow(); }
+function measEnd(cx, cy) { measSet(measPick(cx, cy) || measHover(cx, cy)); }
+function measClear() { MEAS.mode = 0; MEAS.a = MEAS.b = MEAS.hover = null; $('meas').classList.remove('open'); $('mlabel').style.display = 'none'; }
+function measStep() {
+  if (MEAS.mode === 1 && MEAS.moved && MEAS.mouse) { MEAS.moved = false; MEAS.hover = measHover(MEAS.mouse[0], MEAS.mouse[1]); measShow(); }
+  const a = MEAS.a, b = MEAS.b || MEAS.hover, on = !!a && !WALK.on, lbl = $('mlabel');
+  measDots[0].visible = on; measDots[1].visible = on && !!b; measLine.visible = on && !!b;
+  if (!on) { lbl.style.display = 'none'; return; }
+  measDots[0].position.set(a.x, a.y + 0.2, a.z);
+  if (b) measDots[1].position.set(b.x, b.y + 0.2, b.z);
+  for (const m of measDots) if (m.visible) m.scale.setScalar(Math.max(0.6, camera.position.distanceTo(m.position) / 90));   // about the tap crosshair's size at any zoom
+  if (!b) { lbl.style.display = 'none'; return; }
+  const pos = measGeo.attributes.position; pos.setXYZ(0, a.x, a.y + 0.3, a.z); pos.setXYZ(1, b.x, b.y + 0.3, b.z); pos.needsUpdate = true; measGeo.computeBoundingSphere();
+  measTmp.set((a.x + b.x) / 2, (a.y + b.y) / 2 + 0.3, (a.z + b.z) / 2).project(camera);
+  if (measTmp.z >= 1 || Math.abs(measTmp.x) > 1.1 || Math.abs(measTmp.y) > 1.1) { lbl.style.display = 'none'; return; }
+  lbl.textContent = measFmt(Math.hypot(b.x - a.x, b.z - a.z));
+  lbl.style.left = ((measTmp.x + 1) / 2 * innerWidth) + 'px'; lbl.style.top = ((1 - measTmp.y) / 2 * innerHeight) + 'px'; lbl.style.display = 'block';
+}
+function closeCtx() { $('ctx').classList.remove('open'); }
+renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+renderer.domElement.addEventListener('pointerdown', (e) => { MEAS.rdown = (e.button === 2 && e.pointerType === 'mouse') ? [e.clientX, e.clientY] : null; });
+renderer.domElement.addEventListener('pointerup', (e) => {   // a right-click that didn't turn into a right-drag (turning the view): the menu
+  if (e.button !== 2 || WALK.on || !MEAS.rdown) return;
+  const moved = Math.hypot(e.clientX - MEAS.rdown[0], e.clientY - MEAS.rdown[1]); MEAS.rdown = null;
+  if (moved > 6) return;
+  MEAS.ctxP = [e.clientX, e.clientY];
+  const m = $('ctx'); $('ctx-clear').style.display = MEAS.a ? '' : 'none'; m.classList.add('open');
+  m.style.left = Math.max(4, Math.min(e.clientX, innerWidth - m.offsetWidth - 8)) + 'px'; m.style.top = Math.max(4, Math.min(e.clientY, innerHeight - m.offsetHeight - 8)) + 'px';
+});
+$('ctx-meas').onclick = () => { closeCtx(); if (MEAS.ctxP) measStart(measPick(MEAS.ctxP[0], MEAS.ctxP[1]) || measHover(MEAS.ctxP[0], MEAS.ctxP[1])); };
+$('ctx-clear').onclick = () => { closeCtx(); measClear(); };
+$('meas-x').onclick = () => measClear();
+$('card-meas').onclick = () => { if (lastHit) measStart(lastHit); else toast('Tap a spot on the map first'); };
+addEventListener('pointerdown', (e) => { if (!$('ctx').contains(e.target)) closeCtx(); }, true);
+addEventListener('pointermove', (e) => { if (MEAS.mode === 1 && e.pointerType === 'mouse' && !e.buttons) { MEAS.mouse = [e.clientX, e.clientY]; MEAS.moved = true; } });
+addEventListener('keydown', (e) => { if (e.key !== 'Escape' || WALK.on || (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) return; if ($('ctx').classList.contains('open')) closeCtx(); else if (MEAS.a) measClear(); });
 $('card-x').onclick = () => { $('card').classList.remove('open'); showCross(null); };
 $('card-walk').onclick = () => { if (lastHit) { startWalk(lastHit.x, -lastHit.z); $('card').classList.remove('open'); } };
 
@@ -1555,7 +1657,7 @@ function updateHud() {
   }
   $('hud-elev').innerHTML = e;
 }
-function loop() { govern(); ctlStep(); if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); } cullStep(false); sizeCross(); renderer.render(scene, camera); updateLabels(); updateHud(); requestAnimationFrame(loop); }
+function loop() { govern(); ctlStep(); if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); } cullStep(false); sizeCross(); measStep(); renderer.render(scene, camera); updateLabels(); updateHud(); requestAnimationFrame(loop); }
 
 (async () => {
   try {
