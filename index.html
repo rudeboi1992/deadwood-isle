@@ -9,7 +9,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deadwood Isle · Miscreated server</title>
-<meta name="description" content="Deadwood Isle is a US East PvP Miscreated server: 2.5x loot, 2x vehicles and harvest, indestructible plated bases, vendors that buy your gear, mystery crates, Thor's hammer and tuned cars.">
+<meta name="description" content="Deadwood Isle is a US East PvP Miscreated server: 2.5x loot, 2x vehicles and harvest, indestructible plated bases, vendors that buy your gear, mystery crates, Thor's hammer, tuned cars, drones, farming, base power and a bank.">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0f1513">
 <meta property="og:type" content="website">
@@ -319,6 +319,11 @@
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-drone" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.6"/><circle cx="18" cy="6" r="2.6"/><circle cx="6" cy="18" r="2.6"/><circle cx="18" cy="18" r="2.6"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"/><path d="M7.9 7.9l1.6 1.6M16.1 7.9l-1.6 1.6M7.9 16.1l1.6-1.6M16.1 16.1l-1.6-1.6"/></symbol>
+  <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 20.5v-8.5"/><path d="M12 12c0-4.2 3-6.8 7.5-6.8 0 4.2-3 6.8-7.5 6.8z"/><path d="M12 14.2c0-3.3-2.5-5.4-6-5.4 0 3.3 2.5 5.4 6 5.4z"/><path d="M7 20.5h10"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12.5" rx="2"/><path d="M3 10.2h18M6.5 14.8h4.5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12.5" rx="1.6"/><path d="M4.2 7l7.8 6 7.8-6"/></symbol>
+  <symbol id="i-case" viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12" rx="1.6"/><path d="M9 7.5V5.6a1.1 1.1 0 0 1 1.1-1.1h3.8A1.1 1.1 0 0 1 15 5.6v1.9M3.5 12.6h17M10.5 12.6v1.6h3v-1.6"/></symbol>
 </svg>
 
 <header class="topbar">
@@ -328,7 +333,7 @@
       <span>Deadwood Isle</span>
     </a>
     <nav class="chipnav" aria-label="Sections">
-      <a href="#join">Join</a><a href="#rules">Rules</a><a href="#features">Features</a><a href="#map">3D map</a><a href="#loot">Loot</a><a href="#vehicles">Vehicles</a><a href="#cars">Cars</a><a href="#bases">Bases</a><a href="#vendors">Vendors</a><a href="#crates">Crates</a><a href="#mjolnir">Mjolnir</a><a href="#missions">Missions</a><a href="#commands">Commands</a><a href="#server">Server</a><a href="#changelog">Changelog</a>
+      <a href="#join">Join</a><a href="#rules">Rules</a><a href="#features">Features</a><a href="#map">3D map</a><a href="#loot">Loot</a><a href="#vehicles">Vehicles</a><a href="#cars">Cars</a><a href="#drones">Drones</a><a href="#bases">Bases</a><a href="#power">Power</a><a href="#farm">Farming</a><a href="#vendors">Vendors</a><a href="#jobs">Jobs</a><a href="#crates">Crates</a><a href="#mjolnir">Mjolnir</a><a href="#missions">Missions</a><a href="#commands">Commands</a><a href="#server">Server</a><a href="#changelog">Changelog</a>
     </nav>
     <span class="spacer"></span>
     <a class="btn btn-ghost top-cta" href="docs/3d/"><svg class="i"><use href="#i-map"/></svg>3D map</a>
@@ -343,7 +348,7 @@
   <div class="hero-in">
     <div class="eyebrow">Miscreated · US East · PvP</div>
     <h1>Deadwood Isle</h1>
-    <p class="lead">A 50-slot server on the Islands map with 2.5x loot, double vehicles and harvest, and plated bases nobody can break. Plus vendors that buy your gear, mystery crates, Thor's hammer and tuned cars.</p>
+    <p class="lead">A 50-slot server on the Islands map with 2.5x loot, double vehicles and harvest, and plated bases nobody can break. Plus vendors that buy your gear, mystery crates, Thor's hammer, tuned cars, drones, farms, base power and a bank.</p>
     <div class="btns">
       <a class="btn btn-primary" href="docs/3d/"><svg class="i"><use href="#i-map"/></svg>Open the 3D map</a>
       <a class="btn btn-ghost" href="#join">How to join<svg class="i"><use href="#i-arrow"/></svg></a>
@@ -357,7 +362,7 @@
 <div class="layout">
   <aside class="side">
     <nav class="toc" aria-label="On this page">
-      <a href="#join">Join</a><a href="#rules">Rules</a><a href="#features">What's different</a><a href="#map">3D map</a><a href="#loot">Loot &amp; harvest</a><a href="#vehicles">Vehicles</a><a href="#cars">Tuned cars</a><a href="#bases">Bases</a><a href="#vendors">Vendors</a><a href="#crates">Mystery crates</a><a href="#mjolnir">Mjolnir</a><a href="#missions">Missions &amp; notes</a><a href="#commands">Commands</a><a href="#server">Server</a><a href="#changelog">Changelog</a>
+      <a href="#join">Join</a><a href="#rules">Rules</a><a href="#features">What's different</a><a href="#map">3D map</a><a href="#loot">Loot &amp; harvest</a><a href="#vehicles">Vehicles</a><a href="#cars">Tuned cars</a><a href="#drones">Pack mules &amp; drones</a><a href="#bases">Bases</a><a href="#power">Base power</a><a href="#farm">Farming &amp; food</a><a href="#vendors">Vendors</a><a href="#jobs">Jobs &amp; banking</a><a href="#crates">Mystery crates</a><a href="#mjolnir">Mjolnir</a><a href="#missions">Missions &amp; mail</a><a href="#commands">Commands</a><a href="#server">Server</a><a href="#changelog">Changelog</a>
     </nav>
   </aside>
 
@@ -373,7 +378,7 @@
         <div class="card">
           <ol class="steps">
             <li><div><b>Find it.</b> In Miscreated's server browser, search for <b>Deadwood</b>. It's listed as <code class="listing">NEW|<wbr>US-East|<wbr>Deadwood|<wbr>2x Loot/<wbr>Veh/<wbr>Harvest|<wbr>Indestructible Plated</code></div></li>
-            <li><div><b>Join.</b> Three mods download automatically: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939">Admin Chat Commands</a>, <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2005194385">BMW M4 &amp; Charger Interceptor</a> (about 100 MB) and <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3797893300">Deadwood Isle – Base Limits</a> (about 20 MB).</div></li>
+            <li><div><b>Join.</b> Three mods download automatically: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939">Admin Chat Commands</a>, <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2005194385">BMW M4 &amp; Charger Interceptor</a> (about 100 MB) and <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3797893300">Deadwood Isle – Base Limits</a> (about 70 MB).</div></li>
             <li><div><b>Read the banner.</b> New arrivals get the server summary on screen. Type <code>!welcome</code> to see it again.</div></li>
           </ol>
         </div>
@@ -423,8 +428,16 @@
         <a class="card feature" href="#crates"><svg class="i"><use href="#i-dice"/></svg><h3>Mystery crates</h3><p>Spend amcoins at the supply caches for a rare item or a fully kitted legendary gun.</p></a>
         <a class="card feature" href="#mjolnir"><svg class="i"><use href="#i-hammer"/></svg><h3>Thor's hammer</h3><p>Lightning, ground slams and storms. Win it in Thor's trial.</p></a>
         <a class="card feature" href="#cars"><svg class="i"><use href="#i-gauge"/></svg><h3>Tuned cars</h3><p>Engines, turbochargers and superchargers for the BMW M4 and Charger.</p></a>
+        <a class="card feature" href="#drones"><svg class="i"><use href="#i-drone"/></svg><h3>Drones</h3><p>Scout with the Sparrows or fly a minigun gunship at your side. Pack Mules you can ride are on the way.</p></a>
+        <a class="card feature" href="#emp"><svg class="i"><use href="#i-bolt"/></svg><h3>EMP-7 &amp; taser</h3><p>Knock drones out of the sky and stall car engines from up to 300 m.</p></a>
+        <a class="card feature" href="#power"><svg class="i"><use href="#i-bolt"/></svg><h3>Base power</h3><p>Generators, lights, a light switch and fridges that power your whole plot without wires.</p></a>
+        <a class="card feature" href="#farm"><svg class="i"><use href="#i-sprout"/></svg><h3>Farming</h3><p>Raise pigs and chickens, grow lettuce, and spread manure for 4x harvests.</p></a>
+        <a class="card feature" href="#food"><svg class="i"><use href="#i-clock"/></svg><h3>Food spoils</h3><p>Raw food rots in hours. A powered fridge keeps it fresh for a week.</p></a>
+        <a class="card feature" href="#jobs"><svg class="i"><use href="#i-case"/></svg><h3>Jobs</h3><p>Deliver food orders and sealed shipments across the island for amcoins.</p></a>
+        <a class="card feature" href="#bank"><svg class="i"><use href="#i-card"/></svg><h3>ATM &amp; debit cards</h3><p>Bank your coins at home and earn up to 50% cash back at the vendors.</p></a>
         <a class="card feature" href="#missions"><svg class="i"><use href="#i-key"/></svg><h3>A mission</h3><p>The Mechanic's House starts with a note in Hayward Valley.</p></a>
         <a class="card feature" href="#notes"><svg class="i"><use href="#i-pencil"/></svg><h3>Leave notes</h3><p>Write a message on notebook paper for someone else to find.</p></a>
+        <a class="card feature" href="#mailbox"><svg class="i"><use href="#i-mail"/></svg><h3>Mailboxes</h3><p>Put a mailbox on your plot and let people post you notes.</p></a>
         <a class="card feature" href="#map"><svg class="i"><use href="#i-map"/></svg><h3>3D map</h3><p>Explore the island in your browser, tunnels and bunkers included.</p></a>
       </div>
     </section>
@@ -539,13 +552,13 @@
               <tbody>
                 <tr><td><b>Inline-six engine</b></td><td>Recorded inline-six sound</td><td class="van">40 kg</td></tr>
                 <tr><td><b>V8 engine</b></td><td>Recorded V8 sound</td><td class="van">50 kg</td></tr>
-                <tr><td><b>Turbocharger</b></td><td>Turbo whoosh, a blow-off hiss when you let off the gas (never on gear changes), flutter, pops and flames</td><td class="van">20 kg</td></tr>
+                <tr><td><b>Turbocharger</b></td><td>Turbo whoosh, and a blow-off hiss with flutter when you let off the gas after building boost. Pops and flames.</td><td class="van">20 kg</td></tr>
                 <tr><td><b>Supercharger</b></td><td>Supercharger whine, pops and flames</td><td class="van">30 kg</td></tr>
               </tbody>
             </table>
           </div>
           <ul class="list">
-            <li><b>Engines:</b> the arms dealer at the car junkyard, 500 amcoins each.</li>
+            <li><b>Engines:</b> the arms dealer at the car junkyard, 2,500 amcoins each. Vendors pay 500 for one.</li>
             <li><b>Turbochargers and superchargers:</b> loot only, in garage maintenance spots and tow trucks. They can't be sold.</li>
           </ul>
         </div>
@@ -553,6 +566,97 @@
       <div class="callout" style="margin-top:16px">
         <svg class="i"><use href="#i-wrench"/></svg>
         <div><p><b>Turbos and superchargers wear out.</b> About 2 hours of driving takes one from new to blown ("Your turbocharger blew!"). Standing still with the engine running doesn't count, and engines never wear out. Type <code>!partwear</code> in the car to see what's left.</p></div>
+      </div>
+    </section>
+
+    <!-- PACK MULES & DRONES -->
+    <section class="block" id="drones" aria-labelledby="drones-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-drone"/></svg></div>
+        <div><h2 id="drones-h">Pack mules &amp; drones</h2><p>Scout from the air, bring a gunship, carry your loot home, and bring other people's drones down.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Drones</h3>
+          <ul class="list">
+            <li><b>Sparrows:</b> a pair of folding micro drones for scouting. Unarmed and light (0.5 kg).</li>
+            <li><b>RK700 Gunship:</b> a minigun drone that flies on your left and opens fire on hostiles within about 25 m. It only fires from a <b>Gunship Ammo Box</b> in its ammo slot: 1,000 rounds, refilled with Gunship Rounds.</li>
+            <li><b>Fly one with a Drone Controller.</b> Drop the drone, then turn the controller on from its right-click menu. Its screen shows battery, ammo, modules and alerts, and <kbd>Ctrl</kbd> flips through its pages, one of them a finder with distance and a compass. Turn Off lands the drone in front of you.</li>
+            <li><b>Range:</b> 50 m to switch on, or 150 m with the <b>Long-Range Controller</b> from UFO crashes and military airdrops.</li>
+            <li><b>Any controller flies any drone</b> once both have been in your inventory together. Whoever holds a drone owns it, and anyone can pick up a landed one.</li>
+            <li><b>Drone Landing Pad:</b> place one and your drones fly back to it from up to 1 km away.</li>
+          </ul>
+          <p class="note">Drones go on your belt or in your inventory, not a weapon slot. Bullets, explosives, melee hits and cars destroy them.</p>
+        </div>
+        <div class="card">
+          <h3>Modules, batteries &amp; ammo</h3>
+          <ul class="list">
+            <li><b>Batteries:</b> the Sparrows and the gunship each take their own. A standard battery gives 30 minutes of flight, a long-range one 60. Recharge them on a <a href="#rack">Solar Battery Rack</a>.</li>
+            <li><b>Sparrows modules:</b> quieter props (Low-Noise, Stealth, Experimental), prop guards for flying indoors, a floodlight that comes on at night, and an AI module that warns you about players within 200 m.</li>
+            <li><b>Gunship modules:</b> Overclock I–III for faster fire, a scanner that warns of anyone within 100 m, and the Amalgamated cloak, which keeps it see-through except while it fires.</li>
+            <li><b>Where to get them:</b> drone and mule parts are split between the two supply caches and change every day. The airfield Shady Dealer stocks them all, and the Radar Dish cache always has the Sparrows and the Drone Controller. Gunship ammo is sold at the caches and the Shady Dealers, and turns up in ammo loot.</li>
+            <li><b>Experimental parts</b> (Experimental props, Experimental Overclock, Amalgamated cloak) come only from airdrops, plane crashes and, now and then, the cave Shady Dealer.</li>
+            <li><b>Found gunships</b> turn up at military tents, airfield hangars and planes.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card" id="mule">
+          <h3>Pack Mule</h3>
+          <p>A six-rotor cargo drone you can ride. It carries 24 slots of cargo, follows you around, flies home to its landing pad, or you fly it yourself. <b>Pack Mules aren't out in the world yet</b>, but here's how they work, and their parts are already at the supply caches.</p>
+          <ul class="list">
+            <li><b>Parts:</b> 6 propellers, 4 car batteries and up to 3 modules. A <b>lift module</b> (Mk I, II or III) lets it carry you; it lifts 60 kg on its own, up to 260 kg with two Mk IIIs. The <b>AI module</b> lets it follow you and fly home. A <b>cloaking module</b> hides it.</li>
+            <li><b>Riding:</b> get on from its right side. <kbd>W</kbd>/<kbd>S</kbd> forward and back, <kbd>A</kbd>/<kbd>D</kbd> turn, <kbd>Space</kbd> up, <kbd>Shift</kbd> down, <kbd>L</kbd> lights. Hold <kbd>Shift</kbd> on the ground for 2 s to stop the props.</li>
+            <li><b>Flight time:</b> about 30 minutes per full battery, used only while it's in the air.</li>
+            <li><b>It's yours once you ride it.</b> Only the owner can give it orders, by chat or from a controller.</li>
+            <li><b>Mule Landing Pads</b> go on your plot, flat or raised. A Mule Transceiver at a powered base lets a long-range controller call your mule from anywhere.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Wrecks</h3>
+          <ul class="list">
+            <li><b>A downed drone leaves a wreck</b> with its modules still inside. A destroyed Pack Mule leaves a Mule Wreck where it fell, plus cargo pods holding what it carried.</li>
+            <li><b>Rebuild it:</b> look at the wreck and choose Repair.</li>
+          </ul>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Wreck</th><th>Repair with</th></tr></thead>
+              <tbody>
+                <tr><td>Sparrows</td><td>1 sheet metal, 1 electrical parts</td></tr>
+                <tr><td>Gunship</td><td>3 sheet metal, 1 electrical parts, 1 Amalgaduino</td></tr>
+                <tr><td>Pack Mule</td><td>5 sheet metal, 2 electrical parts, 1 Amalgaduino. It picks its cargo pods back up if they're within 10 m.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="list">
+            <li><b>Follow the signal.</b> Carry a switched-off controller within 500 m of a wreck and it beeps, and its screen points the way.</li>
+            <li><b>Wrecks last 3 days</b>, through restarts.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub" id="emp">Bringing them down: EMP-7 &amp; DW-7 taser</h3>
+      <div class="grid-2">
+        <div class="card">
+          <h3>EMP-7 Disruptor</h3>
+          <p>A double-coil EMP rifle. Each shot uses one EMP Cell and hits everything in a 300 m cone where you aim:</p>
+          <ul class="list">
+            <li><b>Drones</b> drop for 30 seconds, and their controllers go dark.</li>
+            <li><b>A Pack Mule flying on its own</b> comes down, ready to be taken. A ridden one is slowed and pushed low for 15 seconds.</li>
+            <li><b>Car engines</b> die for 30 seconds.</li>
+            <li><b>Base generators</b> trip off.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>DW-7 Taser</h3>
+          <p>A stun gun that reaches 300 m. Each shot uses one Stun Cartridge, and the dart has to hit. It works only on other players' drones.</p>
+          <ul class="list">
+            <li><b>A drone</b> stops responding for 15 seconds.</li>
+            <li><b>A Pack Mule</b> stops responding for 10 seconds.</li>
+          </ul>
+          <p class="note">Both guns, their EMP Cells and Stun Cartridges are sold at the Radar Dish cache and the Shady Dealers, and turn up in rifle, pistol and ammo loot.</p>
+        </div>
       </div>
     </section>
 
@@ -574,7 +678,7 @@
             <li><b>Plated parts are indestructible.</b> Nothing damages them: not C4, not sledgehammers, not vehicles, not fire.</li>
             <li><b>Wood is twice as tough.</b> Every wood part has double the HP (see the table). Metal, rock and stone parts are stock.</li>
             <li><b>Build tall.</b> 40 m of vertical build room means towers and floating floors work.</li>
-            <li><b>Better generators.</b> The fuel generator runs 10 work lights (vanilla 5). The solar generator runs 30 (vanilla 3) and is silent.</li>
+            <li><b>Power without wires.</b> Generators, lights and fridges power everything on their plot sign. See <a href="#power">Base power</a>.</li>
             <li><b>Candles light without a lighter.</b> The Halloween candle, Christmas candle and jack-o'-lantern switch on and off like lanterns, and each sells to vendors for 100.</li>
           </ul>
         </div>
@@ -600,6 +704,84 @@
       </div>
     </section>
 
+    <!-- BASE POWER -->
+    <section class="block" id="power" aria-labelledby="power-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-bolt"/></svg></div>
+        <div><h2 id="power-h">Base power</h2><p>Generators, lights and fridges are base parts. They power everything on their plot sign, with no wiring to lay.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Generators &amp; lights</h3>
+          <ul class="list">
+            <li><b>Generator:</b> runs 24 hours on a can of diesel, an hour per biofuel or 30 minutes per charcoal.</li>
+            <li><b>Solar Generator:</b> needs no fuel at all.</li>
+            <li><b>Both stay on through restarts.</b> <kbd>F</kbd> switches one on or off, and switching it off darkens the whole plot. An EMP shot trips it.</li>
+            <li><b>Work Lights</b> come in six colours, and each one can aim 5, 25 or 50 degrees down.</li>
+            <li><b>The Light Switch</b> turns every light on the plot on or off, and has an Auto mode that follows day and night. After a restart the lights are off unless the switch is on Auto.</li>
+            <li><b>Cables draw themselves</b> from the generator to each part. Don't want them showing? The hardware stores will bury them for a fee.</li>
+            <li><b>Power also runs</b> the HAM radio, the ATM and the Mule Transceiver.</li>
+          </ul>
+          <p class="note">Generators, lights, the switch and fridges are sold at the hardware stores in Pinecrest, Brightmoor and Cape Bay. Generators and work lights you find in the world are the new kind.</p>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h3>Fridge</h3>
+            <p>40 slots and a lock. While the base has power, food inside stays fresh for <b>a week</b>. Five hours in a row without power spoil everything in it. Stand next to it and type <code>!fridge</code> to check on it.</p>
+            <p class="note">Fridges can't be crafted. The hardware stores sell them, and they work only on a plot.</p>
+          </div>
+          <div class="card" id="rack">
+            <h3>Solar Battery Rack</h3>
+            <ul class="list">
+              <li><b>Charges car and drone batteries</b>, day and night: about 40–50 minutes from flat to full. Drop a battery within 2.5 m and it goes onto one of the 4 bays; <kbd>F</kbd> takes it back.</li>
+              <li><b>Up to 4 per base.</b> Batteries stay on the rack through restarts and logouts.</li>
+              <li><b>Where to find one:</b> maintenance and tow-truck loot. Racks also stand at garages, gas stations, hardware stores, fire stations and the Hayward boatyard, often with a battery or two still on them; pick one up to take it home.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FARMING & FOOD -->
+    <section class="block" id="farm" aria-labelledby="farm-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-sprout"/></svg></div>
+        <div><h2 id="farm-h">Farming &amp; food</h2><p>Raise pigs and chickens, grow lettuce, and keep your food cold. Raw food spoils here.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Pigs &amp; chickens</h3>
+          <ul class="list">
+            <li><b>The Farmer</b> in the Clyde Hill bazaar garden sells live pigs, hen and rooster crates, grain bags, feed and water troughs, the hen house, lettuce seeds and the HAM radio.</li>
+            <li><b>Every animal needs a feed trough and a water trough</b> within 15 m. Build them under Base Building, Structures, Farming (up to 6 per base). Each trough holds 40 and serves 4 animals, no more than 3 of them pigs.</li>
+            <li><b>Fill the troughs</b> by looking at them: lettuce, meat or grain in the feed trough, water from jugs, bottles and canteens in the water trough. Rain tops water troughs up. Acid or radiation weather fouls open troughs; you get a warning and have to dump them.</li>
+            <li><b>Release a pig</b> from its right-click menu within 10 m of a feed trough. A pig eats 2 lettuce and drinks 2 litres an hour, a chicken a quarter of that. Pigs left unfed die after 48 hours, with warnings first.</li>
+            <li><b>Hen House:</b> fed hens lay an egg every 2 hours. A house takes 4 hens, with a rooster for every 2.</li>
+          </ul>
+          <p class="note">Anyone can pick up your animals and carry them off, and wherever an animal is set down becomes its new home.</p>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h3>Crops &amp; manure</h3>
+            <ul class="list">
+              <li><b>Lettuce</b> grows in a planter in 30 minutes and replants itself. Seeds come from the Farmer, the bazaar and loot.</li>
+              <li><b>Manure:</b> pigs and chickens drop piles, and a few piles make a Manure bag. Manure on a planter makes its next harvest <b>4x</b>.</li>
+              <li><b>Crops sell for double:</b> a full stack of potatoes, carrots, beets, tomatoes or lettuce pays 100, pumpkins 150 and watermelons 200.</li>
+            </ul>
+          </div>
+          <div class="card" id="food">
+            <h3>Food spoils</h3>
+            <ul class="list">
+              <li><b>Raw food goes bad:</b> in 2 hours on the ground, 3 hours in your pack (still counting while you're logged out) and 5 hours in a vehicle.</li>
+              <li><b>Storage pauses it.</b> Crates, safes, tents and other storage stop the clock, but raw food left in them turns rotten at the daily restart.</li>
+              <li><b>A powered <a href="#power">fridge</a> keeps food a week.</b></li>
+              <li><b>Fresh to start:</b> harvests and eggs start fresh, and loot only starts to age once someone picks it up.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- VENDORS -->
     <section class="block" id="vendors" aria-labelledby="vendors-h">
       <div class="sec-head">
@@ -611,7 +793,7 @@
           <h3>Selling</h3>
           <ul class="list">
             <li><b>Most gear sells.</b> Vanilla vendors buy only a handful of items. Here they buy clothing, weapons, equipment, repair kits, consumables, magazines and tents. Prices follow rarity: Katana 150, Mk18 Reaver 200, AKM Gold 200, M249 150, VSS 100, sledgehammer 100, Patrick's axe 150.</li>
-            <li><b>Food, crops, iron and medicine sell too.</b> Iron ingots 200, antibiotics 100, watermelons 100, pumpkins 75, potatoes 50.</li>
+            <li><b>Food, crops, iron and medicine sell too.</b> Iron ingots 200, antibiotics 100, watermelons 200, pumpkins 150, potatoes, carrots, beets, tomatoes and lettuce 100.</li>
             <li><b>Trophies pay.</b> Space helmet 250, chrome cross necklace 200, gold skull mask 100, gold 100, silver skull mask 75, silver 50.</li>
           </ul>
           <p class="note">The game's own sell rules still apply: the item must be undamaged and a full stack, and containers and magazines must be empty. Base parts and traps can't be sold.</p>
@@ -622,6 +804,8 @@
             <li><b>A ledger stack holds 10,000.</b> A sale pays in full, and your inventory shows the real count.</li>
             <li><b><code>!coins</code></b> adds up every stack you carry.</li>
             <li><b>Spend them</b> at the vendors, on the <a href="#crates">mystery crates</a>, or on engines for your <a href="#cars">BMW or Charger</a>.</li>
+            <li><b>Buying costs 5x what a vendor pays.</b> A vendor pays 500 for an engine and sells one for 2,500.</li>
+            <li><b>Bank them</b> in your base's <a href="#bank">ATM</a> and pay with a debit card for cash back.</li>
           </ul>
         </div>
       </div>
@@ -629,14 +813,64 @@
       <div class="split">
         <figure>
           <a class="shot-link" href="docs/vendors-map.jpg"><img class="shot" src="assets/img/vendors-map.jpg" width="1100" height="1100" loading="lazy" alt="Map of the island with the vendor and supply cache locations marked"></a>
-          <figcaption>Circles are vendors, squares are supply caches. Tap for the full-size map, or search for them on the <a href="docs/3d/">3D map</a>.</figcaption>
+          <figcaption>Circles are vendors, squares are supply caches. Tap for the full-size map. The Farmer, the hardware stores and the job NPCs aren't on this picture yet; search for them, and every other trader, on the <a href="docs/3d/">3D map</a>.</figcaption>
         </figure>
         <div class="places">
           <div class="place"><h4>General Store</h4><span class="where">Clyde Hill bazaar</span><p>A rotating selection of about 40 items drawn from every vendor list on the map: guns, ammo, food, crafting and clothing, plus the Shady Dealer's stock.</p></div>
           <div class="place"><h4>Arms dealer</h4><span class="where">Car junkyard, west of Orca Hospital</span><p>Common rifles, SMGs, shotguns and pistols with their mags and ammo, plus the inline-six and V8 engines.</p></div>
           <div class="place"><h4>Shady Dealers</h4><span class="where">A cave in the central hills (grid D4), and behind the shop counter at Amalgamated Airfield</span><p>AK-Val, AK5D, SAS12, ammo and armor, with a small chance of an M249 or M97.</p></div>
-          <div class="place"><h4>Supply cache</h4><span class="where">Crashed airplane building, Hayward Valley</span><p>An airdrop crate that trades like a vendor, with the Shady Dealer's stock. It runs the <a href="#crates">mystery crate</a>.</p></div>
-          <div class="place"><h4>Mountain cache</h4><span class="where">Radar Dish mountain, up the stairs on the platform marked by a skull candle</span><p>Shady stock plus every magazine and ammo box for the prize guns. <b>15 mutants and 3 armored brutes</b> stand guard at all times and are replaced as they fall. It runs the <a href="#crates">legendary crate</a>.</p></div>
+          <div class="place"><h4>Supply cache</h4><span class="where">Crashed airplane building, Hayward Valley</span><p>An airdrop crate that trades like a vendor, with the Shady Dealer's stock and half of the <a href="#drones">drone and mule parts</a> (they swap daily). It runs the <a href="#crates">mystery crate</a>.</p></div>
+          <div class="place"><h4>Mountain cache</h4><span class="where">Radar Dish mountain, up the stairs on the platform marked by a skull candle</span><p>Shady stock plus every magazine and ammo box for the prize guns, the other half of the drone and mule parts, the Sparrows, the Drone Controller and the <a href="#emp">EMP-7 and taser</a>. <b>15 mutants and 3 armored brutes</b> stand guard. Clear them and they come back once nobody has been within 150 m for 10 minutes. It runs the <a href="#crates">legendary crate</a>.</p></div>
+          <div class="place"><h4>The Farmer</h4><span class="where">The garden at the Clyde Hill bazaar</span><p>Seeds, troughs, live animals, grain and the HAM radio, and <a href="#jobs">delivery orders</a>. See <a href="#farm">Farming</a>.</p></div>
+          <div class="place"><h4>Hardware stores</h4><span class="where">Pinecrest, Brightmoor and Cape Bay</span><p>Generators, lights, the light switch, fridges and the mailbox, wire burying, and jobs. See <a href="#power">Base power</a>.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- JOBS & BANKING -->
+    <section class="block" id="jobs" aria-labelledby="jobs-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-case"/></svg></div>
+        <div><h2 id="jobs-h">Jobs, shipments &amp; banking</h2><p>Earn amcoins running deliveries across the island, and keep them safe at home.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Delivery orders</h3>
+          <ul class="list">
+            <li><b>Get an order</b> from the Farmer (once every 30 minutes) or from your own HAM radio (every 15 minutes). Read the order to see the job in chat.</li>
+            <li><b>Deliver food</b> (lettuce, crops or other food) to a supermarket in Cape Bay, Sultan, Woodhaven, Pinecrest or Hayward Valley, or to the Brightmoor 24-hour store. Choose Deliver Order within 30 m of the drop point.</li>
+            <li><b>Pay:</b> 1.5x what the goods are worth, plus 60 amcoins per km. Thirty lettuce to Cape Bay pays 630.</li>
+            <li><b>No time limit.</b> Whoever holds the order collects the pay.</li>
+            <li><b>Some orders are pickups:</b> collect a sealed grocery crate at a store and take it where the order says.</li>
+          </ul>
+          <p class="note">HAM radio: one per base, under Base Building, Utilities (1 Amalgaduino, 3 electrical parts, 10 scrap metal), or from the Farmer. It needs <a href="#power">power</a>.</p>
+        </div>
+        <div class="card">
+          <h3>Shipments</h3>
+          <ul class="list">
+            <li><b>Job NPCs</b> hand out sealed 10 kg crates to deliver: at the churches in Sultan, Hayward Valley and Cape Bay, Orca Hospital, Hayward Valley city hall, the Brightmoor motel and the supermarkets, and at the arms dealer, the General Store, the Shady Dealers and the hardware stores. Look at them for the job lines.</li>
+            <li><b>Pay:</b> arms shipments 900 and supply shipments 500, plus 60 per km. Each place gives you a job once every 30 minutes.</li>
+            <li><b>Don't open it.</b> Opening a shipment, or sitting on one for 24 hours without delivering it, gets you banned from jobs. A warning comes an hour before. Dropping or stashing the crate is fine, dying with it doesn't count, and other players can steal it.</li>
+            <li><b>Changed your mind?</b> Sell Order cancels a job without a ban.</li>
+            <li><b>Banned players</b> get no jobs, can't trade with vendors, and lose premium debit cards. A Shady Dealer will sell you a <b>Forged ID</b> for 300 amcoins: right-click it and choose Use Forged ID to clear the ban.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" id="bank" style="margin-top:16px">
+        <h3>ATM &amp; debit card</h3>
+        <div class="grid-2">
+          <ul class="list">
+            <li><b>Build an ATM</b> at your base: Base Building, Utilities (10 sheet metal, 1 electrical parts), one per base, and it needs <a href="#power">power</a>. The Shady Dealers sell them too. Your first ATM comes with a debit card.</li>
+            <li><b>Deposit and withdraw</b> at the ATM: 100, 500, a stack, or everything. Right-click your card to check the balance.</li>
+            <li><b>Pay with the card.</b> At a vendor it puts up to 4 stacks of your balance in your pack. Your own coins are spent first, and whatever's left goes back when you walk away.</li>
+          </ul>
+          <ul class="list">
+            <li><b>Cash back</b> on everything you buy goes to your balance: <b>15%</b> standard, <b>25%</b> silver, <b>35%</b> gold, <b>50%</b> black.</li>
+            <li><b>Premium cards</b> drop in airdrops, military and electronics loot, and a Shady Dealer now and then has a black card.</li>
+            <li><b>Cards work only for their owner</b> and vanish 15 minutes after being dropped. Lost yours? The ATM makes a new one for a fee, at the best tier you've had.</li>
+            <li><b>Don't log out or die at a vendor</b> with the card's coins in your pack: logging out charges them to your balance, and dying loses them.</li>
+          </ul>
         </div>
       </div>
     </section>
@@ -728,9 +962,9 @@
     <section class="block" id="missions" aria-labelledby="missions-h">
       <div class="sec-head">
         <div class="sec-icon"><svg class="i"><use href="#i-key"/></svg></div>
-        <div><h2 id="missions-h">Missions &amp; notes</h2><p>A story hidden around the island, and a way to leave your own.</p></div>
+        <div><h2 id="missions-h">Missions, notes &amp; mail</h2><p>A story hidden around the island, a way to leave your own, and a mailbox to collect it in.</p></div>
       </div>
-      <div class="grid-2">
+      <div class="grid">
         <div class="card">
           <h3>The Mechanic's House</h3>
           <p>A mission starts with a note on the office desk of one of the two auto shops in <b>Hayward Valley</b>. Follow where it leads.</p>
@@ -740,6 +974,11 @@
           <h3>Notes</h3>
           <p><b>Notebook paper</b> turns up as loot, and the supply caches sell it for 1 amcoin a sheet. Type <code>!note</code> and your message to write on a sheet. You get a <b>Written Note</b> to drop, stash or hand over.</p>
           <p>Anyone can read it by holding it, or with <code>!read</code>. Notes show only the message, though admins can see who wrote them.</p>
+        </div>
+        <div class="card" id="mailbox">
+          <h3>Mailboxes</h3>
+          <p>Build a <b>Mailbox</b> on your plot, or buy one at a hardware store. Anyone can post a Written Note in it, and only you take your mail out.</p>
+          <p>When you log in with mail waiting, you're told how many notes are in your box. <code>!mail</code> checks any time.</p>
         </div>
       </div>
     </section>
@@ -761,10 +1000,22 @@
             <tr><td><code>!coins</code></td><td>Your amcoin balance across every stack you carry.</td></tr>
             <tr><td><code>!spin</code></td><td>Opens the crate at the supply cache you're standing at.</td></tr>
             <tr><td><code>!spin odds</code></td><td>That cache's prizes and chances.</td></tr>
-            <tr class="grp"><th colspan="2">Cars &amp; notes</th></tr>
+            <tr class="grp"><th colspan="2">Cars, notes &amp; mail</th></tr>
             <tr><td><code>!partwear</code></td><td>How much life the car's turbocharger or supercharger has left.</td></tr>
             <tr><td><code>!note</code> <i>message</i></td><td>Writes your message on a sheet of notebook paper.</td></tr>
             <tr><td><code>!read</code></td><td>Reads the notes you're carrying.</td></tr>
+            <tr><td><code>!mail</code></td><td>How many notes are waiting in your mailbox.</td></tr>
+            <tr class="grp"><th colspan="2">Farm &amp; food</th></tr>
+            <tr><td><code>!farm load</code></td><td>Next to a feed trough: puts all the lettuce and meat you carry in it.</td></tr>
+            <tr><td><code>!farm pour</code></td><td>Next to a water trough: pours in every water container you carry.</td></tr>
+            <tr><td><code>!farm dump</code></td><td>Empties the trough you're standing by.</td></tr>
+            <tr><td><code>!fridge</code></td><td>Checks the fridge you're standing next to.</td></tr>
+            <tr class="grp"><th colspan="2">Pack Mule</th></tr>
+            <tr><td><code>!mulestatus</code></td><td>The nearest mule within 30 m: what's fitted, whether it can fly (and why not), its speeds and its home pad.</td></tr>
+            <tr><td><code>!mulefollow</code></td><td>Your mule follows you, on foot or in a car, and lands beside you when you stand still. Needs the AI module.</td></tr>
+            <tr><td><code>!mulehome</code></td><td>Your mule flies home to its landing pad.</td></tr>
+            <tr><td><code>!mulestop</code></td><td>Lands your mule wherever it's flying (within 400 m).</td></tr>
+            <tr><td><code>!mulepads</code></td><td>Lists the Mule Landing Pads on your plot.</td></tr>
             <tr class="grp"><th colspan="2">Mjolnir</th></tr>
             <tr><td><code>!thor</code></td><td>How Mjolnir works.</td></tr>
             <tr><td><code>!hint</code></td><td>Repeats the current trial's hint.</td></tr>
@@ -802,6 +1053,7 @@
         <div><h2 id="changelog-h">Changelog</h2><p>Newest first. All dates are 2026.</p></div>
       </div>
       <ol class="timeline">
+        <li><time datetime="2026-11-08">Nov 8</time><p>Drones: the Sparrows and the RK700 gunship, with modules, batteries, gunship ammo, landing pads and wrecks you can rebuild. Pack Mule parts are at the caches. The EMP-7 Disruptor and DW-7 taser. Base power without wires (generators, solar generators, work lights, a light switch and fridges) from three new hardware stores, plus Solar Battery Racks. Pig and chicken farming with the Farmer at the Clyde Hill bazaar, and crops sell for double. Raw food spoils. Delivery orders, shipments and the Forged ID; ATMs and debit cards with cash back; mailboxes. Cleared mountain cache guards come back after 10 quiet minutes. Cars: the revs follow the real engine again without the wobble on gear changes, the low gears are longer, and the blow-off is a real air hiss that no longer fires in corners or over bumps. Fix: no more engine sound left behind where a car used to be.</p></li>
         <li><time datetime="2026-11-07">Nov 7</time><p>Amcoin stacks hold 10,000. The turbo's blow-off plays only when you let off the gas, never on gear changes. 3D map: <kbd>F</kbd> takes you through doors, a compass, and searchable buildings. Fixes: BMWs and Chargers from missions and events no longer lose what's inside them when everyone leaves the area, and items in a car no longer turn back into older ones after a restart.</p></li>
         <li><time datetime="2026-10-31">Oct 31</time><p>Notes: write on notebook paper with <code>!note</code> and read with <code>!read</code>. Notebook paper is loot and sells at the supply caches.</p></li>
         <li><time datetime="2026-10-30">Oct 30</time><p>Fix: BMWs and Chargers keep their parts through restarts.</p></li>
@@ -838,7 +1090,7 @@
   <div class="foot">
     <div><b>Deadwood Isle</b> · a Miscreated community server · Admin: <b>Toll Troll</b></div>
     <div><a href="docs/3d/">3D map</a> · <a href="https://github.com/rudeboi1992/deadwood-isle/issues">Report a problem</a> · <a href="https://github.com/rudeboi1992/deadwood-isle">GitHub</a></div>
-    <div class="fine">Updated November 7, 2026. Miscreated is a game by Entrada Interactive; this server and page are unofficial.</div>
+    <div class="fine">Updated November 8, 2026. Miscreated is a game by Entrada Interactive; this server and page are unofficial.</div>
   </div>
 </footer>
 

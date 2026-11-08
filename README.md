@@ -9,7 +9,7 @@
 
 ## 👉 [Open the player guide](https://rudeboi1992.github.io/deadwood-isle/)
 
-Everything about the server is on the website: what's different from vanilla, vendors and mystery crates, Mjolnir and Thor's trial, tuned cars, missions, chat commands, rules and the changelog.
+Everything about the server is on the website: what's different from vanilla, vendors and mystery crates, Mjolnir and Thor's trial, tuned cars, drones and the Pack Mule, the EMP-7 and taser, base power, farming and food, jobs and banking, missions and mailboxes, chat commands, rules and the changelog.
 
 [![Deadwood Isle player guide](assets/img/og.jpg)](https://rudeboi1992.github.io/deadwood-isle/)
 
