@@ -1,0 +1,983 @@
+[
+{
+"type": "Barracks",
+"x": 2422.9,
+"y": 720.0,
+"z": 40.7,
+"near": "Amalgamated Airfield",
+"dist": 72,
+"name": "Amalgamated Airfield Barracks"
+},
+{
+"type": "Hangar",
+"x": 2253.8,
+"y": 604.1,
+"z": 62.1,
+"near": "Amalgamated Airfield",
+"dist": 190,
+"name": "Amalgamated Airfield Hangar 1"
+},
+{
+"type": "Hangar",
+"x": 1932.5,
+"y": 828.9,
+"z": 56.0,
+"near": "Amalgamated Airfield",
+"dist": 536,
+"name": "Amalgamated Airfield Hangar 2"
+},
+{
+"type": "Hangar",
+"x": 1900.9,
+"y": 914.4,
+"z": 56.0,
+"near": "Amalgamated Airfield",
+"dist": 599,
+"name": "Amalgamated Airfield Hangar 3"
+},
+{
+"type": "Hangar",
+"x": 1787.4,
+"y": 857.6,
+"z": 56.0,
+"near": "Amalgamated Airfield",
+"dist": 683,
+"name": "Amalgamated Airfield Hangar 4"
+},
+{
+"type": "Ranger Tower",
+"x": 2562.8,
+"y": 688.0,
+"z": 42.4,
+"near": "Amalgamated Airfield",
+"dist": 130,
+"name": "Amalgamated Airfield Ranger Tower 1"
+},
+{
+"type": "Ranger Tower",
+"x": 2371.1,
+"y": 797.1,
+"z": 41.5,
+"near": "Amalgamated Airfield",
+"dist": 162,
+"name": "Amalgamated Airfield Ranger Tower 2"
+},
+{
+"type": "Ranger Tower",
+"x": 2656.0,
+"y": 528.9,
+"z": 39.7,
+"near": "Amalgamated Airfield",
+"dist": 249,
+"name": "Amalgamated Airfield Ranger Tower 3"
+},
+{
+"type": "Ranger Tower",
+"x": 2174.4,
+"y": 861.6,
+"z": 54.6,
+"near": "Amalgamated Airfield",
+"dist": 338,
+"name": "Amalgamated Airfield Ranger Tower 4"
+},
+{
+"type": "Windmill",
+"x": 2630.2,
+"y": 1008.7,
+"z": 81.4,
+"near": "Amalgamated Airfield",
+"dist": 407,
+"name": "Amalgamated Airfield Windmill 1"
+},
+{
+"type": "Windmill",
+"x": 2783.2,
+"y": 1094.5,
+"z": 76.6,
+"near": "Amalgamated Airfield",
+"dist": 563,
+"name": "Amalgamated Airfield Windmill 2"
+},
+{
+"type": "Windmill",
+"x": 2267.2,
+"y": 1373.5,
+"z": 95.5,
+"near": "Amalgamated Airfield",
+"dist": 743,
+"name": "Amalgamated Airfield Windmill 3"
+},
+{
+"type": "24-Hour Store",
+"x": 5315.4,
+"y": 2197.4,
+"z": 28.3,
+"near": "Brightmoor",
+"dist": 84,
+"name": "Brightmoor 24-Hour Store"
+},
+{
+"type": "Barracks",
+"x": 5226.4,
+"y": 2100.5,
+"z": 32.2,
+"near": "Brightmoor",
+"dist": 151,
+"name": "Brightmoor Barracks 1"
+},
+{
+"type": "Barracks",
+"x": 5466.9,
+"y": 2083.7,
+"z": 30.5,
+"near": "Brightmoor",
+"dist": 273,
+"name": "Brightmoor Barracks 2"
+},
+{
+"type": "Hardware Store",
+"x": 5420.5,
+"y": 2257.2,
+"z": 29.2,
+"near": "Brightmoor",
+"dist": 171,
+"name": "Brightmoor Hardware Store 1"
+},
+{
+"type": "Hardware Store",
+"x": 5498.3,
+"y": 2230.4,
+"z": 29.2,
+"near": "Brightmoor",
+"dist": 249,
+"name": "Brightmoor Hardware Store 2"
+},
+{
+"type": "Launderette",
+"x": 5479.8,
+"y": 2317.9,
+"z": 28.9,
+"near": "Brightmoor",
+"dist": 240,
+"name": "Brightmoor Launderette"
+},
+{
+"type": "Motel",
+"x": 5179.9,
+"y": 2196.2,
+"z": 29.9,
+"near": "Brightmoor",
+"dist": 88,
+"name": "Brightmoor Motel"
+},
+{
+"type": "Shops",
+"x": 5374.8,
+"y": 2282.3,
+"z": 28.6,
+"near": "Brightmoor",
+"dist": 129,
+"name": "Brightmoor Shops"
+},
+{
+"type": "24-Hour Store",
+"x": 7510.5,
+"y": 4752.8,
+"z": 50.7,
+"near": "Cape Bay",
+"dist": 154,
+"name": "Cape Bay 24-Hour Store"
+},
+{
+"type": "Capital Munch (fast food)",
+"x": 7518.2,
+"y": 4839.4,
+"z": 48.8,
+"near": "Cape Bay",
+"dist": 156,
+"name": "Cape Bay Capital Munch (fast food)"
+},
+{
+"type": "Church",
+"x": 7060.5,
+"y": 4979.4,
+"z": 58.3,
+"near": "Cape Bay",
+"dist": 351,
+"name": "Cape Bay Church"
+},
+{
+"type": "Diner",
+"x": 7399.4,
+"y": 4765.7,
+"z": 49.3,
+"near": "Cape Bay",
+"dist": 52,
+"name": "Cape Bay Diner"
+},
+{
+"type": "Fire Station",
+"x": 7388.3,
+"y": 4911.8,
+"z": 51.2,
+"near": "Cape Bay",
+"dist": 108,
+"name": "Cape Bay Fire Station"
+},
+{
+"type": "Hardware Store",
+"x": 7386.6,
+"y": 4770.7,
+"z": 51.6,
+"near": "Cape Bay",
+"dist": 41,
+"name": "Cape Bay Hardware Store"
+},
+{
+"type": "Launderette",
+"x": 7323.1,
+"y": 4782.5,
+"z": 53.0,
+"near": "Cape Bay",
+"dist": 49,
+"name": "Cape Bay Launderette 1"
+},
+{
+"type": "Launderette",
+"x": 7496.9,
+"y": 4764.3,
+"z": 51.3,
+"near": "Cape Bay",
+"dist": 137,
+"name": "Cape Bay Launderette 2"
+},
+{
+"type": "Motel",
+"x": 7249.4,
+"y": 4792.2,
+"z": 52.1,
+"near": "Cape Bay",
+"dist": 117,
+"name": "Cape Bay Motel"
+},
+{
+"type": "Radio Tower",
+"x": 7279.5,
+"y": 4466.9,
+"z": 126.2,
+"near": "Cape Bay",
+"dist": 350,
+"name": "Cape Bay Radio Tower"
+},
+{
+"type": "Shops",
+"x": 7368.0,
+"y": 4773.6,
+"z": 50.9,
+"near": "Cape Bay",
+"dist": 32,
+"name": "Cape Bay Shops 1"
+},
+{
+"type": "Shops",
+"x": 7269.9,
+"y": 4867.6,
+"z": 51.0,
+"near": "Cape Bay",
+"dist": 114,
+"name": "Cape Bay Shops 2"
+},
+{
+"type": "Supermarket",
+"x": 7178.2,
+"y": 4875.1,
+"z": 49.1,
+"near": "Cape Bay",
+"dist": 200,
+"name": "Cape Bay Supermarket"
+},
+{
+"type": "Capital Munch (fast food)",
+"x": 2294.7,
+"y": 5774.5,
+"z": 77.5,
+"near": "Car Junkyard",
+"dist": 898,
+"name": "Car Junkyard Capital Munch (fast food)"
+},
+{
+"type": "Car Crusher",
+"x": 1729.6,
+"y": 6560.8,
+"z": 48.1,
+"near": "Car Junkyard",
+"dist": 72,
+"name": "Car Junkyard Car Crusher 1"
+},
+{
+"type": "Car Crusher",
+"x": 1578.5,
+"y": 6590.3,
+"z": 64.1,
+"near": "Car Junkyard",
+"dist": 218,
+"name": "Car Junkyard Car Crusher 2"
+},
+{
+"type": "Dock Warehouse",
+"x": 1752.3,
+"y": 6400.8,
+"z": 49.2,
+"near": "Car Junkyard",
+"dist": 115,
+"name": "Car Junkyard Dock Warehouse"
+},
+{
+"type": "Gas Station",
+"x": 2276.7,
+"y": 5828.8,
+"z": 81.2,
+"near": "Car Junkyard",
+"dist": 843,
+"name": "Car Junkyard Gas Station"
+},
+{
+"type": "Capital Munch (fast food)",
+"x": 3491.8,
+"y": 4956.5,
+"z": 41.7,
+"near": "Cedar Park",
+"dist": 220,
+"name": "Cedar Park Capital Munch (fast food)"
+},
+{
+"type": "Car Crusher",
+"x": 4115.8,
+"y": 4476.9,
+"z": 28.6,
+"near": "Cedar Park",
+"dist": 573,
+"name": "Cedar Park Car Crusher"
+},
+{
+"type": "Radio Tower",
+"x": 3111.5,
+"y": 5161.7,
+"z": 157.5,
+"near": "Cedar Park",
+"dist": 652,
+"name": "Cedar Park Radio Tower"
+},
+{
+"type": "Training Facility",
+"x": 4918.3,
+"y": 4708.0,
+"z": 139.7,
+"near": "Clyde Hill",
+"dist": 148,
+"name": "Clyde Hill Training Facility"
+},
+{
+"type": "Windmill",
+"x": 4924.7,
+"y": 4705.1,
+"z": 153.1,
+"near": "Clyde Hill",
+"dist": 155,
+"name": "Clyde Hill Windmill"
+},
+{
+"type": "Gas Station",
+"x": 6405.5,
+"y": 5957.5,
+"z": 27.7,
+"near": "Radar Dish",
+"dist": 1049,
+"name": "Gas Station near Radar Dish"
+},
+{
+"type": "Gas Station",
+"x": 2560.2,
+"y": 2710.5,
+"z": 51.2,
+"near": "Haven Distributors",
+"dist": 470,
+"name": "Haven Distributors Gas Station"
+},
+{
+"type": "Radio Tower",
+"x": 2919.9,
+"y": 3203.6,
+"z": 261.1,
+"near": "Haven Distributors",
+"dist": 830,
+"name": "Haven Distributors Radio Tower"
+},
+{
+"type": "24-Hour Store",
+"x": 3702.4,
+"y": 6186.6,
+"z": 29.1,
+"near": "Hayward Valley",
+"dist": 99,
+"name": "Hayward Valley 24-Hour Store 1"
+},
+{
+"type": "24-Hour Store",
+"x": 3956.6,
+"y": 5626.1,
+"z": 35.2,
+"near": "Hayward Valley",
+"dist": 595,
+"name": "Hayward Valley 24-Hour Store 2"
+},
+{
+"type": "Armory",
+"x": 3677.3,
+"y": 6822.8,
+"z": 23.3,
+"near": "Hayward Valley",
+"dist": 635,
+"name": "Hayward Valley Armory"
+},
+{
+"type": "Capital Munch (fast food)",
+"x": 3485.7,
+"y": 5973.3,
+"z": 36.4,
+"near": "Hayward Valley",
+"dist": 388,
+"name": "Hayward Valley Capital Munch (fast food) 1"
+},
+{
+"type": "Capital Munch (fast food)",
+"x": 4047.8,
+"y": 5685.7,
+"z": 35.8,
+"near": "Hayward Valley",
+"dist": 571,
+"name": "Hayward Valley Capital Munch (fast food) 2"
+},
+{
+"type": "Church",
+"x": 3977.1,
+"y": 6672.4,
+"z": 32.8,
+"near": "Hayward Valley",
+"dist": 505,
+"name": "Hayward Valley Church"
+},
+{
+"type": "City Hall",
+"x": 3800.6,
+"y": 5858.2,
+"z": 29.2,
+"near": "Hayward Valley",
+"dist": 342,
+"name": "Hayward Valley City Hall"
+},
+{
+"type": "Dock Warehouse",
+"x": 3511.8,
+"y": 7024.8,
+"z": 25.2,
+"near": "Hayward Valley",
+"dist": 874,
+"name": "Hayward Valley Dock Warehouse"
+},
+{
+"type": "Garage Workshop",
+"x": 3643.2,
+"y": 6143.1,
+"z": 27.7,
+"near": "Hayward Valley",
+"dist": 167,
+"name": "Hayward Valley Garage Workshop 1"
+},
+{
+"type": "Garage Workshop",
+"x": 4030.8,
+"y": 5749.2,
+"z": 33.2,
+"near": "Hayward Valley",
+"dist": 506,
+"name": "Hayward Valley Garage Workshop 2"
+},
+{
+"type": "Gas Station",
+"x": 3556.2,
+"y": 5999.4,
+"z": 37.2,
+"near": "Hayward Valley",
+"dist": 316,
+"name": "Hayward Valley Gas Station 1"
+},
+{
+"type": "Gas Station",
+"x": 3897.6,
+"y": 6671.6,
+"z": 24.4,
+"near": "Hayward Valley",
+"dist": 482,
+"name": "Hayward Valley Gas Station 2"
+},
+{
+"type": "Hotel",
+"x": 3769.7,
+"y": 6040.0,
+"z": 56.9,
+"near": "Hayward Valley",
+"dist": 163,
+"name": "Hayward Valley Hotel"
+},
+{
+"type": "Launderette",
+"x": 3619.3,
+"y": 6291.5,
+"z": 32.1,
+"near": "Hayward Valley",
+"dist": 203,
+"name": "Hayward Valley Launderette"
+},
+{
+"type": "Motel",
+"x": 4034.4,
+"y": 5627.5,
+"z": 38.8,
+"near": "Hayward Valley",
+"dist": 619,
+"name": "Hayward Valley Motel"
+},
+{
+"type": "Police Station",
+"x": 3743.3,
+"y": 6450.2,
+"z": 33.6,
+"near": "Hayward Valley",
+"dist": 257,
+"name": "Hayward Valley Police Station"
+},
+{
+"type": "Skyscraper",
+"x": 3830.5,
+"y": 6394.2,
+"z": 32.4,
+"near": "Hayward Valley",
+"dist": 197,
+"name": "Hayward Valley Skyscraper"
+},
+{
+"type": "Supermarket",
+"x": 3926.0,
+"y": 6305.4,
+"z": 32.6,
+"near": "Hayward Valley",
+"dist": 164,
+"name": "Hayward Valley Supermarket"
+},
+{
+"type": "Vehicle Hangar",
+"x": 3749.9,
+"y": 6829.9,
+"z": 23.1,
+"near": "Hayward Valley",
+"dist": 632,
+"name": "Hayward Valley Vehicle Hangar 1"
+},
+{
+"type": "Vehicle Hangar",
+"x": 3552.8,
+"y": 6830.5,
+"z": 23.2,
+"near": "Hayward Valley",
+"dist": 677,
+"name": "Hayward Valley Vehicle Hangar 2"
+},
+{
+"type": "Vehicle Hangar",
+"x": 3816.1,
+"y": 6898.8,
+"z": 23.1,
+"near": "Hayward Valley",
+"dist": 699,
+"name": "Hayward Valley Vehicle Hangar 3"
+},
+{
+"type": "Windmill",
+"x": 1169.1,
+"y": 2102.5,
+"z": 46.7,
+"near": "Horseshoe Beach",
+"dist": 189,
+"name": "Horseshoe Beach Windmill"
+},
+{
+"type": "Log Cabin",
+"x": 5332.0,
+"y": 1210.3,
+"z": 104.9,
+"near": "Lumber Yard",
+"dist": 558,
+"name": "Lumber Yard Log Cabin 1"
+},
+{
+"type": "Log Cabin",
+"x": 5264.5,
+"y": 1432.1,
+"z": 57.7,
+"near": "Lumber Yard",
+"dist": 627,
+"name": "Lumber Yard Log Cabin 2"
+},
+{
+"type": "Radio Tower",
+"x": 6311.6,
+"y": 1037.9,
+"z": 249.5,
+"near": "Lumber Yard",
+"dist": 513,
+"name": "Lumber Yard Radio Tower"
+},
+{
+"type": "Windmill",
+"x": 5546.6,
+"y": 1004.3,
+"z": 148.3,
+"near": "Lumber Yard",
+"dist": 456,
+"name": "Lumber Yard Windmill"
+},
+{
+"type": "Dam",
+"x": 5822.9,
+"y": 4567.6,
+"z": 142.6,
+"near": "Orca Dam",
+"dist": 99,
+"name": "Orca Dam"
+},
+{
+"type": "Hospital",
+"x": 1604.9,
+"y": 7053.4,
+"z": 35.3,
+"near": "Orca Hospital",
+"dist": 106,
+"name": "Orca Hospital"
+},
+{
+"type": "Capital Munch (fast food)",
+"x": 1749.4,
+"y": 7400.2,
+"z": 32.2,
+"near": "Orca Hospital",
+"dist": 304,
+"name": "Orca Hospital Capital Munch (fast food)"
+},
+{
+"type": "Gas Station",
+"x": 1785.0,
+"y": 7330.6,
+"z": 32.7,
+"near": "Orca Hospital",
+"dist": 246,
+"name": "Orca Hospital Gas Station"
+},
+{
+"type": "Radio Tower",
+"x": 1488.3,
+"y": 7152.6,
+"z": 93.2,
+"near": "Orca Hospital",
+"dist": 218,
+"name": "Orca Hospital Radio Tower"
+},
+{
+"type": "Diner",
+"x": 5018.7,
+"y": 1502.3,
+"z": 32.3,
+"near": "Pine Parks",
+"dist": 606,
+"name": "Pine Parks Diner"
+},
+{
+"type": "24-Hour Store",
+"x": 3615.8,
+"y": 1302.1,
+"z": 49.5,
+"near": "Pinecrest",
+"dist": 307,
+"name": "Pinecrest 24-Hour Store"
+},
+{
+"type": "Capital Munch (fast food)",
+"x": 3944.0,
+"y": 1510.5,
+"z": 32.7,
+"near": "Pinecrest",
+"dist": 145,
+"name": "Pinecrest Capital Munch (fast food)"
+},
+{
+"type": "Barracks",
+"x": 4416.6,
+"y": 1463.7,
+"z": 26.5,
+"near": "Pinecrest Derby",
+"dist": 198,
+"name": "Pinecrest Derby Barracks"
+},
+{
+"type": "Fire Station",
+"x": 3994.0,
+"y": 1606.9,
+"z": 34.7,
+"near": "Pinecrest",
+"dist": 201,
+"name": "Pinecrest Fire Station"
+},
+{
+"type": "Hardware Store",
+"x": 3860.4,
+"y": 1513.6,
+"z": 35.2,
+"near": "Pinecrest",
+"dist": 65,
+"name": "Pinecrest Hardware Store"
+},
+{
+"type": "Shops",
+"x": 3870.6,
+"y": 1571.4,
+"z": 34.6,
+"near": "Pinecrest",
+"dist": 73,
+"name": "Pinecrest Shops"
+},
+{
+"type": "Supermarket",
+"x": 3904.5,
+"y": 1447.5,
+"z": 33.7,
+"near": "Pinecrest",
+"dist": 141,
+"name": "Pinecrest Supermarket"
+},
+{
+"type": "Armory",
+"x": 5543.7,
+"y": 5236.0,
+"z": 403.2,
+"near": "Radar Dish",
+"dist": 246,
+"name": "Radar Dish Armory"
+},
+{
+"type": "Satellite Dish",
+"x": 5385.9,
+"y": 5679.4,
+"z": 426.1,
+"near": "Radar Dish",
+"dist": 226,
+"name": "Radar Dish Satellite Dish 1"
+},
+{
+"type": "Satellite Dish",
+"x": 5602.4,
+"y": 5241.1,
+"z": 400.5,
+"near": "Radar Dish",
+"dist": 263,
+"name": "Radar Dish Satellite Dish 2"
+},
+{
+"type": "Radio Tower",
+"x": 1633.9,
+"y": 5355.8,
+"z": 396.8,
+"near": "Car Junkyard",
+"dist": 1166,
+"name": "Radio Tower near Car Junkyard"
+},
+{
+"type": "Windmill",
+"x": 1920.4,
+"y": 1255.8,
+"z": 102.2,
+"near": "Rocky Ripple Trailer Park",
+"dist": 595,
+"name": "Rocky Ripple Trailer Park Windmill"
+},
+{
+"type": "Ranger Tower",
+"x": 1357.4,
+"y": 1325.0,
+"z": 50.4,
+"near": "Stairway to Hope Memorial",
+"dist": 243,
+"name": "Stairway to Hope Memorial Ranger Tower"
+},
+{
+"type": "Windmill",
+"x": 1518.4,
+"y": 1011.7,
+"z": 56.1,
+"near": "Stairway to Hope Memorial",
+"dist": 383,
+"name": "Stairway to Hope Memorial Windmill"
+},
+{
+"type": "Church",
+"x": 2399.8,
+"y": 2219.7,
+"z": 48.1,
+"near": "Sultan",
+"dist": 225,
+"name": "Sultan Church"
+},
+{
+"type": "Gas Station",
+"x": 2170.3,
+"y": 1937.4,
+"z": 43.9,
+"near": "Sultan",
+"dist": 280,
+"name": "Sultan Gas Station"
+},
+{
+"type": "Supermarket",
+"x": 2227.0,
+"y": 2052.6,
+"z": 38.4,
+"near": "Sultan",
+"dist": 172,
+"name": "Sultan Supermarket"
+},
+{
+"type": "Log Cabin",
+"x": 761.6,
+"y": 3593.8,
+"z": 131.2,
+"near": "Turtle Bay",
+"dist": 767,
+"name": "Turtle Bay Log Cabin"
+},
+{
+"type": "Radio Tower",
+"x": 788.5,
+"y": 4148.7,
+"z": 232.9,
+"near": "Turtle Bay",
+"dist": 391,
+"name": "Turtle Bay Radio Tower"
+},
+{
+"type": "Windmill",
+"x": 5150.4,
+"y": 3017.2,
+"z": 36.2,
+"near": "Valley Bunker",
+"dist": 305,
+"name": "Valley Bunker Windmill"
+},
+{
+"type": "Windmill",
+"x": 2620.2,
+"y": 7027.9,
+"z": 35.2,
+"near": "Orca Hospital",
+"dist": 923,
+"name": "Windmill near Orca Hospital"
+},
+{
+"type": "Windmill",
+"x": 990.0,
+"y": 5419.3,
+"z": 134.4,
+"near": "Turtle Bay",
+"dist": 1274,
+"name": "Windmill near Turtle Bay"
+},
+{
+"type": "24-Hour Store",
+"x": 1820.3,
+"y": 3635.5,
+"z": 42.3,
+"near": "Woodhaven",
+"dist": 125,
+"name": "Woodhaven 24-Hour Store"
+},
+{
+"type": "Fire Station",
+"x": 1693.6,
+"y": 3413.4,
+"z": 42.8,
+"near": "Woodhaven",
+"dist": 183,
+"name": "Woodhaven Fire Station"
+},
+{
+"type": "Gas Station",
+"x": 1677.9,
+"y": 3331.3,
+"z": 44.1,
+"near": "Woodhaven",
+"dist": 266,
+"name": "Woodhaven Gas Station"
+},
+{
+"type": "Hardware Store",
+"x": 1714.4,
+"y": 3646.9,
+"z": 43.2,
+"near": "Woodhaven",
+"dist": 52,
+"name": "Woodhaven Hardware Store 1"
+},
+{
+"type": "Hardware Store",
+"x": 1598.8,
+"y": 3627.5,
+"z": 43.3,
+"near": "Woodhaven",
+"dist": 108,
+"name": "Woodhaven Hardware Store 2"
+},
+{
+"type": "Motel",
+"x": 1792.5,
+"y": 3497.8,
+"z": 43.9,
+"near": "Woodhaven",
+"dist": 134,
+"name": "Woodhaven Motel"
+},
+{
+"type": "Shops",
+"x": 1654.6,
+"y": 3584.2,
+"z": 42.3,
+"near": "Woodhaven",
+"dist": 49,
+"name": "Woodhaven Shops 1"
+},
+{
+"type": "Shops",
+"x": 1803.3,
+"y": 3470.8,
+"z": 42.4,
+"near": "Woodhaven",
+"dist": 161,
+"name": "Woodhaven Shops 2"
+},
+{
+"type": "Supermarket",
+"x": 1664.8,
+"y": 3670.3,
+"z": 40.9,
+"near": "Woodhaven",
+"dist": 83,
+"name": "Woodhaven Supermarket"
+}
+]

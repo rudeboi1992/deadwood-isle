@@ -74,6 +74,8 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 .mk.ent .pt { width: 12px; height: 12px; }
 #walk { position: fixed; left: 50%; transform: translateX(-50%); top: 60px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; display: none; font-size: 13px; text-align: center; max-width: calc(100vw - 24px); }
 #walk.on { display: block; }
+#compass { position: fixed; left: 50%; transform: translateX(-50%); top: 108px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px 12px; display: none; font: 600 15px ui-monospace, Consolas, monospace; letter-spacing: 0.5px; pointer-events: none; }
+#compass.on { display: block; }
 #walk button { margin-left: 10px; }
 #pad { position: fixed; right: 12px; bottom: 12px; display: none; grid-template-columns: repeat(3, 56px); gap: 6px; }
 #pad.on { display: grid; }
@@ -208,10 +210,12 @@ html, body { touch-action: none; }
   <button data-a="zin" aria-label="Zoom in">+<small>zoom</small></button><button data-a="zout" aria-label="Zoom out">&minus;<small>zoom</small></button>
   <button data-a="north" aria-label="Face north">N<small>north up</small></button>
 </div>
+<div id="compass">N 000&deg;</div>
 <div id="joy"><div id="joy-k"></div></div>
 <div id="pad">
   <button data-k="up" title="jump (fly mode: up)">&#8679;</button><button data-k="fwd">&#9650;</button><button data-k="down" title="down (fly mode)">&#8681;</button>
   <button data-k="left">&#9664;</button><button data-k="back">&#9660;</button><button data-k="right">&#9654;</button>
+  <button id="pad-use" title="use a ladder or door (F)">F</button>
 </div>
 <div id="hud"><div><div class="bar3" id="hud-bar"></div><span class="lab" id="hud-scale">100 m</span></div><div id="hud-elev"></div></div>
 <div id="hint">Drag to move, right-drag or two fingers to turn, wheel or pinch to zoom. Tap anything to identify it, then "Walk here" to go inside.</div>
@@ -770,7 +774,7 @@ async function loadObjects() {
     if (DETAIL === 'low' && SKIP_CATS_LOW[rec.cat]) continue;
     const ts = TILE[rec.cat] || 512, tx = Math.floor(idv.getFloat32(i * 52 + 4 + 12, true) / ts), ty = Math.floor(idv.getFloat32(i * 52 + 4 + 28, true) / ts);
     const bx = DETAIL === 'box' || (DETAIL === 'low' && BOX_CATS_LOW[rec.cat]) || !rec.t || !mdv;
-    const key = (bx && !/\/doors\/|\/ladders?\//i.test(rec.path) ? 'B:' + rec.cat : mi) + ':' + tx + ':' + ty; let l = byKey.get(key); if (!l) byKey.set(key, l = []); l.push(i);
+    const key = (bx && !(/\/ladders?\//i.test(rec.path) || (/door[^/]*\.cgf$/i.test(rec.path.split('/').pop()) && !/frame|way|mech|open|nodoor|wall_door|2doors|gate|trailer|container|broken_vehicles|fence|corridor|outdoor|cabinet|fridge|kitchen|sink|safe|locker|defib|boxdoor|elevator|tape|plane|boat|small_room|wall_large|roller/i.test(rec.path))) ? 'B:' + rec.cat : mi) + ':' + tx + ':' + ty; let l = byKey.get(key); if (!l) byKey.set(key, l = []); l.push(i);
   }
   const geos = hiGeos; const m4 = new THREE.Matrix4(); let tris = 0, k = 0;
   const corners = [];
@@ -930,12 +934,15 @@ function nearestTown(x, y) {
   for (const t of (D && D.towns) || []) { const d = (t.x - x) ** 2 + (t.y - y) ** 2; if (d < bd) { bd = d; best = t; } }
   return best ? best.name + ' (' + Math.round(Math.sqrt(bd)) + ' m)' : '';
 }
+// (2026-11-05, user: "Make places searchable ... like Hayward valley city hall, supermarkets") named buildings, loaded once
+let PLACES = [];
+fetch('places.json?v=' + VER, { cache: 'no-store' }).then(r => r.json()).then(j => { PLACES = Array.isArray(j) ? j : []; }).catch(() => {});
 async function loadData() {
   try { const r = await fetch(PUBLIC ? 'data_public.json?v=' + VER : '/data.json', { cache: 'no-store' }); D = await r.json(); } catch (e) { return; }
   if (PUBLIC) { D.players = []; D.bases = []; D.vehicles = []; D.stashes = []; D.traps = []; D.pins = []; D.online = []; }
   for (const mk of markers) mk.el.remove(); markers.length = 0; adminMk = null; clearArrows();
   for (const t of D.towns || []) addMarker(Object.assign({ title: t.name, sub: 'Place' }, t), 'town', t.name, '#fff');
-  for (const v of D.vendors || []) addMarker(Object.assign({ title: v.name, sub: (v.type === 'cache' ? 'Supply cache' : 'Vendor') + (v.area ? ' · ' + v.area : '') }, v), 'vendor', v.name, 'var(--vendor)');
+  for (const v of D.vendors || []) addMarker(Object.assign({ title: v.name, sub: ({ cache: 'Supply cache', jobs: 'Job NPC', farmer: 'Farmer' }[v.type] || 'Vendor') + (v.area && v.area !== 'Farmer' ? ' · ' + v.area : '') }, v), 'vendor', v.name, 'var(--vendor)');
   for (const b of D.bases || []) addMarker(Object.assign({ title: b.name || 'Base', sub: (b.parts ? b.parts + ' placed parts · ' : '') + nearestTown(b.x, b.y) }, b), 'base', '', 'var(--base)');
   for (const s of D.stashes || []) addMarker(Object.assign({ title: s.name, sub: 'Gun stash · ' + nearestTown(s.x, s.y) }, s), 'stash', '', 'var(--stash)');
   for (const t of D.traps || []) addMarker(Object.assign({ title: t.name || 'Text trap', sub: 'Text trap · ' + nearestTown(t.x, t.y) }, t), 'trap', '', 'var(--trap)');
@@ -1137,18 +1144,22 @@ $('card-del').onclick = async () => {
 $('card-x').onclick = () => { $('card').classList.remove('open'); showCross(null); };
 $('card-walk').onclick = () => { if (lastHit) { startWalk(lastHit.x, -lastHit.z); $('card').classList.remove('open'); } };
 
-// ---------- search: players, places, vendors, bases, vehicles, pins, stashes, traps, shrines, entrances, or "x y"
+// ---------- search: players, places, vendors + every NPC ("npc"), bases, vehicles, pins, stashes, traps, shrines, entrances, or "x y"
 const qEl = $('q'), resEl = $('results');
 function searchItems(v) {
   const items = []; const m = v.match(/^(-?\d+(?:\.\d+)?)[ ,]+(-?\d+(?:\.\d+)?)/);
   if (m) items.push({ name: 'Point ' + m[1] + ', ' + m[2], kind: 'point', x: +m[1], y: +m[2] });
   const lv = v.toLowerCase(); if (!D) return items;
-  const pools = [['town', D.towns], ['vendor', D.vendors], ['player', D.players], ['base', D.bases], ['vehicle', D.vehicles], ['pin', D.pins], ['stash', D.stashes], ['trap', D.traps], ['shrine', D.shrines], ['church', D.churches], ['rad', RADZONES]];
+  const MAX = 40;   // (2026-11-07, user: "I want all npc searchable on my map": all 23 NPCs fit) was 15
+  // every NPC answers to "npc", and to words for its kind, its area and its id (any case)
+  const npcWords = (it) => ' npc ' + ({ jobs: 'job jobs', cache: 'cache crate supply', farmer: 'farmer trader vendor', teleport: 'teleporter' }[it.type] || 'trader vendor shop') + ' ' + (it.area || '') + ' ' + (it.id || '');
+  const pools = [['town', D.towns], ['place', PLACES], ['vendor', D.vendors], ['player', D.players], ['base', D.bases], ['vehicle', D.vehicles], ['pin', D.pins], ['stash', D.stashes], ['trap', D.traps], ['shrine', D.shrines], ['church', D.churches], ['rad', RADZONES]];
   for (const [kind, arr] of pools) for (const it of arr || []) {
     const nm = it.name || it.ownerName || (it.cls ? it.cls.replace(/_/g, ' ') : ''); if (!nm) continue;
-    if (nm.toLowerCase().includes(lv) || (it.id && String(it.id).includes(lv))) { items.push(Object.assign({ kind, name: nm }, it, { name: nm })); if (items.length > 14) return items; }
+    const hay = kind === 'vendor' ? nm + npcWords(it) : nm;
+    if (hay.toLowerCase().includes(lv) || (it.id && String(it.id).toLowerCase().includes(lv))) { items.push(Object.assign({ kind, name: nm }, it, { name: nm })); if (items.length >= MAX) return items; }
   }
-  for (const e of ENT) if (e.label.toLowerCase().includes(lv)) { items.push({ kind: 'entrance', ekind: e.kind, name: e.label, x: e.x, y: e.y }); if (items.length > 14) return items; }
+  for (const e of ENT) if (e.label.toLowerCase().includes(lv)) { items.push({ kind: 'entrance', ekind: e.kind, name: e.label, x: e.x, y: e.y }); if (items.length >= MAX) return items; }
   return items;
 }
 qEl.addEventListener('input', () => {
@@ -1213,7 +1224,7 @@ $('o-detail').onchange = () => { store.set('detail', $('o-detail').value); locat
 
 // ---------- walk mode: first person at eye level, no collision; the ground is followed except inside cave / tunnel openings
 const WALK = { on: false, yaw: 0, pitch: -0.1, eye: 0, keys: {}, pos: new THREE.Vector3(), lastT: 0 };
-const WALK_HELP = 'Walk: W A S D move · drag or mouse to look · Space jumps · Shift runs · F uses a ladder you stand next to · doors are open, just walk through · G flies through anything · Esc exits';
+const WALK_HELP = 'Walk: W A S D move · drag or mouse to look · Space jumps · Shift runs · F uses a ladder or a door you stand next to · click copies your position and heading · G flies through anything · Esc exits';
 const _lc = new THREE.Vector3();
 function findLadder() {   // nearest ladder among the collision candidates, within 2.2 m horizontally
   const P = WALK.pos; let best = null, bd = 2.2;
@@ -1239,6 +1250,57 @@ function useLadder() {
   WALK.vy = 0; candAt = null;
   $('walk-t').textContent = up ? 'Climbed up the ladder' : 'Climbed down the ladder'; setTimeout(() => { if (WALK.on && !WALK.fly) $('walk-t').textContent = WALK_HELP; }, 1500);
 }
+// (2026-11-05) the nearest door within 1.8 m (and at your height): its middle, its thin way (the way through), its bottom
+const _da = new THREE.Vector3(), _db = new THREE.Vector3();
+const DOOR_RX = /door[^/]*\.cgf$/i, DOOR_SKIP = /frame|way|mech|open|nodoor|wall_door|2doors|gate|trailer|container|broken_vehicles|fence|corridor|outdoor|cabinet|fridge|kitchen|sink|safe|locker|defib|boxdoor|elevator|tape|plane|boat|small_room|wall_large|roller/i;
+function isDoorModel(m) { if (m.isDoor === undefined) { const f = m.path.split('/').pop(); m.isDoor = DOOR_RX.test(f) && !DOOR_SKIP.test(m.path); } return m.isDoor; }
+function findDoor() {
+  const P = WALK.pos, feet = P.y - 1.7; let best = null, bd = 1.8;
+  for (const [g, j] of cands) {
+    const u = g.userData; if (!isDoorModel(u.model)) continue;
+    g.getMatrixAt(j, _m); const bb = u.model.bb;
+    const ax = [];
+    for (let i = 0; i < 3; i++) {
+      _da.set(bb[0], bb[1], bb[2]).applyMatrix4(_m);
+      _db.set(i === 0 ? bb[3] : bb[0], i === 1 ? bb[4] : bb[1], i === 2 ? bb[5] : bb[2]).applyMatrix4(_m);
+      ax.push(_db.clone().sub(_da));
+    }
+    let lo = 1e9, hi = -1e9; const c = new THREE.Vector3();
+    for (let k = 0; k < 8; k++) { _lc.set(k & 1 ? bb[3] : bb[0], k & 2 ? bb[4] : bb[1], k & 4 ? bb[5] : bb[2]).applyMatrix4(_m); lo = Math.min(lo, _lc.y); hi = Math.max(hi, _lc.y); c.add(_lc); }
+    c.multiplyScalar(1 / 8);
+    if (feet < lo - 0.8 || feet > hi) continue;
+    const vert = ax.reduce((b, v, i) => Math.abs(v.y) / (v.length() || 1) > Math.abs(ax[b].y) / (ax[b].length() || 1) ? i : b, 0);
+    const flat = [0, 1, 2].filter(i => i !== vert);
+    const thinI = ax[flat[0]].length() <= ax[flat[1]].length() ? 0 : 1, thin = ax[flat[thinI]], wide = ax[flat[1 - thinI]];
+    const n = new THREE.Vector3(thin.x, 0, thin.z); if (n.length() < 1e-6) continue; n.normalize();
+    // how far from the door itself (a wide garage door counts all along its width, not only at its middle)
+    const wl = Math.hypot(wide.x, wide.z) || 1, wx = wide.x / wl, wz = wide.z / wl, rx = P.x - c.x, rz = P.z - c.z;
+    const d = Math.hypot(Math.max(0, Math.abs(rx * wx + rz * wz) - wl / 2), rx * n.x + rz * n.z); if (d >= bd) continue;
+    bd = d; best = { x: c.x, z: c.z, nx: n.x, nz: n.z, bottom: lo };
+  }
+  return best;
+}
+function useDoor() {
+  const D = WALK.door; if (!D) return;
+  const P = WALK.pos, side = (P.x - D.x) * D.nx + (P.z - D.z) * D.nz >= 0 ? 1 : -1;
+  P.x = D.x - side * D.nx * 0.95; P.z = D.z - side * D.nz * 0.95; P.y = Math.max(P.y - 1.7, D.bottom) + 0.05 + 1.7;
+  WALK.vy = 0; candAt = null;
+  $('walk-t').textContent = 'Through the door'; setTimeout(() => { if (WALK.on && !WALK.fly) $('walk-t').textContent = WALK_HELP; }, 1200);
+}
+function useNear() { if (WALK.fly) return; if (WALK.ladder) useLadder(); else if (WALK.door) useDoor(); }
+// (2026-11-05) compass + copy position: heading clockwise from north (game +y)
+function walkHeading() { return ((-WALK.yaw * 180 / Math.PI) % 360 + 360) % 360; }
+function walkPosText() { const P = WALK.pos; return (P.x).toFixed(1) + ' ' + (-P.z).toFixed(1) + ' ' + (P.y - 1.7).toFixed(1) + ' heading ' + Math.round(walkHeading()) % 360; }
+function copyText(t) {
+  let ok = false;
+  try { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch (e) {}
+  if (!ok && navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(t).catch(() => {}); ok = true; }
+  return ok;
+}
+function copyWalkPos() {
+  const t = walkPosText(), ok = copyText(t);
+  $('walk-t').textContent = (ok ? 'Copied: ' : 'Position: ') + t; clearTimeout(WALK.copyT); WALK.copyT = setTimeout(() => { if (WALK.on && !WALK.fly) $('walk-t').textContent = WALK_HELP; }, 3000);
+}
 function inHole(x, y) { return cellIsHole(Math.floor(x / 2) * 2, Math.floor(y / 2) * 2, 2); }
 function startWalk(x, y) {
   const g = groundAt(x, y);
@@ -1248,14 +1310,14 @@ function startWalk(x, y) {
   controls.enabled = false; camera.near = 0.25; camera.updateProjectionMatrix();
   if (roadLines) roadLines.visible = false; if (underLines) underLines.visible = false;   // no map lines at eye level
   cutPlane.constant = 1e9;
-  $('walk').classList.add('on'); $('pad').classList.add('on'); $('joy').classList.add('on'); $('ctl').classList.add('off'); $('b-walk').classList.add('active'); $('hint').style.display = 'none';
+  $('walk').classList.add('on'); $('compass').classList.add('on'); $('pad').classList.add('on'); $('joy').classList.add('on'); $('ctl').classList.add('off'); $('b-walk').classList.add('active'); $('hint').style.display = 'none';
   renderer.domElement.focus();
 }
 function stopWalk() {
   if (!WALK.on) return;
   WALK.on = false; WALK.keys = {}; if (underLines) underLines.visible = !!layerOn.under; if (roadLines) roadLines.visible = STREETS || PLAY;
   if (document.pointerLockElement) document.exitPointerLock();
-  $('walk').classList.remove('on'); $('pad').classList.remove('on'); $('joy').classList.remove('on'); $('ctl').classList.remove('off'); $('b-walk').classList.remove('active'); $('hint').style.display = '';
+  $('walk').classList.remove('on'); $('compass').classList.remove('on'); $('pad').classList.remove('on'); $('joy').classList.remove('on'); $('ctl').classList.remove('off'); $('b-walk').classList.remove('active'); $('hint').style.display = '';
   camera.near = 1; camera.updateProjectionMatrix();
   const x = WALK.pos.x, y = -WALK.pos.z; controls.enabled = true;
   flyTo(x, y, groundAt(x, y), PLAY ? 600 : 120); applyPlay();
@@ -1270,7 +1332,7 @@ function gatherCands(p) {
   candAt = p.clone(); cands = [];
   const wx = p.x, wy = -p.z;
   for (const g of tileMeshes) {
-    const u = g.userData; if (!u.on || NOCOLL[u.cat] || u.model.path.includes('/doors/')) continue;
+    const u = g.userData; if (!u.on || NOCOLL[u.cat]) continue;   // (2026-11-05) doors are solid: F takes you through
     if (Math.hypot(u.cx - wx, u.cy - wy) - u.cr > 8) continue;
     const sph = u.sph;
     for (let j = 0; j < g.count; j++) {
@@ -1357,23 +1419,30 @@ function walkStep() {
     else { WALK.vy -= 9.8 * dt; feet = Math.max(floor, feet + WALK.vy * dt); WALK.grounded = feet === floor; if (WALK.grounded) WALK.vy = 0; }
     if (feet < -300) { feet = groundAt(wx, wy); WALK.vy = 0; }
     P.y = feet + 1.7;
-    if (now - (WALK.ladderT || 0) > 150) { WALK.ladderT = now; const L = findLadder(); const had = !!WALK.ladder; WALK.ladder = L; if (!!L !== had && $('walk-t').textContent.startsWith('Walk')) $('walk-t').textContent = L ? 'Press F to use the ladder' : WALK_HELP; }
+    if (now - (WALK.ladderT || 0) > 150) {
+      WALK.ladderT = now; const L = findLadder(); const Dr = L ? null : findDoor();
+      const was = WALK.ladder ? 'L' : (WALK.door ? 'D' : ''); WALK.ladder = L; WALK.door = Dr; const is = L ? 'L' : (Dr ? 'D' : '');
+      const tx = $('walk-t').textContent;
+      if (is !== was && (tx.startsWith('Walk') || tx.startsWith('Press F'))) $('walk-t').textContent = L ? 'Press F to use the ladder' : (Dr ? 'Press F to go through the door' : WALK_HELP);
+    }
   }
   P.x = Math.min(WORLD, Math.max(0, P.x)); P.z = Math.max(-WORLD, Math.min(0, P.z));
   camera.position.copy(P);
   camera.rotation.set(WALK.pitch, WALK.yaw, 0, 'YXZ');
+  { const h = walkHeading(), pts = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']; const t = pts[Math.round(h / 45) % 8] + ' ' + String(Math.round(h) % 360).padStart(3, '0') + '\u00b0'; if (WALK.compassT !== t) { WALK.compassT = t; $('compass').textContent = t; } }
   controls.target.copy(P).add(new THREE.Vector3(fx * 10, Math.sin(WALK.pitch) * 10, fz * 10));
 }
-addEventListener('keydown', (e) => { if (!WALK.on) return; if (e.code === 'Escape') { stopWalk(); return; } if (e.code === 'KeyF' && !e.repeat && !WALK.fly && WALK.ladder) { useLadder(); e.preventDefault(); return; } if (e.code === 'KeyG' && !e.repeat) { WALK.fly = !WALK.fly; $('walk-t').textContent = WALK.fly ? 'Fly (no collision): W A S D move · R / F up and down · G back to walking · Esc exits' : WALK_HELP; } WALK.keys[e.code] = true; if (/^(Arrow|Key[WASDRF]|Shift|Space)/.test(e.code)) e.preventDefault(); });
+addEventListener('keydown', (e) => { if (!WALK.on) return; if (e.code === 'Escape') { stopWalk(); return; } if (e.code === 'KeyF' && !e.repeat && !WALK.fly && (WALK.ladder || WALK.door)) { useNear(); e.preventDefault(); return; } if (e.code === 'KeyG' && !e.repeat) { WALK.fly = !WALK.fly; $('walk-t').textContent = WALK.fly ? 'Fly (no collision): W A S D move · R / F up and down · G back to walking · Esc exits' : WALK_HELP; } WALK.keys[e.code] = true; if (/^(Arrow|Key[WASDRF]|Shift|Space)/.test(e.code)) e.preventDefault(); });
 addEventListener('keyup', (e) => { WALK.keys[e.code] = false; });
-renderer.domElement.addEventListener('pointerdown', (e) => { if (WALK.on && e.pointerType === 'mouse' && !document.pointerLockElement) renderer.domElement.requestPointerLock(); });
+renderer.domElement.addEventListener('pointerdown', (e) => { if (WALK.on && e.pointerType === 'mouse') { if (!document.pointerLockElement) renderer.domElement.requestPointerLock(); else if (e.button === 0) copyWalkPos(); } });
 addEventListener('mousemove', (e) => { if (WALK.on && document.pointerLockElement) { WALK.yaw -= e.movementX * 0.0025; WALK.pitch = Math.max(-1.45, Math.min(1.45, WALK.pitch - e.movementY * 0.0025)); } });
 let lookTouch = null;
 renderer.domElement.addEventListener('pointerdown', (e) => { if (WALK.on && e.pointerType !== 'mouse') lookTouch = [e.pointerId, e.clientX, e.clientY]; });
 renderer.domElement.addEventListener('pointermove', (e) => { if (WALK.on && lookTouch && e.pointerId === lookTouch[0]) { WALK.yaw -= (e.clientX - lookTouch[1]) * 0.006; WALK.pitch = Math.max(-1.45, Math.min(1.45, WALK.pitch - (e.clientY - lookTouch[2]) * 0.006)); lookTouch[1] = e.clientX; lookTouch[2] = e.clientY; } });
 addEventListener('pointerup', (e) => { if (lookTouch && e.pointerId === lookTouch[0]) lookTouch = null; });
 addEventListener('wheel', (e) => { if (WALK.on) { if (WALK.fly) WALK.pos.y -= Math.sign(e.deltaY) * 0.5; e.preventDefault(); } }, { passive: false });
-for (const b of document.querySelectorAll('#pad button')) {
+$('pad-use').addEventListener('pointerdown', (e) => { e.preventDefault(); useNear(); });
+for (const b of document.querySelectorAll('#pad button[data-k]')) {
   const k = b.dataset.k; const on = (e) => { WALK.keys[k] = true; e.preventDefault(); }, off = () => { WALK.keys[k] = false; };
   b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
 }

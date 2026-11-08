@@ -7,7 +7,8 @@ building and prop, roads, water, trees, sewers, mines and bunkers. Open `index.h
 This copy shows places, vendors and the shrine only. Player positions, vehicles, bases, stashes and pins are not included.
 
 Controls: drag to move, right-drag to turn, wheel to zoom. Tap anything to identify it, then "Walk here" to walk the
-island at eye level (W A S D, Space jumps, F uses ladders, G flies). "Streets" draws the roads like a paper map.
+island at eye level (W A S D, Space jumps, F uses ladders and doors, G flies; a compass shows the heading). "Streets" draws
+the roads like a paper map. Search finds towns, named buildings (places.json), vendors, entrances, or "x y".
 
 Data files (about 100 MB): models_hi/lo (meshes), instances.bin (placements), terrain_8m/4m.bin (heightmaps), roads.bin,
-water.bin, holes.bin, passages.bin (underground passages), entrances.json, trees.bin, meta.json, data_public.json.
+water.bin, holes.bin, passages.bin (underground passages), entrances.json, places.json, trees.bin, meta.json, data_public.json.
