@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<!--
+  Deadwood Isle player guide: the GitHub Pages home (the in-game welcome banner links here via tinyurl.com/deadwoodisle).
+  A hand-made page: edit the text in place. It describes the LIVE server only. README.md is the short version for the
+  GitHub repo page. Images live in assets/img/ (contours.svg = Orca Island's real contour lines from docs/3d/terrain_8m.bin).
+-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deadwood Isle · Miscreated server</title>
+<meta name="description" content="Deadwood Isle is a US East PvP Miscreated server: 2.5x loot, 2x vehicles and harvest, indestructible plated bases, vendors that buy your gear, mystery crates, Thor's hammer and tuned cars.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f1513">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Deadwood Isle">
+<meta property="og:title" content="Deadwood Isle · a Miscreated server">
+<meta property="og:description" content="US East PvP · 50 slots · 2.5x loot, 2x vehicles and harvest, indestructible plated bases. Player guide, rules and the 3D map.">
+<meta property="og:url" content="https://rudeboi1992.github.io/deadwood-isle/">
+<meta property="og:image" content="https://rudeboi1992.github.io/deadwood-isle/assets/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1513'/%3E%3Cpath d='M7 21c-2-4.5.5-10.5 6-12.5s11 .5 11.5 5.5-3 9.5-8.5 9.5c-3.5 0-6.5-.5-9-2.5z' fill='none' stroke='%23e8a23f' stroke-width='2.4'/%3E%3Cpath d='M12 18.5c-.8-2.3.6-5 3.4-5.8s5.3.6 5.3 3-1.8 4.3-4.4 4.3c-1.8 0-3.3-.4-4.3-1.5z' fill='none' stroke='%237fbfae' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<script>
+  // dark by default; the choice is shared with the other Deadwood pages (key dw-theme). ?theme=light|dark previews one.
+  (function () {
+    var t = 'dark';
+    try { t = localStorage.getItem('dw-theme') || 'dark'; } catch (e) {}
+    var q = /[?&]theme=(light|dark)/.exec(location.search);
+    if (q) t = q[1];
+    document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  })();
+</script>
+<style>
+  :root {
+    --bg: #0f1513; --bg-2: #121a17; --surface: #161f1c; --surface-2: #1c2723; --line: #26332e; --line-2: #33443d;
+    --text: #e8eeea; --text-2: #c4d0ca; --muted: #93a49c;
+    --accent: #e8a23f; --accent-2: #f5b95c; --accent-ink: #1a1206; --accent-soft: rgba(232, 162, 63, .11);
+    --teal: #7fbfae; --danger: #e8776c; --danger-soft: rgba(232, 119, 108, .10);
+    --shadow: 0 12px 32px -18px rgba(0, 0, 0, .7);
+    --radius: 14px;
+    --font: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-head: "Barlow Condensed", "Bahnschrift", "Arial Narrow", system-ui, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+    --art: .55;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --bg: #f5f3ec; --bg-2: #eeebe1; --surface: #ffffff; --surface-2: #f6f4ee; --line: #e1dccf; --line-2: #d0c9b8;
+    --text: #1b201e; --text-2: #353c39; --muted: #5d6662;
+    --accent: #9a5a08; --accent-2: #b4690e; --accent-ink: #ffffff; --accent-soft: rgba(180, 105, 14, .09);
+    --teal: #2f7d6b; --danger: #b8382d; --danger-soft: rgba(184, 56, 45, .07);
+    --shadow: 0 10px 28px -18px rgba(60, 45, 15, .35);
+    --art: .5;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 76px; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 var(--font); overflow-x: hidden; }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  a:hover { color: var(--accent-2); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  b, strong { font-weight: 600; color: var(--text); }
+  h1, h2, h3, h4 { font-family: var(--font-head); text-transform: uppercase; letter-spacing: .03em; line-height: 1.1; margin: 0; }
+  img { max-width: 100%; }
+  .i { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .skip { position: absolute; left: -999px; top: 8px; background: var(--accent); color: var(--accent-ink); padding: 8px 12px; border-radius: 8px; z-index: 100; }
+  .skip:focus { left: 8px; }
+
+  /* top bar */
+  .topbar { position: sticky; top: 0; z-index: 50; background: var(--bg); background: color-mix(in srgb, var(--bg) 84%, transparent);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .topbar-in { max-width: 1240px; margin: 0 auto; height: 60px; padding: 0 16px; display: flex; align-items: center; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; white-space: nowrap;
+    font: 700 21px/1 var(--font-head); letter-spacing: .07em; text-transform: uppercase; }
+  .brand:hover { color: var(--text); }
+  .brand svg { width: 30px; height: 30px; flex: none; }
+  .spacer { flex: 1; }
+  .top-cta { padding: 9px 14px; font-size: 15px; }
+  .chipnav { display: none; flex: 1; min-width: 0; gap: 4px; overflow-x: auto; scrollbar-width: none; padding: 0 10px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+  .chipnav::-webkit-scrollbar { display: none; }
+  .chipnav a { flex: none; padding: 7px 11px; border-radius: 999px; color: var(--muted); text-decoration: none;
+    font: 600 15px/1 var(--font-head); letter-spacing: .05em; text-transform: uppercase; }
+  .chipnav a:hover { color: var(--text); background: var(--surface-2); }
+  .chipnav a.on { color: var(--accent-ink); background: var(--accent); }
+  .theme-btn { flex: none; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--surface);
+    color: var(--text); display: grid; place-items: center; cursor: pointer; padding: 0; }
+  .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-btn .i { width: 20px; height: 20px; }
+  :root[data-theme="dark"] .i-moon, :root[data-theme="light"] .i-sun { display: none; }
+
+  /* buttons, pills */
+  .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 10px; border: 1px solid transparent;
+    font: 700 17px/1 var(--font-head); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; cursor: pointer; }
+  .btn .i { width: 18px; height: 18px; stroke-width: 2.2; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { background: var(--accent-2); color: var(--accent-ink); }
+  .btn-ghost { border-color: var(--line-2); color: var(--text); background: var(--surface); background: color-mix(in srgb, var(--surface) 70%, transparent); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+
+  /* hero */
+  .hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line);
+    background: radial-gradient(900px 520px at 78% 40%, var(--accent-soft), transparent 65%), var(--bg-2); }
+  .hero-art { position: absolute; right: -4%; top: 50%; width: min(780px, 64vw); height: auto; transform: translateY(-50%);
+    opacity: var(--art); pointer-events: none; user-select: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 30%, #000 100%); mask-image: linear-gradient(90deg, transparent 0, #000 30%, #000 100%); }
+  .hero-in { position: relative; max-width: 1240px; margin: 0 auto; padding: 92px 16px 84px; }
+  .eyebrow { font: 600 15px/1.2 var(--font-head); letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+  .hero h1 { font-size: clamp(50px, 11vw, 116px); line-height: .9; letter-spacing: .015em; margin: 16px 0 20px; }
+  .lead { font-size: clamp(18px, 2.1vw, 21px); color: var(--text-2); max-width: 34em; margin: 0 0 30px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 32px 0 0; padding: 0; }
+  .pills li { padding: 6px 12px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--text-2); font-size: 15px;
+    background: var(--bg); background: color-mix(in srgb, var(--bg) 55%, transparent); }
+
+  /* page layout: side contents on wide screens, chips in the top bar below 1100 px */
+  .layout { max-width: 1240px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: 196px minmax(0, 1fr); gap: 48px; }
+  .toc { position: sticky; top: 76px; padding: 64px 0 24px; display: grid; gap: 2px; max-height: 100vh; overflow-y: auto; scrollbar-width: none; }
+  .toc a { display: block; padding: 7px 12px; border-radius: 8px; color: var(--muted); text-decoration: none;
+    font: 600 16px/1.2 var(--font-head); letter-spacing: .06em; text-transform: uppercase; }
+  .toc a:hover { color: var(--text); background: var(--surface); }
+  .toc a.on { color: var(--accent); background: var(--accent-soft); }
+  main { min-width: 0; }
+
+  /* sections */
+  .block { padding: 64px 0 4px; }
+  .block + .block { border-top: 1px solid var(--line); margin-top: 56px; }
+  .sec-head { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 26px; }
+  .sec-icon { flex: none; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; color: var(--accent);
+    background: var(--accent-soft); border: 1px solid var(--line-2); }
+  .sec-head h2 { font-size: clamp(30px, 4vw, 40px); margin: 2px 0 6px; }
+  .sec-head p { margin: 0; color: var(--muted); max-width: 48em; }
+  h3.sub { font-size: 24px; margin: 36px 0 14px; }
+  .note, .card p.note { color: var(--muted); font-size: 15.5px; margin: 14px 0 0; }
+
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+  .grid-2 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); align-items: start; }
+  .stack > * + * { margin-top: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+  .card h3 { font-size: 23px; margin: 0 0 12px; }
+  .card p { margin: 0 0 10px; color: var(--text-2); }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* what's different */
+  a.feature { display: flex; flex-direction: column; gap: 8px; color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease; }
+  a.feature:hover { transform: translateY(-2px); border-color: var(--accent); color: inherit; }
+  a.feature .i { color: var(--accent); width: 30px; height: 30px; margin-bottom: 4px; }
+  a.feature h3 { font-size: 25px; margin: 0; }
+  a.feature p { margin: 0; color: var(--muted); font-size: 16px; }
+
+  /* lists */
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .list li { position: relative; padding-left: 22px; color: var(--text-2); }
+  .list li::before { content: ""; position: absolute; left: 3px; top: .62em; width: 7px; height: 7px; background: var(--accent); border-radius: 1.5px; transform: rotate(45deg); }
+
+  /* stats */
+  .stats { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); margin-bottom: 16px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .stat .n { font: 700 36px/1 var(--font-head); color: var(--accent); letter-spacing: .01em; }
+  .stat .l { margin-top: 8px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .stat .v { font-size: 14.5px; color: var(--muted); line-height: 1.35; margin-top: 2px; }
+
+  /* tables */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  .card .table-wrap { margin: 4px 0 18px; background: transparent; }
+  table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  th, td { padding: 11px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  thead th { font: 600 14px/1.25 var(--font-head); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td { color: var(--text-2); }
+  td.here { color: var(--accent); font-weight: 600; white-space: nowrap; }
+  td.van { color: var(--muted); white-space: nowrap; }
+  tr.grp th { font: 600 13.5px/1.2 var(--font-head); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); background: var(--surface-2); padding: 9px 14px; }
+  table.cmds td:first-child { white-space: nowrap; width: 1%; }
+
+  code { font: 500 .88em/1.2 var(--mono); background: var(--surface-2); border: 1px solid var(--line); padding: 2px 6px; border-radius: 6px; color: var(--text); white-space: nowrap; }
+  code.listing { display: block; width: fit-content; max-width: 100%; margin-top: 8px; padding: 7px 10px; line-height: 1.45; white-space: normal; overflow-wrap: break-word; }
+  kbd { font: 600 .82em/1.2 var(--mono); padding: 2px 7px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 6px; background: var(--surface-2); color: var(--text); }
+
+  /* chips (prize lists) */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 8px 0 0; padding: 0; }
+  .chips li { font-size: 14.5px; line-height: 1.3; padding: 5px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text-2); }
+  .tier { margin: 16px 0 0 !important; font: 600 14px/1.2 var(--font-head); letter-spacing: .1em; text-transform: uppercase; color: var(--muted) !important; }
+
+  /* callouts */
+  .callout { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--line-2); color: var(--text-2); }
+  .callout .i { color: var(--accent); margin-top: 1px; }
+  .callout p { margin: 0; }
+  .callout p + p { margin-top: 8px; }
+
+  /* steps */
+  .steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; gap: 16px; }
+  .steps > li { counter-increment: step; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px; align-items: start; color: var(--text-2); }
+  .steps > li::before { content: counter(step); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    font: 700 19px/1 var(--font-head); background: var(--accent); color: var(--accent-ink); }
+  .steps.small > li { grid-template-columns: 30px minmax(0, 1fr); gap: 12px; }
+  .steps.small > li::before { width: 28px; height: 28px; font-size: 16px; }
+
+  .facts { display: grid; grid-template-columns: max-content 1fr; gap: 10px 18px; margin: 0; }
+  .facts dt { color: var(--muted); font: 600 14px/1.7 var(--font-head); letter-spacing: .1em; text-transform: uppercase; }
+  .facts dd { margin: 0; color: var(--text); }
+
+  .rules { list-style: none; counter-reset: r; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .rules li { counter-increment: r; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; color: var(--text-2); }
+  .rules li::before { content: counter(r); font: 700 28px/1 var(--font-head); color: var(--accent); }
+
+  /* figures, places */
+  .split { display: grid; gap: 28px; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; }
+  figure { margin: 0; }
+  figcaption { color: var(--muted); font-size: 14.5px; margin-top: 10px; }
+  .shot { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+  a.shot-link { display: block; border-radius: 12px; }
+  .places { display: grid; gap: 12px; }
+  .place { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .place h4 { font-size: 20px; }
+  .place .where { display: block; color: var(--accent); font-size: 15px; font-weight: 500; margin: 3px 0 6px; }
+  .place p { margin: 0; color: var(--text-2); font-size: 16px; }
+
+  /* crates */
+  .crate-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .crate-top h3 { margin: 0; }
+  .price { font: 700 22px/1 var(--font-head); color: var(--accent-ink); background: var(--accent); padding: 6px 10px; border-radius: 8px; letter-spacing: .03em; white-space: nowrap; }
+  .card .where { color: var(--accent); font-weight: 500; margin: 6px 0 12px; }
+
+  /* Mjolnir moves */
+  .move .tag { display: inline-block; font: 600 13.5px/1.2 var(--font-head); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .move h3 { color: var(--accent); }
+
+  /* spoilers, older changes */
+  details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  details + details { margin-top: 8px; }
+  summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 12px; padding: 14px 18px; font-weight: 600; color: var(--text); }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(-45deg); transition: transform .15s ease; }
+  details[open] > summary::before { transform: rotate(45deg); }
+  .dbody { padding: 0 18px 16px 38px; color: var(--text-2); }
+  .dbody p { margin: 0 0 12px; }
+  .dbody p:last-child { margin: 0; }
+  details.spoilers { margin-top: 20px; border-color: var(--danger); background: var(--danger-soft); }
+  details.spoilers > summary { color: var(--danger); }
+  details.spoilers > summary::before { border-color: var(--danger); }
+  details.spoilers details { background: var(--surface); }
+  details.spoilers details summary { font-weight: 500; }
+
+  /* changelog */
+  .timeline { list-style: none; margin: 0; padding: 0 0 0 4px; }
+  .timeline li { position: relative; padding: 0 0 22px 26px; border-left: 2px solid var(--line-2); }
+  .timeline li:last-child { border-left-color: transparent; padding-bottom: 4px; }
+  .timeline li::before { content: ""; position: absolute; left: -8px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); }
+  .timeline time { display: block; font: 600 16px/1.2 var(--font-head); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .timeline p { margin: 0; color: var(--text-2); max-width: 56em; }
+  .older { margin-top: 14px; }
+  .older .timeline { padding-top: 6px; }
+
+  /* footer */
+  footer { margin-top: 88px; border-top: 1px solid var(--line); background: var(--bg-2); }
+  .foot { max-width: 1240px; margin: 0 auto; padding: 32px 16px 44px; display: flex; flex-wrap: wrap; gap: 14px 40px; justify-content: space-between; color: var(--muted); font-size: 15.5px; }
+  .foot b { color: var(--text); }
+  .foot .fine { flex-basis: 100%; font-size: 14px; }
+
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .side, .top-cta, .spacer { display: none; }
+    .chipnav { display: flex; }
+    .brand span { display: none; }
+  }
+  @media (max-width: 860px) {
+    .split { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    body { font-size: 16.5px; }
+    .hero-in { padding: 60px 16px 56px; }
+    .hero-art { right: -38%; width: 125vw; opacity: calc(var(--art) * .55); }
+    .block { padding-top: 48px; }
+    .block + .block { margin-top: 40px; }
+    .sec-head { gap: 12px; }
+    .sec-icon { width: 42px; height: 42px; }
+    .card { padding: 18px; }
+    th, td { padding: 10px 11px; }
+    .facts { grid-template-columns: 1fr; gap: 2px; }
+    .facts dd { margin-bottom: 10px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the guide</a>
+
+<!-- icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-crate" viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="12" rx="1.5"/><path d="M3.5 12h17M10 12v2.5h4V12M6 8l1.6-3.5h8.8L18 8"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M4 16v-3.5L6.2 8a1.8 1.8 0 0 1 1.6-1h8.4a1.8 1.8 0 0 1 1.6 1L20 12.5V16"/><path d="M4 12.5h16M4 16h1.2M18.8 16H20M8.8 16h6.4"/><circle cx="7" cy="16" r="1.8"/><circle cx="17" cy="16" r="1.8"/></symbol>
+  <symbol id="i-axe" viewBox="0 0 24 24"><path d="M4.5 19.5L14 10"/><path d="M12.5 8.5l3.8-3.8c2.2.9 3.8 2.5 4.6 4.6l-3.8 3.8z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/></symbol>
+  <symbol id="i-coins" viewBox="0 0 24 24"><ellipse cx="12" cy="6.5" rx="7" ry="2.8"/><path d="M5 6.5v4c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-4M5 10.5v4c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-4M5 14.5v3c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-3"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="8.8" cy="8.8" r="1.1"/><circle cx="15.2" cy="8.8" r="1.1"/><circle cx="12" cy="12" r="1.1"/><circle cx="8.8" cy="15.2" r="1.1"/><circle cx="15.2" cy="15.2" r="1.1"/></symbol>
+  <symbol id="i-hammer" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="7" rx="1.5"/><path d="M12 10.5v10M10.3 20.5h3.4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.6 17.5a8 8 0 1 1 14.8 0"/><path d="M12 14l3.8-3.8"/><circle cx="12" cy="14.2" r="1.4"/><path d="M8 18.5h8"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15.5" r="4"/><path d="M11 12.5l8.5-8.5M16.2 7.3l2.5 2.5M13.8 9.7l2 2"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4L15.5 5.5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="M13.5 7.5l3 3"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M3.5 6.5L9 4.5l6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9.5L5 19.5V16H4z"/><path d="M8 9.3h8M8 12.3h5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.6" cy="6" r=".9"/><circle cx="4.6" cy="12" r=".9"/><circle cx="4.6" cy="18" r=".9"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M10.2 8.7l5.3 3.3-5.3 3.3z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+  <symbol id="i-gavel" viewBox="0 0 24 24"><path d="M13.5 4.5l6 6M10.5 7.5l6 6M12 6l-4.5 4.5 6 6L18 12"/><path d="M9.8 13.2L4 19"/><path d="M3.5 20.5h8"/></symbol>
+  <symbol id="i-buoy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="M6 6l3.5 3.5M14.5 14.5L18 18M18 6l-3.5 3.5M9.5 14.5L6 18"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 4.2a4.5 4.5 0 0 0-4.4 5.9L4 16.4V20h3.6l6.3-6.3a4.5 4.5 0 0 0 5.9-4.4l-2.9 2.9-2.6-.4-.4-2.6z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.6v.01"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#top" aria-label="Deadwood Isle, back to the top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 21c-2-4.5.5-10.5 6-12.5s11 .5 11.5 5.5-3 9.5-8.5 9.5c-3.5 0-6.5-.5-9-2.5z" fill="none" stroke="var(--accent)" stroke-width="2.2"/><path d="M12 18.5c-.8-2.3.6-5 3.4-5.8s5.3.6 5.3 3-1.8 4.3-4.4 4.3c-1.8 0-3.3-.4-4.3-1.5z" fill="none" stroke="var(--teal)" stroke-width="1.8"/></svg>
+      <span>Deadwood Isle</span>
+    </a>
+    <nav class="chipnav" aria-label="Sections">
+      <a href="#join">Join</a><a href="#rules">Rules</a><a href="#features">Features</a><a href="#map">3D map</a><a href="#loot">Loot</a><a href="#vehicles">Vehicles</a><a href="#cars">Cars</a><a href="#bases">Bases</a><a href="#vendors">Vendors</a><a href="#crates">Crates</a><a href="#mjolnir">Mjolnir</a><a href="#missions">Missions</a><a href="#commands">Commands</a><a href="#server">Server</a><a href="#changelog">Changelog</a>
+    </nav>
+    <span class="spacer"></span>
+    <a class="btn btn-ghost top-cta" href="docs/3d/"><svg class="i"><use href="#i-map"/></svg>3D map</a>
+    <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch to light mode">
+      <svg class="i i-sun"><use href="#i-sun"/></svg><svg class="i i-moon"><use href="#i-moon"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <img class="hero-art" src="assets/img/contours.svg" width="1000" height="1000" alt="">
+  <div class="hero-in">
+    <div class="eyebrow">Miscreated · US East · PvP</div>
+    <h1>Deadwood Isle</h1>
+    <p class="lead">A 50-slot server on the Islands map with 2.5x loot, double vehicles and harvest, and plated bases nobody can break. Plus vendors that buy your gear, mystery crates, Thor's hammer and tuned cars.</p>
+    <div class="btns">
+      <a class="btn btn-primary" href="docs/3d/"><svg class="i"><use href="#i-map"/></svg>Open the 3D map</a>
+      <a class="btn btn-ghost" href="#join">How to join<svg class="i"><use href="#i-arrow"/></svg></a>
+    </div>
+    <ul class="pills" aria-label="Server facts">
+      <li>US East</li><li>PvP</li><li>50 slots</li><li>Islands map</li><li>Restarts daily at 5 AM Eastern</li>
+    </ul>
+  </div>
+</section>
+
+<div class="layout">
+  <aside class="side">
+    <nav class="toc" aria-label="On this page">
+      <a href="#join">Join</a><a href="#rules">Rules</a><a href="#features">What's different</a><a href="#map">3D map</a><a href="#loot">Loot &amp; harvest</a><a href="#vehicles">Vehicles</a><a href="#cars">Tuned cars</a><a href="#bases">Bases</a><a href="#vendors">Vendors</a><a href="#crates">Mystery crates</a><a href="#mjolnir">Mjolnir</a><a href="#missions">Missions &amp; notes</a><a href="#commands">Commands</a><a href="#server">Server</a><a href="#changelog">Changelog</a>
+    </nav>
+  </aside>
+
+  <main id="main">
+
+    <!-- JOIN -->
+    <section class="block" id="join" aria-labelledby="join-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-play"/></svg></div>
+        <div><h2 id="join-h">Join in a minute</h2><p>Nothing to install by hand. Steam fetches the Workshop mods when you join.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <ol class="steps">
+            <li><div><b>Find it.</b> In Miscreated's server browser, search for <b>Deadwood</b>. It's listed as <code class="listing">NEW|<wbr>US-East|<wbr>Deadwood|<wbr>2x Loot/<wbr>Veh/<wbr>Harvest|<wbr>Indestructible Plated</code></div></li>
+            <li><div><b>Join.</b> Three mods download automatically: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2217434939">Admin Chat Commands</a>, <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2005194385">BMW M4 &amp; Charger Interceptor</a> (about 100 MB) and <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3797893300">Deadwood Isle – Base Limits</a> (about 20 MB).</div></li>
+            <li><div><b>Read the banner.</b> New arrivals get the server summary on screen. Type <code>!welcome</code> to see it again.</div></li>
+          </ol>
+        </div>
+        <div class="card">
+          <dl class="facts">
+            <dt>Region</dt><dd>US East</dd>
+            <dt>Mode</dt><dd>PvP</dd>
+            <dt>Slots</dt><dd>50</dd>
+            <dt>Map</dt><dd>Islands</dd>
+            <dt>Restart</dt><dd>Daily at 5 AM Eastern, with warnings</dd>
+            <dt>Day/night</dt><dd>Stock (nights run 4x faster than days)</dd>
+            <dt>Wipes</dt><dd>No schedule, announced days ahead</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- RULES -->
+    <section class="block" id="rules" aria-labelledby="rules-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-gavel"/></svg></div>
+        <div><h2 id="rules-h">Rules</h2><p>Keep it fair and keep chat civil.</p></div>
+      </div>
+      <div class="card">
+        <ol class="rules">
+          <li><div><b>No cheating, exploiting or glitching through bases.</b></div></li>
+          <li><div><b>No hate speech in chat.</b> Trash talk is fine; slurs get you banned.</div></li>
+          <li><div><b>Don't build inside or block</b> spawn points, roads or loot buildings.</div></li>
+          <li><div><b>Admin decisions are final.</b> Admins don't play favorites and don't spawn gear for anyone in normal play.</div></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- WHAT'S DIFFERENT -->
+    <section class="block" id="features" aria-labelledby="features-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-star"/></svg></div>
+        <div><h2 id="features-h">What's different</h2><p>The short version. Every card opens the details.</p></div>
+      </div>
+      <div class="grid">
+        <a class="card feature" href="#loot"><svg class="i"><use href="#i-crate"/></svg><h3>2.5x loot</h3><p>More loot spots and up to 1,800 items in the world. 1.5x guns and ammo, while rare drops stay rare.</p></a>
+        <a class="card feature" href="#vehicles"><svg class="i"><use href="#i-car"/></svg><h3>2x vehicles</h3><p>Double spawns, faster respawns, and parked vehicles stay for 14 days.</p></a>
+        <a class="card feature" href="#harvest"><svg class="i"><use href="#i-axe"/></svg><h3>Bigger harvests</h3><p>2x logs, 4x rock and iron, 2x coal and pyrite. Hatchets never miss.</p></a>
+        <a class="card feature" href="#bases"><svg class="i"><use href="#i-shield"/></svg><h3>Plated can't break</h3><p>Nothing damages plated parts, and wood has double the HP.</p></a>
+        <a class="card feature" href="#bases"><svg class="i"><use href="#i-home"/></svg><h3>Bigger bases</h3><p>600 parts, a 50 m build radius and 40 m of build height.</p></a>
+        <a class="card feature" href="#vendors"><svg class="i"><use href="#i-coins"/></svg><h3>Vendors buy your gear</h3><p>Guns, clothes, food, iron and trophies sell at rarity prices. Coin stacks hold 10,000.</p></a>
+        <a class="card feature" href="#crates"><svg class="i"><use href="#i-dice"/></svg><h3>Mystery crates</h3><p>Spend amcoins at the supply caches for a rare item or a fully kitted legendary gun.</p></a>
+        <a class="card feature" href="#mjolnir"><svg class="i"><use href="#i-hammer"/></svg><h3>Thor's hammer</h3><p>Lightning, ground slams and storms. Win it in Thor's trial.</p></a>
+        <a class="card feature" href="#cars"><svg class="i"><use href="#i-gauge"/></svg><h3>Tuned cars</h3><p>Engines, turbochargers and superchargers for the BMW M4 and Charger.</p></a>
+        <a class="card feature" href="#missions"><svg class="i"><use href="#i-key"/></svg><h3>A mission</h3><p>The Mechanic's House starts with a note in Hayward Valley.</p></a>
+        <a class="card feature" href="#notes"><svg class="i"><use href="#i-pencil"/></svg><h3>Leave notes</h3><p>Write a message on notebook paper for someone else to find.</p></a>
+        <a class="card feature" href="#map"><svg class="i"><use href="#i-map"/></svg><h3>3D map</h3><p>Explore the island in your browser, tunnels and bunkers included.</p></a>
+      </div>
+    </section>
+
+    <!-- 3D MAP -->
+    <section class="block" id="map" aria-labelledby="map-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-map"/></svg></div>
+        <div><h2 id="map-h">3D map of the island</h2><p>The whole island in your browser, built from the game's own level files: terrain, every building and prop, roads, rivers and lakes, sewers, mines, tunnels and bunkers.</p></div>
+      </div>
+      <div class="split">
+        <a class="shot-link" href="docs/3d/"><img class="shot" src="assets/img/3d-map.jpg" width="1200" height="675" loading="lazy" alt="The Deadwood Isle 3D map: terrain, roads, and labelled tunnels, bunkers, mines and sewer entrances"></a>
+        <div>
+          <ul class="list">
+            <li><b>Look around.</b> Drag to move, right-drag to turn, scroll to zoom. Tap anything to see what it is.</li>
+            <li><b>Walk it.</b> "Walk here" drops you in at eye level: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> to move, <kbd>Space</kbd> to jump, <kbd>F</kbd> for ladders, <kbd>G</kbd> to fly.</li>
+            <li><b>Streets.</b> Bold road and path lines like a paper map. Settings turns layers on and off and shows the passages underground.</li>
+            <li><b>Search.</b> Places, vendors and entrances, or type coordinates as <code>x y</code>.</li>
+          </ul>
+          <p class="note">No player positions, vehicles or bases are shown.</p>
+          <div class="btns" style="margin-top:18px"><a class="btn btn-primary" href="docs/3d/"><svg class="i"><use href="#i-map"/></svg>Open the 3D map</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOOT & HARVEST -->
+    <section class="block" id="loot" aria-labelledby="loot-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-crate"/></svg></div>
+        <div><h2 id="loot-h">Loot &amp; harvesting</h2><p>More of everything, without making rare drops common.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Loot</h3>
+          <ul class="list">
+            <li><b>2.5x loot.</b> Half of all item spawners are active (vanilla 20%), and the world holds up to 1,800 items at once (vanilla 750).</li>
+            <li><b>More guns and ammo.</b> Every loot table's weapon and ammo share is 1.5x vanilla, with the rest scaled down. Rare and epic weapons are untouched, so they stay rare.</li>
+            <li><b>Legendary guns last longer.</b> The AKM Gold, Mk18 Reaver, M16 Vietnam, RPK, M249, VSS, Grimey Rick and M97 wear half as fast.</li>
+          </ul>
+        </div>
+        <div class="card" id="harvest">
+          <h3>Harvesting</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Node</th><th>Vanilla</th><th>Here</th></tr></thead>
+              <tbody>
+                <tr><td>Full-size tree</td><td class="van">66 hits</td><td class="here">132 hits</td></tr>
+                <tr><td>Rock</td><td class="van">20</td><td class="here">80</td></tr>
+                <tr><td>Iron</td><td class="van">40</td><td class="here">160</td></tr>
+                <tr><td>Coal, pyrite</td><td class="van">40</td><td class="here">80</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="list">
+            <li><b>Hatchets never miss.</b> The hatchet and the crafted hatchet harvest on every swing (in vanilla a quarter of swings give nothing). The game still caps it at one item per swing.</li>
+            <li><b>The hatchet is fast, the axe is steady.</b> The hatchet swings every 0.9 s (vanilla 1.25 s). The axe keeps its vanilla 1.5 s rhythm and the crafted hatchet is vanilla speed.</li>
+            <li><b>Tools last longer.</b> Axes and pickaxes wear a third slower: about 500 hits before they break (vanilla about 330).</li>
+          </ul>
+          <p class="note">Scrap metal piles and regrowth timers are stock.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VEHICLES -->
+    <section class="block" id="vehicles" aria-labelledby="vehicles-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-car"/></svg></div>
+        <div><h2 id="vehicles-h">Vehicles</h2><p>More of them, and they stay where you park them.</p></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">2x</div><div class="l">Vehicles</div><div class="v">every category spawns double the stock minimum</div></div>
+        <div class="stat"><div class="n">14 days</div><div class="l">Parked vehicles last</div><div class="v">vanilla 6 hours to 3 days</div></div>
+        <div class="stat"><div class="n">30 min</div><div class="l">Abandoned respawn</div><div class="v">vanilla 60 min</div></div>
+        <div class="stat"><div class="n">1 hour</div><div class="l">Destroyed respawn</div><div class="v">vanilla 2 hours</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <ul class="list">
+            <li><b>Parked vehicles keep their spot for 14 days</b> untouched before they despawn and respawn elsewhere. Vanilla deletes an unused vehicle after 6 hours (bikes, quads, jet skis, tractors), 2 days (cars) or 3 days (trucks and buses).</li>
+            <li><b>Charger Interceptor</b> from the Workshop mod: police car spawns alternate between the stock cop cars and the Charger. Sedan spawns stay stock.</li>
+            <li><b>The BMW M4</b> from the same mod doesn't spawn in the world.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <svg class="i"><use href="#i-buoy"/></svg>
+          <div><p><b>Fell through the map?</b> A vehicle that drops under the ground is put back where it last stood on solid ground, with what was inside it, and anyone riding in it is moved next to it.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TUNED CARS -->
+    <section class="block" id="cars" aria-labelledby="cars-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-gauge"/></svg></div>
+        <div><h2 id="cars-h">BMW M4 &amp; Charger tuning</h2><p>Parts change how the two modded cars sound, and what comes out of the pipes.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>How it works</h3>
+          <ul class="list">
+            <li><b>Boost: hold <kbd>Shift</kbd></b>, like on the dirt bike. It lasts a few seconds and recharges while you drive. Every BMW and Charger has it.</li>
+            <li><b>Fit the parts in the car.</b> An engine part swaps the engine sound. Without one, the car keeps the game's stock engine.</li>
+            <li><b>Real engine sound.</b> Both engines were recorded at six points from idle to redline, on and off the throttle. Everyone hears them, inside the car or standing outside.</li>
+            <li><b>A turbocharger or supercharger needs an engine part too.</b> With one fitted, the exhaust pops and spits flame on every shift, and pours out blue flame while you boost.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Parts</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Part</th><th>Adds</th><th>Weight</th></tr></thead>
+              <tbody>
+                <tr><td><b>Inline-six engine</b></td><td>Recorded inline-six sound</td><td class="van">40 kg</td></tr>
+                <tr><td><b>V8 engine</b></td><td>Recorded V8 sound</td><td class="van">50 kg</td></tr>
+                <tr><td><b>Turbocharger</b></td><td>Turbo whoosh, blow-off hiss and flutter when you lift off, pops and flames</td><td class="van">20 kg</td></tr>
+                <tr><td><b>Supercharger</b></td><td>Supercharger whine, pops and flames</td><td class="van">30 kg</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="list">
+            <li><b>Engines:</b> the arms dealer at the car junkyard, 500 amcoins each.</li>
+            <li><b>Turbochargers and superchargers:</b> loot only, in garage maintenance spots and tow trucks. They can't be sold.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:16px">
+        <svg class="i"><use href="#i-wrench"/></svg>
+        <div><p><b>Turbos and superchargers wear out.</b> About 2 hours of driving takes one from new to blown ("Your turbocharger blew!"). Standing still with the engine running doesn't count, and engines never wear out. Type <code>!partwear</code> in the car to see what's left.</p></div>
+      </div>
+    </section>
+
+    <!-- BASES -->
+    <section class="block" id="bases" aria-labelledby="bases-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-shield"/></svg></div>
+        <div><h2 id="bases-h">Base building</h2><p>Build bigger and taller, plate your walls, and your base stays yours.</p></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">600</div><div class="l">Parts per plot sign</div><div class="v">vanilla 250</div></div>
+        <div class="stat"><div class="n">50 m</div><div class="l">Build radius</div><div class="v">vanilla 30 m</div></div>
+        <div class="stat"><div class="n">40 m</div><div class="l">Build height</div><div class="v">vanilla 8.5 m</div></div>
+        <div class="stat"><div class="n">2x</div><div class="l">Wood HP</div><div class="v">a wood wall has 20,000</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <ul class="list">
+            <li><b>Plated parts are indestructible.</b> Nothing damages them: not C4, not sledgehammers, not vehicles, not fire.</li>
+            <li><b>Wood is twice as tough.</b> Every wood part has double the HP (see the table). Metal, rock and stone parts are stock.</li>
+            <li><b>Build tall.</b> 40 m of vertical build room means towers and floating floors work.</li>
+            <li><b>Better generators.</b> The fuel generator runs 10 work lights (vanilla 5). The solar generator runs 30 (vanilla 3) and is silent.</li>
+            <li><b>Candles light without a lighter.</b> The Halloween candle, Christmas candle and jack-o'-lantern switch on and off like lanterns, and each sells to vendors for 100.</li>
+          </ul>
+        </div>
+        <div class="stack">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Part</th><th>Vanilla</th><th>Here</th></tr></thead>
+              <tbody>
+                <tr><td>Wood wall 3x4, foundation, roof, stairs, walkway</td><td class="van">10,000</td><td class="here">20,000</td></tr>
+                <tr><td>Wood door, shutter, trapdoor</td><td class="van">5,000</td><td class="here">10,000</td></tr>
+                <tr><td>Wood gatehouse, watchtower, gallows</td><td class="van">20,000</td><td class="here">40,000</td></tr>
+                <tr><td>Plated anything</td><td class="van">22,500</td><td class="here">Can't be damaged</td></tr>
+                <tr><td>Metal wall, gate, gatehouse</td><td class="van">37,500</td><td>37,500</td></tr>
+                <tr><td>Rock foundation</td><td class="van">22,500</td><td>22,500</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Raiding, for reference</h3>
+            <p>A sledgehammer does 60 per hit, a pickaxe or axe 30, a hatchet 22. A 20,000 HP wood wall takes about 334 sledgehammer hits or 667 pickaxe hits, and explosives still work on wood. A stock plated wall takes about 113 sledgehammer hits (4 minutes solo); here it can't be broken at all.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VENDORS -->
+    <section class="block" id="vendors" aria-labelledby="vendors-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-coins"/></svg></div>
+        <div><h2 id="vendors-h">Vendors &amp; amcoins</h2><p>Most of what you find is worth something here.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Selling</h3>
+          <ul class="list">
+            <li><b>Most gear sells.</b> Vanilla vendors buy only a handful of items. Here they buy clothing, weapons, equipment, repair kits, consumables, magazines and tents. Prices follow rarity: Katana 150, Mk18 Reaver 200, AKM Gold 200, M249 150, VSS 100, sledgehammer 100, Patrick's axe 150.</li>
+            <li><b>Food, crops, iron and medicine sell too.</b> Iron ingots 200, antibiotics 100, watermelons 100, pumpkins 75, potatoes 50.</li>
+            <li><b>Trophies pay.</b> Space helmet 250, chrome cross necklace 200, gold skull mask 100, gold 100, silver skull mask 75, silver 50.</li>
+          </ul>
+          <p class="note">The game's own sell rules still apply: the item must be undamaged and a full stack, and containers and magazines must be empty. Base parts and traps can't be sold.</p>
+        </div>
+        <div class="card">
+          <h3>Amcoins</h3>
+          <ul class="list">
+            <li><b>A ledger stack holds 10,000.</b> A sale pays in full, and your inventory shows the real count.</li>
+            <li><b><code>!coins</code></b> adds up every stack you carry.</li>
+            <li><b>Spend them</b> at the vendors, on the <a href="#crates">mystery crates</a>, or on engines for your <a href="#cars">BMW or Charger</a>.</li>
+          </ul>
+        </div>
+      </div>
+      <h3 class="sub">Where to trade</h3>
+      <div class="split">
+        <figure>
+          <a class="shot-link" href="docs/vendors-map.jpg"><img class="shot" src="assets/img/vendors-map.jpg" width="1100" height="1100" loading="lazy" alt="Map of the island with the vendor and supply cache locations marked"></a>
+          <figcaption>Circles are vendors, squares are supply caches. Tap for the full-size map, or search for them on the <a href="docs/3d/">3D map</a>.</figcaption>
+        </figure>
+        <div class="places">
+          <div class="place"><h4>General Store</h4><span class="where">Clyde Hill bazaar</span><p>A rotating selection of about 40 items drawn from every vendor list on the map: guns, ammo, food, crafting and clothing, plus the Shady Dealer's stock.</p></div>
+          <div class="place"><h4>Arms dealer</h4><span class="where">Car junkyard, west of Orca Hospital</span><p>Common rifles, SMGs, shotguns and pistols with their mags and ammo, plus the inline-six and V8 engines.</p></div>
+          <div class="place"><h4>Shady Dealers</h4><span class="where">A cave in the central hills (grid D4), and behind the shop counter at Amalgamated Airfield</span><p>AK-Val, AK5D, SAS12, ammo and armor, with a small chance of an M249 or M97.</p></div>
+          <div class="place"><h4>Supply cache</h4><span class="where">Crashed airplane building, Hayward Valley</span><p>An airdrop crate that trades like a vendor, with the Shady Dealer's stock. It runs the <a href="#crates">mystery crate</a>.</p></div>
+          <div class="place"><h4>Mountain cache</h4><span class="where">Radar Dish mountain, up the stairs on the platform marked by a skull candle</span><p>Shady stock plus every magazine and ammo box for the prize guns. <b>15 mutants and 3 armored brutes</b> stand guard at all times and are replaced as they fall. It runs the <a href="#crates">legendary crate</a>.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CRATES -->
+    <section class="block" id="crates" aria-labelledby="crates-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-dice"/></svg></div>
+        <div><h2 id="crates-h">Mystery crates</h2><p>Stand next to a supply cache and type <code>!spin</code>. The coins come straight out of your ledger.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="crate-top"><h3>Mystery crate</h3><span class="price">100 amcoins</span></div>
+          <p class="where">Supply cache, Hayward Valley</p>
+          <p>One random rare item out of 18, each worth 100 to 250 at the vendors. <b>Guns come with two full magazines.</b></p>
+          <ul class="chips" aria-label="Mystery crate prizes">
+            <li>Katana</li><li>Black Widow</li><li>Patrick's Axe</li><li>Her Majesty</li><li>Sledgehammer</li><li>M16 Vietnam</li><li>Mk18 Reaver</li><li>AKM Gold</li><li>RPK</li><li>VSS</li><li>M249</li><li>M97</li><li>Grimey Rick</li><li>Rifle silencer</li><li>Gold skull mask</li><li>Gold cross necklace</li><li>Chrome cross necklace</li><li>Space helmet</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="crate-top"><h3>Legendary crate</h3><span class="price">50 amcoins</span></div>
+          <p class="where">Mountain cache, Radar Dish mountain</p>
+          <p>Always a gun, <b>fully kitted</b>: a loaded magazine plus a scope, silencer, light, laser or grip wherever the gun takes them, and <b>3 spare magazines</b>.</p>
+          <p class="tier">Legendary · 60%</p>
+          <ul class="chips" aria-label="Legendary prizes"><li>The Dictator</li><li>The Reaver</li><li>M16 Vietnam</li><li>The Comrade</li><li>M249</li><li>VSS</li><li>Grimey Rick</li><li>M97 grenade launcher</li></ul>
+          <p class="tier">Rare · 40%</p>
+          <ul class="chips" aria-label="Rare prizes"><li>AT15</li><li>AK5D</li><li>M40A5</li><li>Vector</li><li>SAS12</li><li>MP5</li></ul>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <ul class="list">
+          <li><b>2 spins per person per cache per day.</b> They reset at midnight server time.</li>
+          <li><b>Make room first.</b> A gun or melee prize needs a free weapon slot, anything else a free inventory slot. If there's no room, nothing is charged and the spin doesn't count.</li>
+          <li><b>Big wins get announced.</b> Prizes worth 200 or more show up in chat, and a lucky spin can even win <a href="#mjolnir">Mjolnir</a>.</li>
+          <li><b><code>!spin odds</code></b> lists the prizes and chances of the cache you're standing at.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- MJOLNIR -->
+    <section class="block" id="mjolnir" aria-labelledby="mjolnir-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-hammer"/></svg></div>
+        <div><h2 id="mjolnir-h">Mjolnir &amp; Thor's trial</h2><p>Thor's hammer is on the island. Only a few exist at once, and only the worthy can hold one.</p></div>
+      </div>
+      <div class="grid" style="margin-bottom:16px">
+        <div class="card move"><span class="tag">Throw it</span><h3>Valkyrie's Flight</h3><p>Lightning strikes where it lands, then it flies back to you.</p></div>
+        <div class="card move"><span class="tag">Throw it at your feet</span><h3>Aesir Sweep</h3><p>A ground slam.</p></div>
+        <div class="card move"><span class="tag">Throw it straight up</span><h3>Thor's Wrath</h3><p>A storm.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Owning a hammer</h3>
+          <ul class="list">
+            <li><b>It never hurts its holder.</b> Mutants and animals it kills vanish in smoke.</li>
+            <li><b>Dropped, it plants itself</b> where it falls, and nobody else can lift it. Walk back to it, or take your <b>Norse Medallion</b> in hand to call it home. If your hammer came with one, it's in your pack while the hammer is away. Called home, the hammer sets every mutant and animal around you on fire.</li>
+            <li><b>Legendary hammers have 100 charges.</b> A throw costs 1, a slam 5, a storm 10. <code>!mjolnir charges</code> shows what's left.</li>
+            <li><b>It goes home on its own</b> if it's left planted for 4 days or kept in a stash for a week.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Winning one</h3>
+          <p>A lucky spin at a supply cache, or <b>Thor's trial</b>:</p>
+          <ol class="steps small">
+            <li><div>Find Mjolnir's shrine and step inside the ring of its guardians. You're handed <b>Thor's Challenge</b>, a scroll naming two offerings.</div></li>
+            <li><div>Find <b>Thor's talisman</b>. The hint is in chat, and <code>!hint</code> repeats it. <b>Odin's light</b> hangs in the sky above wherever the talisman waits, but only players carrying the scroll can see it.</div></li>
+            <li><div>Bring the talisman and both offerings to the shrine. The first player to bring everything back wins the hammer.</div></li>
+          </ol>
+          <p class="note">Every time the shrine hammer breaks and flies home, a new trial begins somewhere else on the island.</p>
+        </div>
+      </div>
+
+      <details class="spoilers">
+        <summary><svg class="i"><use href="#i-alert"/></svg>Spoilers: where the talismans are hidden</summary>
+        <div class="dbody">
+          <p><b>Last warning.</b> The trial is meant to be solved from its hint, and these are the exact places the talisman waits. If you only want a nudge, type <code>!hint</code> in game instead. Each place is folded on its own, so you can open just one.</p>
+          <details><summary>Mjolnir's shrine</summary><div class="dbody"><p>On the north coast around <b>4771, 8032</b>, ringed by six armored brutes.</p></div></details>
+          <details><summary>"I pray you find it."</summary><div class="dbody"><p>One of the three churches, chosen at random each time this trial comes round: <b>Sultan</b> (2397, 2222), <b>Hayward</b> (3978, 6672) or <b>Cape Bay</b> (7060, 4980). Inside the church.</p></div></details>
+          <details><summary>"Do not give up hope on your quest…"</summary><div class="dbody"><p>The <b>Stairway to Hope</b>, at the top, around <b>1080, 990</b> (height 74).</p></div></details>
+          <details><summary>"Hope climbs the stairs, but its secret sleeps in the dark beneath them."</summary><div class="dbody"><p>The cave under the Stairway to Hope, around <b>1072, 1049</b> (height 27).</p></div></details>
+          <details><summary>"Clear out the shelter by the lumber yard…"</summary><div class="dbody"><p>The bunker by the lumber yard in the far south-east, around <b>6363, 956</b>. It's full of mutants; the talisman appears in the middle once every one of them is dead.</p></div></details>
+          <details><summary>"…the bridge of life and take the leap of faith."</summary><div class="dbody"><p>Under the <b>Broken Bridge</b>: jump, then swim back. It's on the rocks right below the bridge, around <b>1248, 7950</b> (height 17).</p></div></details>
+          <details><summary>"…where floodwaters are held at bay… a watery grave."</summary><div class="dbody"><p>At the foot of <b>Orca Dam</b>, between the two pillars, under the water by the graves, around <b>5904, 4702</b>. Thor's blessing keeps you from drowning there, and taking the talisman carries you out.</p></div></details>
+        </div>
+      </details>
+    </section>
+
+    <!-- MISSIONS & NOTES -->
+    <section class="block" id="missions" aria-labelledby="missions-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-key"/></svg></div>
+        <div><h2 id="missions-h">Missions &amp; notes</h2><p>A story hidden around the island, and a way to leave your own.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>The Mechanic's House</h3>
+          <p>A mission starts with a note on the office desk of one of the two auto shops in <b>Hayward Valley</b>. Follow where it leads.</p>
+          <p>Read a note by holding it, or type <code>!read</code> while you carry it. The <a href="docs/3d/">3D map</a> helps you find the places it sends you.</p>
+        </div>
+        <div class="card" id="notes">
+          <h3>Notes</h3>
+          <p><b>Notebook paper</b> turns up as loot, and the supply caches sell it for 1 amcoin a sheet. Type <code>!note</code> and your message to write on a sheet. You get a <b>Written Note</b> to drop, stash or hand over.</p>
+          <p>Anyone can read it by holding it, or with <code>!read</code>. Notes show only the message, though admins can see who wrote them.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMANDS -->
+    <section class="block" id="commands" aria-labelledby="commands-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-chat"/></svg></div>
+        <div><h2 id="commands-h">Chat commands</h2><p>Type these in chat. They work for everyone.</p></div>
+      </div>
+      <div class="table-wrap">
+        <table class="cmds">
+          <tbody>
+            <tr class="grp"><th colspan="2">General</th></tr>
+            <tr><td><code>!welcome</code></td><td>Shows the welcome banner again.</td></tr>
+            <tr><td><code>!pos</code></td><td>Your coordinates and compass heading.</td></tr>
+            <tr><td><code>!corpse</code></td><td>The coordinates of your nearest bodies, so you can go get your gear back.</td></tr>
+            <tr class="grp"><th colspan="2">Coins &amp; crates</th></tr>
+            <tr><td><code>!coins</code></td><td>Your amcoin balance across every stack you carry.</td></tr>
+            <tr><td><code>!spin</code></td><td>Opens the crate at the supply cache you're standing at.</td></tr>
+            <tr><td><code>!spin odds</code></td><td>That cache's prizes and chances.</td></tr>
+            <tr class="grp"><th colspan="2">Cars &amp; notes</th></tr>
+            <tr><td><code>!partwear</code></td><td>How much life the car's turbocharger or supercharger has left.</td></tr>
+            <tr><td><code>!note</code> <i>message</i></td><td>Writes your message on a sheet of notebook paper.</td></tr>
+            <tr><td><code>!read</code></td><td>Reads the notes you're carrying.</td></tr>
+            <tr class="grp"><th colspan="2">Mjolnir</th></tr>
+            <tr><td><code>!thor</code></td><td>How Mjolnir works.</td></tr>
+            <tr><td><code>!hint</code></td><td>Repeats the current trial's hint.</td></tr>
+            <tr><td><code>!mjolnir charges</code></td><td>How many charges a legendary hammer has left.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SERVER -->
+    <section class="block" id="server" aria-labelledby="server-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-clock"/></svg></div>
+        <div><h2 id="server-h">Restarts, wipes &amp; good to know</h2></div>
+      </div>
+      <div class="grid">
+        <div class="card"><h3>Daily restart</h3><p>Every day at <b>5 AM Eastern</b>, with in-game warnings first. Bases, vehicles and your inventory survive it; bodies and dropped items don't.</p></div>
+        <div class="card"><h3>Wipes</h3><p>No schedule. The world wipes only when base clutter hurts performance, when new players can't find room, or when a game update forces it. Wipes are announced in the join message at least a few days ahead.</p></div>
+        <div class="card"><h3>Gameplay</h3>
+          <ul class="list">
+            <li><b>Prone</b> is enabled.</li>
+            <li><b>Halloween runs all autumn:</b> seasonal loot, candles and jack-o'-lanterns from October 1 to November 30.</li>
+            <li><b>Carry up to 100 kg.</b></li>
+          </ul>
+        </div>
+        <div class="card"><h3>Big vehicles</h3><p>The game's anti-cheat measures reach to the vehicle's center. On the 5-ton and the bus, crouch against the middle of the vehicle's side before swapping wheels or parts, or the server rejects the move.</p></div>
+        <div class="card"><h3>Contact</h3><p>Find the admin, <b>Toll Troll</b>, on the server. For problems with this page or the server, <a href="https://github.com/rudeboi1992/deadwood-isle/issues">open an issue on GitHub</a>.</p></div>
+      </div>
+    </section>
+
+    <!-- CHANGELOG -->
+    <section class="block" id="changelog" aria-labelledby="changelog-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-list"/></svg></div>
+        <div><h2 id="changelog-h">Changelog</h2><p>Newest first. All dates are 2026.</p></div>
+      </div>
+      <ol class="timeline">
+        <li><time datetime="2026-11-07">Nov 7</time><p>Amcoin stacks hold 10,000. Fixes: BMWs and Chargers from missions and events no longer lose what's inside them when everyone leaves the area, and items in a car no longer turn back into older ones after a restart.</p></li>
+        <li><time datetime="2026-10-31">Oct 31</time><p>Notes: write on notebook paper with <code>!note</code> and read with <code>!read</code>. Notebook paper is loot and sells at the supply caches.</p></li>
+        <li><time datetime="2026-10-30">Oct 30</time><p>Fix: BMWs and Chargers keep their parts through restarts.</p></li>
+        <li><time datetime="2026-10-29">Oct 29</time><p>The two-vehicles-per-base rule is gone: keep as many vehicles as you like.</p></li>
+        <li><time datetime="2026-10-28">Oct 28</time><p>Tuning parts for the BMW and Charger: inline-six and V8 engines at the arms dealer, turbochargers and superchargers as loot, and turbos and superchargers wear out (<code>!partwear</code>). The Mechanic's House mission. Vehicles that fall under the map are recovered. Carry up to 100 kg. Vendors buy food, crops, iron and medicine.</p></li>
+        <li><time datetime="2026-10-26">Oct 26</time><p>BMW M4 and Charger: recorded inline-six and V8 engine sounds, six-speed gearboxes, Shift boost with blue NOS flames, the BMW blow-off valve and downshift burbles, exhaust fire on every shift.</p></li>
+        <li><time datetime="2026-10-24">Oct 24</time><p>Mjolnir and Thor's trial: legendary hammers (100 charges) from the supply-cache spins and from Mjolnir's shrine, the Norse Medallion, six rotating talisman hunts with Thor's Challenge scrolls, <code>!thor</code> and <code>!hint</code>.</p></li>
+      </ol>
+      <details class="older">
+        <summary>Older changes</summary>
+        <div class="dbody">
+          <ol class="timeline">
+            <li><time datetime="2026-10-20">Oct 20 (later)</time><p>Mountain cache on the Radar Dish mountain: shady stock plus ammo, the 50-coin legendary crate (kitted guns, 3 mags), guarded by 15 mutants and 3 armored brutes around the clock. Food vendor retired from the bazaar. Legendary guns wear half as fast.</p></li>
+            <li><time datetime="2026-10-20">Oct 20</time><p>Mystery crate at the new Hayward Valley supply cache (<code>!spin</code>, 100 amcoins, 2 a day, guns come with two mags). Second Shady Dealer at Amalgamated Airfield. Crafting and clothing vendors removed from the bazaar (the General Store covers both). Amcoin stacks hold 255 and sales pay up to 255; space helmet now 250. <code>!coins</code>. Vendor map added to this page.</p></li>
+            <li><time datetime="2026-10-19">Oct 19</time><p>Halloween and Christmas candles and jack-o'-lanterns light without a lighter and sell for 100; on-screen welcome banner and <code>!welcome</code>; two-vehicles-per-base rule.</p></li>
+            <li><time datetime="2026-10-18">Oct 18</time><p>Vendors buy most gear at rarity-based prices, trophies included, and the 100-coin payout cap is gone. General Store at the bazaar sells a bit of everything; arms dealer moved to the car junkyard; Shady Dealer moved out of the sewer. Hatchet swings 0.9 s and the axe is back to its vanilla 1.5 s; axes and pickaxes wear slower; rock and iron nodes 4x, coal and pyrite 2x. <code>!pos</code> for everyone.</p></li>
+            <li><time datetime="2026-10-04">Oct 4</time><p>Daily restart moved to 5 AM Eastern.</p></li>
+            <li><time datetime="2026-09-19">Sep 19</time><p>Parked vehicles last 14 days before despawning.</p></li>
+            <li><time datetime="2026-09-10">Sep 10</time><p>Axe swings 0.9 s (hatchet 1.25 s); Base Limits mod v7 carries the tool definitions. <i>(Reversed on Oct 18.)</i></p></li>
+            <li><time datetime="2026-09-09">Sep 9</time><p><code>!corpse</code> for everyone; light-switch investigation closed (there's no master switch in the game).</p></li>
+            <li><time datetime="2026-09-08">Sep 8</time><p>Loot 2.5x with a 1.5x weapon and ammo share; plot sign 600 parts, 50 m, 40 m; generators run 10 and 30 lights, solar is silent; prone enabled; Base Limits Workshop mod.</p></li>
+            <li><time datetime="2026-09-07">Sep 7</time><p>2x harvest, axe and hatchet rebalance, admin commands mod, BMW &amp; Charger mod (Charger in police spawns), "NEW" tag.</p></li>
+            <li><time datetime="2026-09-06">Sep 6</time><p>2x loot, 2x vehicles, wood 2x HP, indestructible plated, server renamed to Deadwood Isle, 50 slots.</p></li>
+            <li><time datetime="2026-09-05">Sep 5</time><p>Server launched.</p></li>
+          </ol>
+        </div>
+      </details>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="foot">
+    <div><b>Deadwood Isle</b> · a Miscreated community server · Admin: <b>Toll Troll</b></div>
+    <div><a href="docs/3d/">3D map</a> · <a href="https://github.com/rudeboi1992/deadwood-isle/issues">Report a problem</a> · <a href="https://github.com/rudeboi1992/deadwood-isle">GitHub</a></div>
+    <div class="fine">Updated November 7, 2026. Miscreated is a game by Entrada Interactive; this server and page are unofficial.</div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-btn');
+    var meta = document.querySelector('meta[name="theme-color"]');
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      var t = dark ? 'Switch to light mode' : 'Switch to dark mode';
+      btn.setAttribute('aria-label', t); btn.title = t;
+      if (meta) meta.setAttribute('content', dark ? '#0f1513' : '#f5f3ec');
+    }
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('dw-theme', next); } catch (e) {}
+      label();
+    });
+    label();
+
+    // highlight the section being read, in the side contents and the top chips
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a, .chipnav a'));
+    var chipnav = document.querySelector('.chipnav');
+    var ids = [];
+    links.forEach(function (a) { var id = a.getAttribute('href').slice(1); if (ids.indexOf(id) < 0) ids.push(id); });
+    var secs = ids.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var last = null, ticking = false;
+    function setActive(id) {
+      links.forEach(function (a) {
+        var on = a.getAttribute('href') === '#' + id;
+        a.classList.toggle('on', on);
+        if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+        if (on && chipnav && a.parentNode === chipnav && chipnav.offsetParent !== null) {
+          var left = a.offsetLeft - (chipnav.clientWidth - a.offsetWidth) / 2;
+          try { chipnav.scrollTo({ left: left, behavior: calm ? 'auto' : 'smooth' }); } catch (e) { chipnav.scrollLeft = left; }
+        }
+      });
+    }
+    function update() {
+      ticking = false;
+      var line = window.innerHeight * 0.3, cur = null;
+      for (var i = 0; i < secs.length; i++) { if (secs[i].getBoundingClientRect().top <= line) cur = secs[i].id; }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) cur = secs[secs.length - 1].id;
+      if (cur !== last) { last = cur; setActive(cur); }
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
+</script>
+</body>
+</html>
