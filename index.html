@@ -428,14 +428,14 @@
         <a class="card feature" href="#crates"><svg class="i"><use href="#i-dice"/></svg><h3>Mystery crates</h3><p>Spend amcoins at the supply caches for a rare item or a fully kitted legendary gun.</p></a>
         <a class="card feature" href="#mjolnir"><svg class="i"><use href="#i-hammer"/></svg><h3>Thor's hammer</h3><p>Lightning, ground slams and storms. Win it in Thor's trial.</p></a>
         <a class="card feature" href="#cars"><svg class="i"><use href="#i-gauge"/></svg><h3>Tuned cars</h3><p>Engines, turbochargers and superchargers for the BMW M4 and Charger.</p></a>
-        <a class="card feature" href="#drones"><svg class="i"><use href="#i-drone"/></svg><h3>Drones</h3><p>Scout with the Sparrows or fly a minigun gunship at your side. Pack Mules you can ride are on the way.</p></a>
+        <a class="card feature" href="#drones"><svg class="i"><use href="#i-drone"/></svg><h3>Drones</h3><p>Scout with the Sparrows or fly a minigun gunship at your side. Rebuild a crashed courier Pack Mule and ride it.</p></a>
         <a class="card feature" href="#emp"><svg class="i"><use href="#i-bolt"/></svg><h3>EMP-7 &amp; taser</h3><p>Knock drones out of the sky and stall car engines from up to 300 m.</p></a>
         <a class="card feature" href="#power"><svg class="i"><use href="#i-bolt"/></svg><h3>Base power</h3><p>Generators, lights, a light switch and fridges that power your whole plot without wires.</p></a>
         <a class="card feature" href="#farm"><svg class="i"><use href="#i-sprout"/></svg><h3>Farming</h3><p>Raise pigs and chickens, grow lettuce, and spread manure for 4x harvests.</p></a>
         <a class="card feature" href="#food"><svg class="i"><use href="#i-clock"/></svg><h3>Food spoils</h3><p>Raw food rots in hours. A powered fridge keeps it fresh for a week.</p></a>
         <a class="card feature" href="#jobs"><svg class="i"><use href="#i-case"/></svg><h3>Jobs</h3><p>Deliver food orders and sealed shipments across the island for amcoins.</p></a>
         <a class="card feature" href="#bank"><svg class="i"><use href="#i-card"/></svg><h3>ATM &amp; debit cards</h3><p>Bank your coins at home and earn up to 50% cash back at the vendors.</p></a>
-        <a class="card feature" href="#missions"><svg class="i"><use href="#i-key"/></svg><h3>A mission</h3><p>The Mechanic's House starts with a note in Hayward Valley.</p></a>
+        <a class="card feature" href="#missions"><svg class="i"><use href="#i-key"/></svg><h3>Missions</h3><p>The Mechanic's House starts with a note in Hayward Valley, and courier Pack Mules crash for you to find.</p></a>
         <a class="card feature" href="#notes"><svg class="i"><use href="#i-pencil"/></svg><h3>Leave notes</h3><p>Write a message on notebook paper for someone else to find.</p></a>
         <a class="card feature" href="#mailbox"><svg class="i"><use href="#i-mail"/></svg><h3>Mailboxes</h3><p>Put a mailbox on your plot and let people post you notes.</p></a>
         <a class="card feature" href="#map"><svg class="i"><use href="#i-map"/></svg><h3>3D map</h3><p>Explore the island in your browser, tunnels and bunkers included.</p></a>
@@ -605,7 +605,7 @@
       <div class="grid-2" style="margin-top:16px">
         <div class="card" id="mule">
           <h3>Pack Mule</h3>
-          <p>A six-rotor cargo drone you can ride. It carries 24 slots of cargo, follows you around, flies home to its landing pad, or you fly it yourself. <b>Pack Mules aren't out in the world yet</b>, but here's how they work, and their parts are already at the supply caches.</p>
+          <p>A six-rotor cargo drone you can ride. It carries 24 slots of cargo, follows you around, flies home to its landing pad, or you fly it yourself. Get one by rebuilding a crashed courier mule (see <a href="#muledown">Mule Down</a>). Its parts are also at the supply caches.</p>
           <ul class="list">
             <li><b>Parts:</b> 6 propellers, 4 car batteries and up to 3 modules. A <b>lift module</b> (Mk I, II or III) lets it carry you; it lifts 60 kg on its own, up to 260 kg with two Mk IIIs. The <b>AI module</b> lets it follow you and fly home. A <b>cloaking module</b> hides it.</li>
             <li><b>Riding:</b> get on from its right side. <kbd>W</kbd>/<kbd>S</kbd> forward and back, <kbd>A</kbd>/<kbd>D</kbd> turn, <kbd>Space</kbd> up, <kbd>Shift</kbd> down, <kbd>L</kbd> lights. Hold <kbd>Shift</kbd> on the ground for 2 s to stop the props.</li>
@@ -964,7 +964,7 @@
     <section class="block" id="missions" aria-labelledby="missions-h">
       <div class="sec-head">
         <div class="sec-icon"><svg class="i"><use href="#i-key"/></svg></div>
-        <div><h2 id="missions-h">Missions, notes &amp; mail</h2><p>A story hidden around the island, a way to leave your own, and a mailbox to collect it in.</p></div>
+        <div><h2 id="missions-h">Missions, notes &amp; mail</h2><p>A story hidden around the island, crashed courier mules to track down, a way to leave your own notes, and a mailbox to collect them in.</p></div>
       </div>
       <div class="grid">
         <div class="card">
@@ -983,6 +983,17 @@
           <p>When you log in with mail waiting, you're told how many notes are in your box. <code>!mail</code> checks any time.</p>
         </div>
       </div>
+        <div class="card" id="muledown" style="margin-top:16px">
+          <h3>Mule Down</h3>
+          <p>About once an hour, while fewer than three Pack Mules are out on the island, a courier Pack Mule loses lift and crashes. Everyone gets a chat line saying roughly where. Watch the sky: it dumps its two cargo pods on the way down and leaves a tall smoke column where it hits.</p>
+          <ul class="list">
+            <li><b>Search the wreck.</b> Inside are the <b>flight log</b> and a <b>drone controller</b>.</li>
+            <li><b>Turn the controller on</b> while you carry the log. Its finder points to the cargo pod with the <b>black box</b>, then to the other pod, and always shows the way back to the wreck. Once you've visited both pods, it points to the wreck.</li>
+            <li><b>The pods</b> hold the propellers, a car battery, a <b>Damaged Lift Module</b> and the courier's cargo. The damaged lift only reaches 50 m and breaks after 30 minutes of flight.</li>
+            <li><b>Back at the wreck,</b> choose Repair with 5 sheet metal, 2 electrical parts and 1 Amalgaduino. Whoever rides the rebuilt mule first owns it.</li>
+            <li>The wreck stays for 3 days, through restarts.</li>
+          </ul>
+        </div>
     </section>
 
     <!-- COMMANDS -->
@@ -1055,7 +1066,7 @@
         <div><h2 id="changelog-h">Changelog</h2><p>Newest first. All dates are 2026.</p></div>
       </div>
       <ol class="timeline">
-        <li><time datetime="2026-11-08">Nov 8</time><p>Drones: the Sparrows and the RK700 gunship, with modules, batteries, gunship ammo, landing pads and wrecks you can rebuild. Pack Mule parts are at the caches. The EMP-7 Disruptor and DW-7 taser. Base power without wires (generators, solar generators, work lights, a light switch and fridges) from three new hardware stores, plus Solar Battery Racks. Pig and chicken farming with the Farmer at the Clyde Hill bazaar, and crops sell for double. Raw food spoils. Delivery orders, shipments and the Forged ID; ATMs and debit cards with cash back; mailboxes. Cleared mountain cache guards come back after 10 quiet minutes. Cars: the revs follow the real engine again without the wobble on gear changes, the low gears are longer, and the blow-off is a real air hiss that no longer fires in corners or over bumps. Fix: no more engine sound left behind where a car used to be. Later that day: weapons, ammo, magazines and attachments cost more (a common rifle about 1,500 amcoins, a magazine 75), and the crates cost 500 and 1,000. Each base light switches on its own, and the switch shows whether any light is on. A lost premium debit card can be replaced for a week. The 3D map can measure distances.</p></li>
+        <li><time datetime="2026-11-08">Nov 8</time><p>Drones: the Sparrows and the RK700 gunship, with modules, batteries, gunship ammo, landing pads and wrecks you can rebuild. Pack Mule parts are at the caches. The EMP-7 Disruptor and DW-7 taser. Base power without wires (generators, solar generators, work lights, a light switch and fridges) from three new hardware stores, plus Solar Battery Racks. Pig and chicken farming with the Farmer at the Clyde Hill bazaar, and crops sell for double. Raw food spoils. Delivery orders, shipments and the Forged ID; ATMs and debit cards with cash back; mailboxes. Cleared mountain cache guards come back after 10 quiet minutes. Cars: the revs follow the real engine again without the wobble on gear changes, the low gears are longer, and the blow-off is a real air hiss that no longer fires in corners or over bumps. Fix: no more engine sound left behind where a car used to be. Later that day: weapons, ammo, magazines and attachments cost more (a common rifle about 1,500 amcoins, a magazine 75), and the crates cost 500 and 1,000. Each base light switches on its own, and the switch shows whether any light is on. A lost premium debit card can be replaced for a week. The 3D map can measure distances. That night: <b>Mule Down</b>. Courier Pack Mules crash around the island; follow the drone controller's finder to their cargo pods and rebuild the wreck to ride it.</p></li>
         <li><time datetime="2026-11-07">Nov 7</time><p>Amcoin stacks hold 10,000. The turbo's blow-off plays only when you let off the gas, never on gear changes. 3D map: <kbd>F</kbd> takes you through doors, a compass, and searchable buildings. Fixes: BMWs and Chargers from missions and events no longer lose what's inside them when everyone leaves the area, and items in a car no longer turn back into older ones after a restart.</p></li>
         <li><time datetime="2026-10-31">Oct 31</time><p>Notes: write on notebook paper with <code>!note</code> and read with <code>!read</code>. Notebook paper is loot and sells at the supply caches.</p></li>
         <li><time datetime="2026-10-30">Oct 30</time><p>Fix: BMWs and Chargers keep their parts through restarts.</p></li>
