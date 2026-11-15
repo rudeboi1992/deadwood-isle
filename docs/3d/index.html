@@ -15,7 +15,7 @@
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
 #c { position: fixed; inset: 0; display: block; touch-action: none; }
 #labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
-.mk { position: absolute; transform: translate(-50%, -100%); pointer-events: auto; cursor: pointer; display: flex; flex-direction: column; align-items: center; white-space: nowrap; }
+.mk { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); pointer-events: auto; cursor: pointer; display: flex; flex-direction: column; align-items: center; white-space: nowrap; }
 .mk .lbl { font-size: 12px; padding: 1px 6px; border-radius: 4px; background: rgba(0, 0, 0, 0.55); color: #fff; margin-bottom: 2px; }
 .mk .pt { width: 10px; height: 10px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.6); background: #fff; }
 .mk .stem { width: 2px; height: 14px; background: rgba(255, 255, 255, 0.7); }
@@ -257,10 +257,23 @@ const store = { get(k, d) { try { const v = localStorage.getItem('dw3d-' + k); r
 const W = (x, y, z) => new THREE.Vector3(x, z, -y);
 
 const TOUCH = matchMedia('(pointer: coarse)').matches;   // phones and tablets: lighter rendering (no MSAA, lower pixel ratio, shorter clutter distance)
-const renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: !TOUCH, logarithmicDepthBuffer: true });
+const renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: !TOUCH, logarithmicDepthBuffer: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, TOUCH ? 1.25 : 1.5));
 renderer.setSize(innerWidth, innerHeight);
 const scene = new THREE.Scene();
+// PERF1 (2026-11-14). Nothing on the island moves: the scene and its static meshes keep their identity transform, so
+// three.js does not recompute 43,000 matrices every frame (that alone was ~10 ms a frame).
+scene.matrixAutoUpdate = false;
+const fixed = (o) => { o.matrixAutoUpdate = false; o.matrixWorldAutoUpdate = false; return o; };
+// One geometry object per mesh over the same vertex buffers: instanced meshes that share a geometry object make
+// three.js set the vertex-array state up again on every draw call.
+function shareGeo(src) {
+  const g = new THREE.BufferGeometry(); g.index = src.index; for (const k in src.attributes) g.attributes[k] = src.attributes[k];
+  if (!src.boundingBox) src.computeBoundingBox(); if (!src.boundingSphere) src.computeBoundingSphere();
+  g.boundingBox = src.boundingBox; g.boundingSphere = src.boundingSphere; g.userData = src.userData; return g;
+}
+// The picture is only drawn again when something changed (the view, the data, a setting): invalidate() asks for it.
+let dirty = 3; function invalidate(n) { if (dirty < (n || 2)) dirty = n || 2; }
 scene.background = new THREE.Color(0x9fb6c9);
 scene.fog = new THREE.Fog(0x9fb6c9, 6000, 16000);
 const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 1, 40000);
@@ -384,9 +397,10 @@ async function loadTerrain(hd) {
     const k = j * n + i, z = heights[k] / 64;
     pos[k * 3] = i * step; pos[k * 3 + 1] = z; pos[k * 3 + 2] = -j * step;
   }
+  const skip = new Uint8Array((n - 1) * (n - 1));
   const idx = new Uint32Array((n - 1) * (n - 1) * 6); let t = 0;
   for (let j = 0; j < n - 1; j++) for (let i = 0; i < n - 1; i++) {
-    if (cellIsHole(i * step, j * step, step) || inDetail(i * step, j * step, step)) continue;
+    if (cellIsHole(i * step, j * step, step) || inDetail(i * step, j * step, step)) { skip[j * (n - 1) + i] = 1; continue; }
     const a = j * n + i, b = a + 1, c = a + n, d = c + 1;
     idx[t++] = a; idx[t++] = b; idx[t++] = c; idx[t++] = b; idx[t++] = d; idx[t++] = c;
   }
@@ -402,15 +416,33 @@ async function loadTerrain(hd) {
     col[k * 3] = c.r; col[k * 3 + 1] = c.g; col[k * 3 + 2] = c.b;
   }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  if (terrainMesh) { terrainGroup.remove(terrainMesh); terrainMesh.geometry.dispose(); }
-  terrainMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true }));
+  if (terrainMesh) terrainGroup.remove(terrainMesh);
+  // drawn as 512 m chunks over the same vertex buffers: only the chunks in view go to the GPU, and a tap only tests the
+  // chunks under it (terrainMesh is the group; .material is what the detail and HD patches share)
+  terrainMesh = fixed(new THREE.Group()); terrainMesh.material = new THREE.MeshLambertMaterial({ vertexColors: true });
+  const CH = Math.round(512 / step), pa = g.getAttribute('position'), na = g.getAttribute('normal'), ca = g.getAttribute('color');
+  for (let cj = 0; cj < n - 1; cj += CH) for (let ci = 0; ci < n - 1; ci += CH) {
+    const j1 = Math.min(n - 1, cj + CH), i1 = Math.min(n - 1, ci + CH), ix = new Uint32Array((j1 - cj) * (i1 - ci) * 6); let q = 0, lo = 1e9, hi = -1e9;
+    for (let j = cj; j < j1; j++) for (let i = ci; i < i1; i++) {
+      if (skip[j * (n - 1) + i]) continue;
+      const a = j * n + i, b = a + 1, e = a + n, d = e + 1;
+      ix[q++] = a; ix[q++] = b; ix[q++] = e; ix[q++] = b; ix[q++] = d; ix[q++] = e;
+    }
+    if (!q) continue;
+    for (let j = cj; j <= j1; j++) for (let i = ci; i <= i1; i++) { const z = pos[(j * n + i) * 3 + 1]; if (z < lo) lo = z; if (z > hi) hi = z; }
+    const cg = new THREE.BufferGeometry(); cg.setAttribute('position', pa); cg.setAttribute('normal', na); cg.setAttribute('color', ca);
+    cg.setIndex(new THREE.BufferAttribute(ix.slice(0, q), 1));
+    cg.boundingBox = new THREE.Box3(new THREE.Vector3(ci * step, lo, -j1 * step), new THREE.Vector3(i1 * step, hi, -cj * step));
+    cg.boundingSphere = cg.boundingBox.getBoundingSphere(new THREE.Sphere());
+    terrainMesh.add(fixed(new THREE.Mesh(cg, terrainMesh.material)));
+  }
   terrainGroup.add(terrainMesh); buildDetailMeshes();
   placeMarkers();
 }
 // high detail: a 1.6 km patch of the 4 m heights around the view, rebuilt when the view moves (a whole-island 4 m mesh
 // is ~250 MB and froze phones); drawn 0.4 m above the 8 m terrain so it wins
 let hdH = null, hdMesh = null, hdAt = null, hdBox = null;
-const terrainGroup = new THREE.Group(); scene.add(terrainGroup);
+const terrainGroup = fixed(new THREE.Group()); scene.add(terrainGroup);
 
 function terrainColor(c, z, up) {
   if (z < WATER + 1.2) c.setRGB(0.76, 0.70, 0.52);
@@ -515,7 +547,7 @@ async function loadRoads() {
   g.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
   roadMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }));
   roadMesh.userData.cat = 'roads'; roadMesh.userData.model = { path: 'road' };
-  scene.add(roadMesh); drapeRoads();
+  scene.add(fixed(roadMesh)); drapeRoads();
 }
 // Play view: the roads as bold lines in screen pixels, drawn on top like the paper map
 function buildRoadLines() {
@@ -614,7 +646,7 @@ async function loadWater() {
   g.computeVertexNormals();
   waterMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.97, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 }));
   waterMesh.userData.cat = 'water'; waterMesh.userData.model = { path: 'water' }; waterMesh.renderOrder = 1;
-  scene.add(waterMesh);
+  scene.add(fixed(waterMesh));
 }
 function addWater() {
   const g = new THREE.PlaneGeometry(60000, 60000); g.rotateX(-Math.PI / 2);
@@ -725,19 +757,31 @@ const FAR = TOUCH ? 1500 : 2400;   // beyond this (3D distance) a tile is drawn 
 // object draw distances, up to three levels, and step back up once frames are quick again
 let CULL_SCALE = matchMedia('(pointer: coarse)').matches ? 0.7 : 1, govLevel = 0, govAvg = 16, govLast = 0, govSince = 0, govStart = 0;
 const BASE_PR = Math.min(window.devicePixelRatio, TOUCH ? 1.25 : 1.5), GOV_PR = [1, 0.8, 0.65, 0.5], GOV_CULL = TOUCH ? [0.7, 0.5, 0.38, 0.28] : [1, 0.75, 0.55, 0.4];
-function govern() {
-  const now = performance.now();
+// A slow frame rate first tries a lower resolution on its own for 2.5 s: if that does not make frames clearly quicker
+// (the page is held back by the CPU, not the GPU) the resolution goes back to full and stays there, and only the
+// clutter distances are stepped. Only frames that were really drawn count.
+let prHelps = null, prProbe = null, drewLast = false;
+const MINPX = TOUCH ? [2, 2.5, 3, 3.5] : [1.5, 2, 2.5, 3];   // a group whose biggest piece covers fewer pixels than this is not drawn
+function applyPR() { renderer.setPixelRatio(BASE_PR * (prProbe ? 0.8 : prHelps === false ? 1 : GOV_PR[govLevel])); renderer.setSize(innerWidth, innerHeight); invalidate(2); }
+function govern(now) {
   if (!govStart) govStart = now;
-  if (govLast) govAvg = govAvg * 0.9 + Math.min(500, now - govLast) * 0.1;
+  if (govLast && drewLast) { govAvg = govAvg * 0.9 + Math.min(500, now - govLast) * 0.1; if (prProbe) prProbe.n++; }
   govLast = now;
-  if (now - govStart < 8000) return;   // shaders and first uploads after loading are slow anyway
+  if (now - govStart < 8000 || perf.noGov) return;   // shaders and first uploads after loading are slow anyway
+  if (prProbe) {
+    if (now - prProbe.t < 2500) return;
+    const enough = prProbe.n >= 25, helps = govAvg < prProbe.avg * 0.85; prProbe = null; govSince = now;
+    if (enough) prHelps = helps;
+    if (enough && helps) { govLevel = 1; CULL_SCALE = GOV_CULL[1]; cullStep(true); }
+    applyPR(); return;
+  }
   let want = govLevel;
   if (govAvg > 45 && govLevel < 3 && now - govSince > 1500) want = govLevel + 1;
-  else if (govAvg < 22 && govLevel > 0 && now - govSince > 5000) want = govLevel - 1;
+  else if (govAvg < 22 && govLevel > 0 && now - govSince > 8000) want = govLevel - 1;
   if (want === govLevel) return;
+  if (want > govLevel && prHelps === null) { prProbe = { t: now, avg: govAvg, n: 0 }; applyPR(); return; }
   govLevel = want; govSince = now; CULL_SCALE = GOV_CULL[govLevel];
-  renderer.setPixelRatio(BASE_PR * GOV_PR[govLevel]); renderer.setSize(innerWidth, innerHeight);
-  cullStep(true);
+  applyPR(); cullStep(true);
 }
 const CULL = { interior: 450, sidewalk: 1500, fence: 1500, prop: 1800, other: 1800, nature: 2200, rock: FAR, building: FAR, designer: FAR };
 const FAR_CATS = { building: 1, designer: 1, rock: 1, prop: 1 };   // props only when they are big (silos, cranes, wrecks)
@@ -746,30 +790,33 @@ const farMeshes = [];    // merged far-view meshes, one per (1024 m tile, catego
 const farBuild = new Map();   // key -> { cat, pos: [], nrm: [], col: [] } while loading
 const farBox = new THREE.BoxGeometry(1, 1, 1).toNonIndexed(), farP = farBox.getAttribute('position').array, farN = farBox.getAttribute('normal').array;
 function farAdd(cat, tx, ty, f, bb, rgb) {
-  const key = cat + ':' + tx + ':' + ty; let fb = farBuild.get(key); if (!fb) farBuild.set(key, fb = { cat, tx, ty, pos: [], nrm: [], col: [] });
+  const key = cat + ':' + tx + ':' + ty; let fb = farBuild.get(key); if (!fb) farBuild.set(key, fb = { cat, tx, ty, pos: new Float32Array(108 * 16), nrm: new Int8Array(108 * 16), col: new Uint8Array(108 * 16), n: 0 });
+  if (fb.n + 108 > fb.pos.length) for (const k of ['pos', 'nrm', 'col']) { const b = new fb[k].constructor(fb[k].length * 2); b.set(fb[k]); fb[k] = b; }
   const cx = (bb[0] + bb[3]) / 2, cy = (bb[1] + bb[4]) / 2, cz = (bb[2] + bb[5]) / 2, sx = Math.max(0.3, bb[3] - bb[0]), sy = Math.max(0.3, bb[4] - bb[1]), sz = Math.max(0.3, bb[5] - bb[2]);
   const m0 = f(0), m1 = f(1), m2 = f(2), m3 = f(3), m4 = f(4), m5 = f(5), m6 = f(6), m7 = f(7), m8 = f(8), m9 = f(9), m10 = f(10), m11 = f(11);
-  for (let v = 0; v < 36; v++) {
+  const P = fb.pos, N = fb.nrm, C = fb.col; let o = fb.n;
+  for (let v = 0; v < 36; v++, o += 3) {
     const x = cx + farP[v * 3] * sx, y = cy + farP[v * 3 + 1] * sy, z = cz + farP[v * 3 + 2] * sz;
     const wx = m0 * x + m1 * y + m2 * z + m3, wy = m4 * x + m5 * y + m6 * z + m7, wz = m8 * x + m9 * y + m10 * z + m11;
-    fb.pos.push(wx, wz, -wy);
+    P[o] = wx; P[o + 1] = wz; P[o + 2] = -wy;
     const nx = farN[v * 3], ny = farN[v * 3 + 1], nz = farN[v * 3 + 2];
     let ax = m0 * nx + m1 * ny + m2 * nz, ay = m4 * nx + m5 * ny + m6 * nz, az = m8 * nx + m9 * ny + m10 * nz; const l = Math.hypot(ax, ay, az) || 1;
-    fb.nrm.push(ax / l * 127, az / l * 127, -ay / l * 127);
-    fb.col.push(rgb[0], rgb[1], rgb[2]);
+    N[o] = ax / l * 127; N[o + 1] = az / l * 127; N[o + 2] = -ay / l * 127;
+    C[o] = rgb[0]; C[o + 1] = rgb[1]; C[o + 2] = rgb[2];
   }
+  fb.n = o;
 }
 function farFinish() {
   const mat = new THREE.MeshLambertMaterial({ vertexColors: true, clippingPlanes: [cutPlane] });
   for (const fb of farBuild.values()) {
     const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(fb.pos), 3));
-    g.setAttribute('normal', new THREE.BufferAttribute(new Int8Array(fb.nrm), 3, true));
-    g.setAttribute('color', new THREE.BufferAttribute(new Uint8Array(fb.col), 3, true));
+    g.setAttribute('position', new THREE.BufferAttribute(fb.pos.slice(0, fb.n), 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(fb.nrm.slice(0, fb.n), 3, true));
+    g.setAttribute('color', new THREE.BufferAttribute(fb.col.slice(0, fb.n), 3, true));
     g.computeBoundingSphere();
     const mesh = new THREE.Mesh(g, mat); mesh.userData.cat = fb.cat; mesh.userData.far = true;
     const sp = g.boundingSphere; mesh.userData.cx = sp.center.x; mesh.userData.cy = -sp.center.z; mesh.userData.cz = sp.center.y; mesh.userData.cr = sp.radius;
-    mesh.visible = false; farMeshes.push(mesh); scene.add(mesh);
+    mesh.visible = false; farMeshes.push(mesh); scene.add(fixed(mesh));
   }
   farBuild.clear();
 }
@@ -781,7 +828,7 @@ async function loadObjects() {
   const idv = new DataView(await fetchProgress('instances.bin', 0.62, 0.7, 'Loading object positions'));
   progress(0.72, 'Placing ' + M.instances.toLocaleString() + ' objects...');
   const recs = {}; for (const r of M.models) recs[r.i] = r;
-  const byKey = new Map(); const n = idv.byteLength / 52;
+  const byKey = new Map(); const n = idv.byteLength / 52, IF = new Float32Array(idv.buffer, 0, n * 13);   // the 12 matrix floats of record i start at float i * 13 + 1
   for (let i = 0; i < n; i++) {
     const mi = idv.getUint16(i * 52, true); const rec = recs[mi]; if (!rec || rec.s || rec.cat === 'sky' || /\/sky\/|\/spawners\//i.test(rec.path)) continue;   // sky dome and invisible loot-spawner helpers are not drawn (or walked on)
     if (DETAIL === 'low' && SKIP_CATS_LOW[rec.cat]) continue;
@@ -796,13 +843,13 @@ async function loadObjects() {
     const asBox = merged || DETAIL === 'box' || (DETAIL === 'low' && BOX_CATS_LOW[cat]) || !rec.t || !mdv;
     let geo = merged ? unitBox : geos.get(mi);
     if (!geo) { try { geo = modelGeometry(rec, mdv, asBox); } catch (e) { console.warn('model', rec.path, e); geo = modelGeometry(rec, null, true); } geos.set(mi, geo); }
-    const mesh = new THREE.InstancedMesh(geo, asBox ? (boxMats[cat] || boxMats.other) : (isRock(rec) ? rockMat : meshMat), list.length);
+    const mesh = new THREE.InstancedMesh(shareGeo(geo), asBox ? (boxMats[cat] || boxMats.other) : (isRock(rec) ? rockMat : meshMat), list.length);
     const sph = new Float32Array(list.length * 4), recsArr = merged ? [] : null; let bb = merged ? null : rec.bb;
     const farOkOf = (b) => FAR_CATS[cat] && (cat !== 'prop' || Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2]) > 7); let farOk = merged ? false : farOkOf(bb);
     const avg = geo.userData.avg, cc = new THREE.Color(CAT_COLORS[cat] || CAT_COLORS.other), farRGB = avg ? [avg[0] * 255, avg[1] * 255, avg[2] * 255] : [cc.r * 255, cc.g * 255, cc.b * 255];
     let minx = 1e9, miny = 1e9, minz = 1e9, maxx = -1e9, maxy = -1e9, maxz = -1e9;
     list.forEach((i, j) => {
-      const o = i * 52 + 4, f = (q) => idv.getFloat32(o + q * 4, true);
+      const o = i * 13 + 1, f = (q) => IF[o + q];
       if (merged) { const r = recs[idv.getUint16(i * 52, true)]; recsArr.push(r); bb = r.bb; farOk = farOkOf(bb); }
       m4.set(f(0), f(1), f(2), f(3),   f(8), f(9), f(10), f(11),   -f(4), -f(5), -f(6), -f(7),   0, 0, 0, 1);
       if (merged) { _bl.makeScale(Math.max(0.2, bb[3] - bb[0]), Math.max(0.2, bb[4] - bb[1]), Math.max(0.2, bb[5] - bb[2])).setPosition((bb[0] + bb[3]) / 2, (bb[1] + bb[4]) / 2, (bb[2] + bb[5]) / 2); m4.multiply(_bl); }
@@ -820,31 +867,58 @@ async function loadObjects() {
     });
     mesh.instanceMatrix.needsUpdate = true; mesh.frustumCulled = true;
     mesh.boundingSphere = new THREE.Sphere(new THREE.Vector3((minx + maxx) / 2, (minz + maxz) / 2, -(miny + maxy) / 2), Math.hypot(maxx - minx, maxy - miny, maxz - minz) / 2 + 1);
-    mesh.userData.cat = cat; mesh.userData.model = merged ? MERGED_REC : rec; mesh.userData.recs = recsArr; mesh.userData.sph = sph; mesh.userData.on = true; mesh.userData.hi = geo; mesh.userData.asBox = asBox; mesh.userData.lod = 'hi';
+    mesh.userData.cat = cat; mesh.userData.model = merged ? MERGED_REC : rec; mesh.userData.recs = recsArr; mesh.userData.sph = sph; mesh.userData.on = true; mesh.userData.hi = mesh.geometry; mesh.userData.asBox = asBox; { let r = 0; for (let j = 0; j < list.length; j++) if (sph[j * 4 + 3] > r) r = sph[j * 4 + 3]; mesh.userData.ir = r; } mesh.userData.lod = 'hi';
     mesh.userData.box = [minx, miny, minz, maxx, maxy, maxz];   // world (x east, y north, z up)
     mesh.userData.cx = (minx + maxx) / 2; mesh.userData.cy = (miny + maxy) / 2; mesh.userData.cz = (minz + maxz) / 2; mesh.userData.cr = Math.hypot(maxx - minx, maxy - miny, maxz - minz) / 2;
-    (groups[cat] = groups[cat] || []).push(mesh); tileMeshes.push(mesh); scene.add(mesh);
+    (groups[cat] = groups[cat] || []).push(mesh); tileMeshes.push(mesh); cellAdd(mesh);
     tris += (asBox ? 12 : rec.t) * list.length;
     if ((++k & 511) === 0) { progress(0.72 + 0.03 * k / byKey.size); await new Promise((r) => setTimeout(r, 0)); }
   }
-  M.sceneTris = tris; M.drawGroups = byKey.size;
+  M.sceneTris = tris; M.drawGroups = byKey.size; cellsFinish();
   farFinish();
+}
+// The object meshes hang under one group per 512 m cell. A cell out of range or out of view is switched off as a whole,
+// so three.js does not walk its (up to thousands of) meshes every frame, and culling only loops over the cells in range.
+const cells = new Map(), cellList = [], _cfr = new THREE.Frustum(), _cpm = new THREE.Matrix4();
+function cellAdd(mesh) {
+  const u = mesh.userData, k = Math.floor(u.cx / 512) + ':' + Math.floor(u.cy / 512); let c = cells.get(k);
+  if (!c) { c = { group: fixed(new THREE.Group()), list: [], near: true, b: [1e9, 1e9, 1e9, -1e9, -1e9, -1e9] }; cells.set(k, c); cellList.push(c); scene.add(c.group); }
+  c.group.add(fixed(mesh)); c.list.push(mesh);
+  for (let i = 0; i < 3; i++) { if (u.box[i] < c.b[i]) c.b[i] = u.box[i]; if (u.box[i + 3] > c.b[i + 3]) c.b[i + 3] = u.box[i + 3]; }
+}
+function cellsFinish() {
+  for (const c of cellList) { const b = c.b; c.cx = (b[0] + b[3]) / 2; c.cy = (b[1] + b[4]) / 2; c.cz = (b[2] + b[5]) / 2; c.cr = Math.hypot(b[3] - b[0], b[4] - b[1], b[5] - b[2]) / 2; c.sphere = new THREE.Sphere(new THREE.Vector3(c.cx, c.cz, -c.cy), c.cr); }
+}
+function cellView() {   // every drawn frame: only the cells in range and in the camera's view are walked by the renderer
+  camera.updateMatrixWorld(); _cpm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); _cfr.setFromProjectionMatrix(_cpm);
+  for (const c of cellList) c.group.visible = c.near && (perf.allCells || _cfr.intersectsSphere(c.sphere));
 }
 let cullAt = null;
 function cullStep(force) {
   const cx = camera.position.x, cy = -camera.position.z, cz = camera.position.y;
   if (!force && cullAt && Math.abs(cullAt[0] - cx) < 25 && Math.abs(cullAt[1] - cy) < 25 && Math.abs(cullAt[3] - cz) < 25 && cullAt[2] === PLAY) return;
-  cullAt = [cx, cy, PLAY, cz];
-  for (const m of farMeshes) { const u = m.userData; m.visible = !!layerOn[u.cat] && Math.hypot(u.cx - cx, u.cy - cy, u.cz - cz) - u.cr >= FAR; }
-  if (treeMesh) { const far = camera.position.distanceTo(controls.target) > 2000; const want = far ? treeGeoFar : treeGeoNear; if (treeMesh.geometry !== want) treeMesh.geometry = want; }
-  for (const g of tileMeshes) {
+  cullAt = [cx, cy, PLAY, cz]; invalidate(2);
+  // d < ir * PXK: the biggest piece of the group still covers MINPX pixels on screen (smaller = cannot be seen, not drawn)
+  const PXK = renderer.domElement.height / (Math.tan(camera.fov * Math.PI / 360) * MINPX[govLevel]);
+  for (const m of farMeshes) { const u = m.userData, dx = u.cx - cx, dy = u.cy - cy, dz = u.cz - cz; m.visible = !!layerOn[u.cat] && Math.sqrt(dx * dx + dy * dy + dz * dz) - u.cr >= FAR; }
+  if (treeMesh) for (const tm of treeMesh.children) {   // tree tiles beyond 2 km use the 3-sided cone
+    const u = tm.userData, dx = u.cx - cx, dy = u.cy - cy, dz = u.cz - cz, d = Math.sqrt(dx * dx + dy * dy + dz * dz) - u.cr;
+    const want = d > 2100 ? 'lo' : d < 1900 ? 'hi' : u.lod;
+    if (want !== u.lod) { u.lod = want; tm.geometry = want === 'lo' ? u.lo : u.hi; }
+  }
+  for (const c of cellList) {
+   { const dx = c.cx - cx, dy = c.cy - cy, dz = c.cz - cz;
+     if (Math.sqrt(dx * dx + dy * dy + dz * dz) - c.cr >= FAR) { if (c.near) { c.near = false; for (const g of c.list) g.visible = false; } continue; } }
+   c.near = true;
+   for (const g of c.list) {
     const u = g.userData; const lim0 = CULL[u.cat] || 2000, lim = lim0 < FAR ? lim0 * CULL_SCALE : lim0;
-    const d = Math.hypot(u.cx - cx, u.cy - cy, u.cz - cz) - u.cr;
-    g.visible = u.on && d < lim;
+    const dx = u.cx - cx, dy = u.cy - cy, dz = u.cz - cz, d = Math.sqrt(dx * dx + dy * dy + dz * dz) - u.cr;
+    g.visible = u.on && d < lim && (d < 1 || d < u.ir * PXK);
     if (loReady && !u.asBox && g.visible) {
       const want = d > 1600 ? 'lo' : d < 1400 ? 'hi' : u.lod;
-      if (want !== u.lod) { u.lod = want; const lo = loGeos.get(u.model.i); g.geometry = (want === 'lo' && lo) ? lo : u.hi; }
+      if (want !== u.lod) { u.lod = want; const lo = loGeos.get(u.model.i); g.geometry = (want === 'lo' && lo) ? (u.lo || (u.lo = shareGeo(lo))) : u.hi; }
     }
+   }
   }
 }
 async function loadLoGeos() {
@@ -863,14 +937,27 @@ async function loadTrees() {
   const n = dv.byteLength / 8;
   treeGeoNear = new THREE.ConeGeometry(0.5, 1, 7, 1, true); treeGeoNear.translate(0, 0.5, 0);   // open cones: the base is never seen
   treeGeoFar = new THREE.ConeGeometry(0.5, 1, 3, 1, true); treeGeoFar.translate(0, 0.5, 0);      // 3 triangles per tree beyond 2 km
-  treeMesh = new THREE.InstancedMesh(treeGeoNear, new THREE.MeshLambertMaterial({ color: 0x2f5a34, clippingPlanes: [cutPlane], side: THREE.DoubleSide }), n);
+  const mat = new THREE.MeshLambertMaterial({ color: 0x2f5a34, clippingPlanes: [cutPlane], side: THREE.DoubleSide });
+  // one instanced mesh per 512 m tile, so only the tiles in view are drawn (one mesh for the island sent all 157,000 every frame)
+  const tiles = new Map();
+  for (let i = 0; i < n; i++) { const k = (dv.getUint16(i * 8, true) >> 12) + (dv.getUint16(i * 8 + 2, true) >> 12) * 16; let l = tiles.get(k); if (!l) tiles.set(k, l = []); l.push(i); }
+  treeMesh = fixed(new THREE.Group());
   const m = new THREE.Matrix4();
-  for (let i = 0; i < n; i++) {
-    const o = i * 8, x = dv.getUint16(o, true) / 8, y = dv.getUint16(o + 2, true) / 8, z = dv.getUint16(o + 4, true) / 32 - 100;
-    const h = dv.getUint8(o + 6) / 4, w = Math.max(1.5, dv.getUint8(o + 7) / 4 * 0.7);
-    m.makeScale(w, h, w); m.setPosition(x, z, -y); treeMesh.setMatrixAt(i, m);
+  for (const list of tiles.values()) {
+    const tm = new THREE.InstancedMesh(shareGeo(treeGeoNear), mat, list.length);
+    let ax = 1e9, ay = 1e9, az = 1e9, bx = -1e9, by = -1e9, bz = -1e9;
+    list.forEach((i, j) => {
+      const o = i * 8, x = dv.getUint16(o, true) / 8, y = dv.getUint16(o + 2, true) / 8, z = dv.getUint16(o + 4, true) / 32 - 100;
+      const h = dv.getUint8(o + 6) / 4, w = Math.max(1.5, dv.getUint8(o + 7) / 4 * 0.7);
+      m.makeScale(w, h, w); m.setPosition(x, z, -y); tm.setMatrixAt(j, m);
+      if (x - w < ax) ax = x - w; if (x + w > bx) bx = x + w; if (y - w < ay) ay = y - w; if (y + w > by) by = y + w; if (z < az) az = z; if (z + h > bz) bz = z + h;
+    });
+    tm.instanceMatrix.needsUpdate = true;
+    const u = tm.userData; u.cx = (ax + bx) / 2; u.cy = (ay + by) / 2; u.cz = (az + bz) / 2; u.cr = Math.hypot(bx - ax, by - ay, bz - az) / 2;
+    tm.boundingSphere = new THREE.Sphere(new THREE.Vector3(u.cx, u.cz, -u.cy), u.cr);
+    u.hi = tm.geometry; u.lo = shareGeo(treeGeoFar); u.lod = 'hi';
+    treeMesh.add(fixed(tm));
   }
-  treeMesh.instanceMatrix.needsUpdate = true; treeMesh.computeBoundingSphere();
   scene.add(treeMesh);
 }
 
@@ -936,6 +1023,7 @@ function addMarker(item, kind, label, color) {
   const mk = { item, kind, el, p: new THREE.Vector3(), label0: label || '', lbl: label || '' }; markers.push(mk); return mk;
 }
 function placeMarkers() {
+  invalidate(2);
   try { drawTraps(); } catch (e) { console.warn('trap circles', e); }
   for (const mk of markers) {
     const it = mk.item; const z = (it.z != null && it.z !== '' && !isNaN(+it.z)) ? +it.z : groundAt(+it.x, +it.y);   // the ground as drawn right now (HD patch or 8 m)
@@ -1014,6 +1102,7 @@ function goTo(x, y, z, title, sub) {
   flyTo(x, y, g, 250); lastHit = W(x, y, g); cardItem = null; showCard(title, sub || nearestTown(x, y));
 }
 async function liveTick() {
+  if (document.hidden) return;
   try {
     const r = await fetch('/live.json', { cache: 'no-store' }); const L = await r.json();
     for (const v of Object.values(L)) {
@@ -1024,6 +1113,7 @@ async function liveTick() {
   } catch (e) {}
 }
 function applyMarkerVis() {
+  invalidate(2);
   if (radGroup) radGroup.visible = !!markOn.rad;
   if (trapGroup) trapGroup.visible = !!markOn.trap;
   const lab = $('o-labels').checked;
@@ -1047,8 +1137,8 @@ function updateLabels() {
       const want = (WALK.on && dist < 14) ? 'Press F to use the ladder' : mk.label0;
       if (want !== mk.lbl) { mk.lbl = want; mk.el.querySelector('.lbl').textContent = want; }
     }
-    mk.el.style.display = vis ? '' : 'none';
-    if (vis) mk.el.style.left = ((tmp.x + 1) / 2 * w) + 'px', mk.el.style.top = ((1 - tmp.y) / 2 * h) + 'px';
+    if (vis !== mk.vis) { mk.vis = vis; mk.el.style.display = vis ? '' : 'none'; }
+    if (vis) { const sx = Math.round((tmp.x + 1) / 2 * w * 10) / 10, sy = Math.round((1 - tmp.y) / 2 * h * 10) / 10; if (sx !== mk.sx || sy !== mk.sy) { mk.sx = sx; mk.sy = sy; mk.el.style.translate = sx + 'px ' + sy + 'px'; } }
   }
   declutter();
 }
@@ -1069,7 +1159,7 @@ function declutter() {
   const G = 80, grid = new Map();
   for (const mk of list) {
     if (mk.lt !== mk.lbl || !mk.lw) { mk.lw = mk.el.offsetWidth; mk.lh = mk.el.offsetHeight; mk.lt = mk.lbl; }
-    const x = parseFloat(mk.el.style.left), y = parseFloat(mk.el.style.top);
+    const x = mk.sx, y = mk.sy;
     const r = mk.kind === 'town' ? [x - mk.lw / 2, y - mk.lh / 2, x + mk.lw / 2, y + mk.lh / 2] : [x - mk.lw / 2, y - mk.lh, x + mk.lw / 2, y - mk.lh + 20];
     let hit = false;
     const c0 = Math.floor(r[0] / G), c1 = Math.floor(r[2] / G), d0 = Math.floor(r[1] / G), d1 = Math.floor(r[3] / G);
@@ -1093,7 +1183,7 @@ renderer.domElement.addEventListener('pointerup', (e) => {
   ray.setFromCamera(ndc, camera);
   const targets = Object.values(groups).flat().filter((g) => g.visible); if (roadMesh && roadMesh.visible) targets.push(roadMesh); if (waterMesh) targets.push(waterMesh);
   const hits = ray.intersectObjects(targets, false);
-  const th = terrainMesh ? ray.intersectObject(terrainMesh, false)[0] : null;
+  const th = terrainMesh ? ray.intersectObject(terrainMesh, true)[0] : null;
   const hit = hits[0];
   lastHit = hit && (!th || hit.distance <= th.distance + 0.5) ? hit.point.clone() : (th ? th.point.clone() : null); cardItem = null; showCross(lastHit);
   if (hit && (!th || hit.distance <= th.distance + 0.5)) {
@@ -1111,7 +1201,7 @@ let cardItem = null;   // the marker item the card is showing (null for a tap on
 const crossMat = new THREE.LineBasicMaterial({ color: 0xffb347, depthTest: false, transparent: true, opacity: 0.95 });
 const crossGeo = (() => { const pts = []; for (let i = 0; i < 32; i++) { const a = i / 32 * Math.PI * 2, b = (i + 1) / 32 * Math.PI * 2; pts.push(Math.cos(a), 0, Math.sin(a), Math.cos(b), 0, Math.sin(b)); } for (const [x, z] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) pts.push(x * 0.6, 0, z * 0.6, x * 1.6, 0, z * 1.6); const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); return g; })();
 const cross = new THREE.LineSegments(crossGeo, crossMat); cross.renderOrder = 20; cross.visible = false; cross.frustumCulled = false; scene.add(cross);
-function showCross(p) { if (!p) { cross.visible = false; return; } cross.position.set(p.x, p.y + 0.15, p.z); cross.visible = true; }
+function showCross(p) { invalidate(2); if (!p) { cross.visible = false; return; } cross.position.set(p.x, p.y + 0.15, p.z); cross.visible = true; }
 function sizeCross() {
   if (cross.visible) { const d = camera.position.distanceTo(cross.position); const k = Math.max(0.6, d / 90); if (Math.abs(cross.scale.x - k) > k * 0.05) cross.scale.setScalar(k); }
   for (const a of arrows.values()) if (a.visible) { const d = camera.position.distanceTo(a.position); const k = Math.max(0.8, d / 110); if (Math.abs(a.scale.x - k) > k * 0.05) a.scale.setScalar(k); }   // arrows stay about 40 px long at any zoom
@@ -1172,7 +1262,7 @@ function measPick(cx, cy) {
   ray.setFromCamera(ndc, camera);
   const targets = Object.values(groups).flat().filter((g) => g.visible); if (roadMesh && roadMesh.visible) targets.push(roadMesh); if (waterMesh) targets.push(waterMesh);
   const hit = ray.intersectObjects(targets, false)[0];
-  const th = terrainMesh ? ray.intersectObject(terrainMesh, false)[0] : null;
+  const th = terrainMesh ? ray.intersectObject(terrainMesh, true)[0] : null;
   return hit && (!th || hit.distance <= th.distance + 0.5) ? hit.point.clone() : (th ? th.point.clone() : null);
 }
 // the live preview while choosing the second point: a cheap march over the height field (no mesh raycast every frame)
@@ -1657,7 +1747,28 @@ function updateHud() {
   }
   $('hud-elev').innerHTML = e;
 }
-function loop() { govern(); ctlStep(); if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); } cullStep(false); sizeCross(); measStep(); renderer.render(scene, camera); updateLabels(); updateHud(); requestAnimationFrame(loop); }
+// Draw on demand: a frame is drawn when the view moved, when something asked for it (invalidate), and otherwise every
+// 400 ms as a safety net. A still map costs next to nothing.
+for (const ev of ['pointerdown', 'pointerup', 'wheel', 'keydown', 'keyup', 'click', 'change', 'input', 'touchstart', 'touchend', 'focus', 'visibilitychange']) addEventListener(ev, () => invalidate(3), { capture: true, passive: true });
+addEventListener('resize', () => invalidate(3));
+addEventListener('pointermove', (e) => { if (e.buttons || MEAS.mode === 1) invalidate(2); }, { capture: true, passive: true });
+const camState = new Float64Array(12); let lastDraw = 0;
+function viewChanged() {
+  const p = camera.position, q = camera.quaternion, v = [p.x, p.y, p.z, q.x, q.y, q.z, q.w, camera.near, camera.aspect, cutPlane.constant, renderer.getPixelRatio(), innerWidth * 100000 + innerHeight];
+  let ch = false; for (let i = 0; i < 12; i++) if (camState[i] !== v[i]) { camState[i] = v[i]; ch = true; }
+  return ch;
+}
+const perf = { frames: 0, drawn: 0, noGov: false, allCells: false };   // counters and test switches (window.dw3d.perf)
+function loop() {
+  requestAnimationFrame(loop);
+  const now = performance.now();
+  govern(now); ctlStep(); if (WALK.on) walkStep(); else { followStep(); controls.update(); updateCut(); }
+  cullStep(false); sizeCross(); measStep();
+  const draw = viewChanged() || dirty > 0 || now - lastDraw > 400;
+  if (draw) { if (dirty > 0) dirty--; lastDraw = now; cellView(); renderer.render(scene, camera); updateLabels(); perf.drawn++; }
+  drewLast = draw; perf.frames++;
+  updateHud();
+}
 
 (async () => {
   try {
@@ -1681,7 +1792,7 @@ function loop() { govern(); ctlStep(); if (WALK.on) walkStep(); else { followSte
     setInterval(() => { const t = controls.target, dd = camera.position.distanceTo(t); const h = '#' + Math.round(t.x) + ',' + Math.round(-t.z) + ',' + Math.round(dd); if (location.hash !== h) history.replaceState(null, '', h); }, 1000);
     setTimeout(() => $('hint').classList.add('fade'), 20000);
     if (DETAIL === 'full') loadLoGeos().catch((e) => console.warn('light meshes', e));
-    applyPlay(); window.dw3d = { THREE, camera, controls, WALK, scene, renderer, far: farMeshes, findLadder, useLadder, ENT: () => ENT, cands: () => cands, castRay, gatherCands, groundAt, M: () => M, tiles: tileMeshes, lo: () => loReady };   // for tests
+    applyPlay(); window.dw3d = { perf, gov: () => ({ level: govLevel, avg: govAvg, prHelps, pr: renderer.getPixelRatio() }), THREE, camera, controls, WALK, scene, renderer, far: farMeshes, findLadder, useLadder, ENT: () => ENT, cands: () => cands, castRay, gatherCands, groundAt, M: () => M, tiles: tileMeshes, lo: () => loReady };   // for tests
     $('load').remove(); loop();
     if (store.get('hd', false)) setHD(true);
     setInterval(() => { if (hdMesh) buildHDPatch(); }, 1500);
