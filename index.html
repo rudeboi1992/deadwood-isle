@@ -433,6 +433,7 @@
         <a class="card feature" href="#drones"><svg class="i"><use href="#i-drone"/></svg><h3>Drones</h3><p>Scout with the Sparrows or fly a minigun gunship at your side. Rebuild a crashed courier Pack Mule and ride it.</p></a>
         <a class="card feature" href="#emp"><svg class="i"><use href="#i-bolt"/></svg><h3>EMP-7 &amp; taser</h3><p>Knock drones out of the sky and stall car engines from up to 300 m.</p></a>
         <a class="card feature" href="#goggles"><svg class="i"><use href="#i-goggles"/></svg><h3>Night vision &amp; thermal</h3><p>Rare goggles that see in the dark or show hot bodies, on a 30-minute battery. Plus the Digi Threat sight.</p></a>
+        <a class="card feature" href="#suit"><svg class="i"><use href="#i-shield"/></svg><h3>Power suit</h3><p>Five armour pieces from airdrops: palm blasts, mutant-throwing punches, big jumps, a faster sprint and helmet vision.</p></a>
         <a class="card feature" href="#wildlife"><svg class="i"><use href="#i-paw"/></svg><h3>Wildlife</h3><p>Alligators in the swamps and ponds, and giant scorpions that burst out of searches.</p></a>
         <a class="card feature" href="#power"><svg class="i"><use href="#i-bolt"/></svg><h3>Base power</h3><p>Generators, lights, a light switch and fridges that power your whole plot without wires.</p></a>
         <a class="card feature" href="#farm"><svg class="i"><use href="#i-sprout"/></svg><h3>Farming</h3><p>Raise pigs and chickens, grow lettuce, and spread manure for 4x harvests.</p></a>
@@ -690,6 +691,7 @@
             <li><b>A Pack Mule flying on its own</b> comes down, ready to be taken. A ridden one is slowed and pushed low for 15 seconds.</li>
             <li><b>Car engines</b> die for 30 seconds.</li>
             <li><b>Base generators</b> trip off.</li>
+            <li><b>Power suits</b> shut down for 2 minutes. See <a href="#suit">Power suit</a>.</li>
           </ul>
         </div>
         <div class="card">
@@ -747,6 +749,35 @@
           <img class="shot" src="assets/img/digi-threat.jpg" width="1100" height="800" loading="lazy" alt="The Digi Threat sight: a boxy grey hood with a square window, and NV, plus and minus buttons underneath">
           <figcaption>The Digi Threat. The window is 32 mm square.</figcaption>
         </figure>
+      </div>
+    </section>
+
+    <!-- SUIT -->
+    <section class="block" id="suit" aria-labelledby="suit-h">
+      <div class="sec-head">
+        <div class="sec-icon"><svg class="i"><use href="#i-shield"/></svg></div>
+        <div><h2 id="suit-h">Power suit</h2><p>Five black armour pieces. Each one does something by itself, so you don't need the whole set.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>The pieces</h3>
+          <ul class="list">
+            <li><b>Helmet</b> (hat slot): <kbd>L</kbd> steps through night vision, thermal and threat view, then off. Threat view marks every living body within 250 m and lights it orange. No battery.</li>
+            <li><b>Gauntlets</b> (hands slot): hold <kbd>Y</kbd> to fire repulsor blasts from your left palm, about three a second, out to 150 m. With bare hands, a punch drops most mutants and throws the body, and a click on a car shoves it. You also get a round targeting reticle.</li>
+            <li><b>Chestplate</b> (vest slot): your stamina stays full and torpor stays at zero.</li>
+            <li><b>Legs</b> (legs slot): <kbd>Space</kbd> jumps about 6 m high, and falls don't hurt you.</li>
+            <li><b>Boots</b> (feet slot): hold <kbd>Shift</kbd> to sprint about 45% faster.</li>
+          </ul>
+          <p class="note">The suit's keys switch off while you sit in a vehicle or ride a Pack Mule.</p>
+        </div>
+        <div class="card">
+          <h3>Finding it, and its weakness</h3>
+          <ul class="list">
+            <li><b>Airdrops only.</b> Every airdrop has a 5% chance to hold one piece, picked at random from the five. An airdrop never holds more than one.</li>
+            <li><b>An EMP shuts it down.</b> If an <a href="#emp">EMP-7</a> blast catches you in its cone, every piece you carry goes offline for 2 minutes: no blasts, no punch throws, normal jumps and sprint, falls hurt again, stamina drains, and the helmet's views switch off. You get a message when it goes down and when it's back.</li>
+            <li><b>Blasts and cars:</b> a blast that lands on a car can knock its wheels and parts off. Pack Mules are never hit by blasts or punches.</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -1193,6 +1224,7 @@
         <div><h2 id="changelog-h">Changelog</h2><p>Newest first. All dates are 2026.</p></div>
       </div>
       <ol class="timeline">
+        <li><time datetime="2026-11-16">Nov 16</time><p>The <a href="#suit">power suit</a>: five armour pieces with their own abilities, found one at a time in airdrops (5% each drop). An <a href="#emp">EMP-7</a> blast shuts a suit down for 2 minutes. Also today: a Pack Mule's flight bay shows its hull as a Mule Hull item, and the Hummer and Raptor got collision shapes that fit them.</p></li>
         <li><time datetime="2026-11-15">Nov 15</time><p>Two new vehicles in the world: the <a href="#vehicles">Ford Raptor</a> replaces the pickup truck at every truck spawn, and five <a href="#vehicles">Hummer H2s</a> stand around the island. Both save their parts and cargo like any other car.</p></li>
         <li><time datetime="2026-11-14">Nov 14</time><p>New experimental sight, the <a href="#digi">Digi Threat</a>: a holo sight with a night-vision picture in the glass and highlighted bodies. Airdrops, plane crashes and sometimes the cave Shady Dealer.</p></li>
         <li><time datetime="2026-11-12">Nov 12</time><p><a href="#wildlife">Alligators</a> can be killed, and they walk, bite and lunge on land. The bazaar's original traders and the sewer Shady Dealer are back with their own stock; the arms dealer, both supply caches and the other Shady Dealers stay where they were. The V8 engine costs 8,000 at the arms dealer, and the inline-six now comes only from <a href="#missions">The Mechanic's House</a>. Mjolnir has a proper crosshair.</p></li>
